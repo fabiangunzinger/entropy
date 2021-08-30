@@ -1,0 +1,1183 @@
+\documentclass[a4paper, 11pt]{report}
+\usepackage{/Users/fgu/dev/projects/dotfiles/latex/paper}
+\bibliography{/Users/fgu/dev/projects/dotfiles/latex/fabib}
+\onehalfspacing
+
+\title{\textbf{PhD notes and literature}}
+\author{Fabian Gunzinger \\ Warwick Business School}
+\date{\today}
+
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+\newpage
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+						\part{Ideas development}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+						\chapter{Saving strategies}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Motivation and background}
+
+\paragraph{Goal:}
+FinTech applications have an enormous potential to help people save more, but we know little about which saving strategies are best suited to do so. The goal of this project is to test whether strategies based on principles from behavioural economics can be effective.
+
+\paragraph{Problem:}
+People save too little (see literature below), which has direct financial consequences and, potentially, even larger indirect scarcity effects on long-term decision making and quality of life (see scarcity literature below).
+
+\paragraph{Background}
+Economic theory assumes that in order to smooth consumption over their lifetime, people calculate in every period the savings rate that optimally trades off consumption and savings. This can go wrong in three ways: 1) people don't perform such a calculation and instead use heuristics, 2) they get the calculation wrong, or 3) they lack the self-control to implement the ideal savings plan
+
+While there is a large literature on  retirement savings (see lit below), provision for old age is not the only objective of saving. People need (and often desire) a buffer to deal with unexpected expenses (precautionary savings), raise children, buy a house, a car, go on holiday, or for some other financial goal. Pension funds are of no help here. What is needed instead is the ability to build a savings cushion that is not tied to any particular use. There is literature on savings in general \citep{browning1996household,lusardi2000explaining}, and some suggestions for how savings can be incentivised \citep{thaler1994psychology} (see below), but there seems to be virtually no literature on how people can best save for themselves or on how fintech app designs could help.
+
+\paragraph{Contribution}
+\bibliography{/Users/fgu/setup/LaTeX/fabib}
+Distinction between 1) and 2) above matters because 1) suggests there is potential for social norm intervention. If people perform calculation, then social norms don't matter. If they instead follow heuristics, they might be influenced by what others save. This can be tested using an experimental design similar to the Opower studies (e.g. \citet{schultz2007constructive, allcott2011social, allcott2014short}).
+
+In addition, standard theory also completely abstracts from how people implement their savings plan, as such details do not matter for fully rational agents. But if people are bounded rational, present biased, prone to status-quo bias, and loss averse, then behavioural economics predicts that some saving strategies work better than others (e.g. an automatic transfer at the beginning of the month should be more successful than transferring what is left by the end of the month). This can be tested using observational data.
+
+The project has ideally two complementary parts: an analysis of observational data that tests whether certain saving strategies are more successful than others, and a field-experiment that tests the effect of social norms and whether behavioural-based saving strategies (as identified in the observational study) can help people save more.
+
+
+\section{Observational analysis}
+
+\paragraph{Goals / ideas:}
+\begin{itemize}
+	\item Discover successful savings strategies: e.g. make predictions based on behavioural science about which saving strategies should work best, and then test whether this is the case.
+
+	\item Habit formation: check whether people who have been saving for longer are less likely to stop (idea based on \citet{blumenstock2018defaults})
+
+	\item Can I test for crowding out effects after introduction of attractive savings vehicles?
+
+\end{itemize}
+
+
+\paragraph{Analysis steps:}
+\begin{itemize}
+	\item Calculate the distribution of savings.\footnote{Defining ``savings'' is not trivial! As \citet{thaler1994psychology} points out in section II, what really matters is marginal propensity to consume from different accounts (if MPC is the same between current and savings account, then savings are meaningless). Need to think about how to measure savings and in particular over what time horizon.}
+
+	\item Construct a savings-capacity variable to group people by savings potential (e.g. income variability, children or not, discretionary spending as income minus essential expenses like insurance, rent, car bill etc.\footnote{Also include life-cycle variables described in \citet{ameriks2003wealth} if I can.}).
+
+	\item Look at distribution of savings by savings capacity.
+
+	\item Define different saving strategies (e.g. auto transfer at the beginning of the month, auto transfer at the end of the month, ad-hoc transfers, save the change, etc.).
+
+	\item Test hypotheses: 1) standard economics predicts strategy doesn't matter, behavioural economics would suggest that it does - i.e. saving does vary within type depending on strategy used. 2) strategies based on behavioural principles do best (construct these strategies following approach in \citet{thaler2004save}: strategy as solution to all relevant biases)
+\end{itemize}
+
+\paragraph{Challenges and potential solutions:}
+\begin{itemize}
+	\item Savings capacity can lead to endogeneity (as it may drive both savings and choice of saving strategy): people who know they will be able to only save little and infrequently won't arrange for a standing order and only transfer savings at the end of the month if there is something left over. Controlling for the savings capacity variable should take care of this at least imperfectly.
+
+	\item Individual characteristics like discipline, diligence, laziness, level of financial education, impulsiveness, etc. can lead to endogeneity. Potential solutions:
+	\begin{itemize}
+		\item Control variables:
+		\begin{itemize}
+			\item construct a composite indicator for confounding variables based on spending patterns \footnote{See literature on link between self-control and financial outcomes for ideas: \citet{biljanovska2018control,gathergood2012self,mccarthy2011behavioural}}: e.g. regularity of purchases, number of purchases on coffee, snacks, fast-food, alcohol and tobacco consumption \citep{bertaut2009credit}, etc.
+		\end{itemize}
+
+		\item Instrumental variable:
+		\begin{itemize}
+			\item Ease of setting up certain saving strategies (e.g. automatic transfer). Would have to vary across banks, though (ease of setting up auto transfer might not, for instance).
+
+			\item Monitoring: If mdb provides us with data for logins and logouts, then we can construct a measure of monitoring intensity. This could be an instrument if 1) monitoring is predictive of the chosen saving strategy (informativeness) and 2) we are willing to assume that monitoring is uncorrelated with the error term in the strategy - savings regression (validity -- monitoring is not correlated with savings other than through strategy). 2) is unlikely to be true (e.g. people who monitor their account more closely may well also be more concerned about day-to-day spending), so need to think further here. (Idea based on \citet{ameriks2003wealth}, esp. section 7).
+
+			\item Financial sophistication: could use number of financial mistakes \citep{jorring2019financial} to identify financial sophistication of individuals and use this as an instrument. However, same problem as above: financial sophistication may well affect savings through channels other than saving strategy (it could be related to labour or capital income, for instance).
+
+			\item Deliberateness: degree to which a person plans/routinises/schedules their life. Reflected in the regularity of other purchases. But again, same problem as above: these things might plausibly affect amount of money that is available to save (e.g. one scheduled large vs. many smaller ad-hoc grocery purchases per week might be cheaper overall, because the temptation to buy unplanned things like snacks is smaller, or occurs only once rather than multiple times). Need something people do / purchase that signals how organised / deliberate they are but doesn't affect budget by much.
+		\end{itemize}
+
+		\item Regression discontinuity: if certain strategies are only available for certain customers (e.g. depending on an observable forcing variable, e.g. monthly income, age).
+
+		\item Difference-in-difference: if certain strategies only became possible at certain banks at some point during our sample period.
+	\end{itemize}
+
+	\item We lack a measure of intended savings. What we really want is to see what strategies bring actual savings closest to intended savings.
+\end{itemize}
+
+\paragraph{Behavioural savings strategies:}
+\begin{itemize}
+	\item Look at \citet{thaler1990anomalies} for how behavioural economics might explain certain spending and savings patterns I find in the data.
+	\item Hyperbolic discounting - procrastination: Make saving the default using a standing order. Would be awesome if we could control for a users' machine-learned discount-rate (mldr).
+
+	\item Present-bias and loss aversion: Save at the beginning rather than the end of the month (it's less painful, loss aversion, and there is actually money to save - present biasedness might lead you to spend it otherwise)
+
+	\item Use save more tomorrow: increase your savings at times of pay increase.
+
+	\item Financial sophistication? See \citet{jorring2019financial}.
+
+	\item Self-control \citep{biljanovska2018control} and econ literature (see footnote for thaler2004save below)
+
+	\item Mental accounting: have positive savings (in savings account) alongside debt/fees on current account (treat money as non-fungible).
+
+	\item Features from \citet{thaler1994psychology}: 1) saving provides an immediate reward, 2) program is easy to understand, 3) money is seen as "off-limits" for current spending, and 4) experts consider it a good deal.
+\end{itemize}
+
+\paragraph{Determinants of saving strategy}
+\begin{itemize}
+	\item Self-control and naivety: I know I forget if not automatic
+	\item Financial sophistication
+	\item Level of organisation: do I plan things and make routines or am I more ad-hoc (e.g. how do I shop for groceries, how deliberate am I with my spending?)
+\end{itemize}
+
+\paragraph{Literature}
+\begin{itemize}
+	\item Reread \citet{bitterly2015want} for classification of theoretical frameworks of want-should conflicts.
+\end{itemize}
+
+
+
+\chapter{Field experiment}
+
+
+\paragraph{Goal:}
+\begin{itemize}
+	\item Test effect of social norms
+	\item Test effectiveness of different saving strategies to make saving easier.
+\end{itemize}
+
+
+\paragraph{Intervention ideas}
+
+\begin{itemize}
+	\item How much to save:\footnote{For rationale for why to provide information to help people save more, see \citet{thaler1994psychology}.}
+	\begin{itemize}
+		\item Use messages similar to Opower letters to show people how much they could save (use, say, top quartile of distributions calculated in observational study as benchmark of what is possible).
+
+		\item Provide expert advice (e.g. savings suggested by government or financial adviser)
+	\end{itemize}
+
+	\item How to save more:
+	\begin{itemize}
+		\item  As in Opower studies, suggest strategies for more successful saving. (An encouragement design.)
+
+		\item To make building savings cushion easier: offer save more tomorrow type of contract: automatically increase savings standing order after a pay raise. Also see \citet{blumenstock2018defaults}, who test effect of default precautionary savings (summary below).
+
+		\item To make long-term savings easier: for the subset of users who can afford it, make long-term investment as easy as one-click purchase on Amazon (e.g. based on their age and profile suggest between 1 and 3 index funds to choose from that they can sign up to in one click - check whether there is something like this out there).
+	\end{itemize}
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+						\chapter{Purchasing behaviour}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\paragraph{Aim:}
+Understanding what people spend money on, as a first step to understand what makes it hard to save. Not a concrete project idea at this point.
+
+\begin{itemize}
+	\item At this point, my hypothesis is that it's essentially the world around us, which is designed to make us want and buy stuff we don't really need, that makes it hard for many people to save, simply because we buy stuff we don't plan to but then do nonetheless.
+
+	\item First step: categories spending into essential and non-essential, calculate the proportion of spending for people with different income-levels, as well as for people with high debt and bank fees.
+
+	\item Check whether people who live out of big cities spend less on non-essentials. Ideally I'd know where people spend their time, but this is a first step. Links to influence of social norms on spending, too: having fancily dressed people all around you, e.g. in London, as well as seeing adds everywhere, might make you spend more on clothes and beauty products.
+
+	\item Ideally, we'd also know how much people actually want to save, though this could also be endogenous to their environment, esp. if people are self-aware (people in London just don't even want to save because they know they will spend a lot).
+\end{itemize}
+
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+						\part{Financial behaviour}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+						\chapter{Why it matters}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+See \citet{agarwal2017shapes,greenberg2019financial} for literature reviews.
+
+
+\paragraph{Why does it matter?}
+\begin{itemize}
+	\item Important implications for (financial-) wellbeing \citep{lynch2011introduction}
+
+	\item Undersaving for retirement \citep{benartzi2013behavioral}.
+	\begin{itemize}
+		\item \citet{scott2020can} argue that given mortality risk and low interest rates both at an absolute level and relative to discount rate, not saving a lot (or at all) can be rational for lower income people.
+	\end{itemize}
+
+	\item Inability to cover unexpected expenses \citep{lusardi2011financially}
+
+	\item Inability to cover regular living expenses
+
+	\item Might lead to scarcity and even more far-reaching consequences.
+\end{itemize}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+					\chapter{Behaviours}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Saving}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+
+	\item See introduction of \citet{browning1996household} for Keynes' eight motives for why people save.
+
+	\item Economics literature on saving:
+	\begin{itemize}
+		\item \citet{browning2001life}: summary of life-cycle model.
+
+		\item \citet{browning1996household}: summary of savings literature (find newer version).
+
+		\item \citet{lusardi2000explaining}: explaining why households save so little.
+
+		\item \citet{thaler1990anomalies}: on savings anomalies.
+
+		\item \citet{thaler1994psychology}: psychology and savings policies.
+
+		\item Suggestions for how savings can be incentivised \citep{thaler1994psychology} and effects of effects of incentivised savings (like IRAs) \citep{middleton2018lifting} and references therein.
+
+		\item \citet{blumenstock2018defaults} Table A1 (in blumenstock2018defaultsWP) for overview of default savings effects.
+
+		\item \citet{blumenstock2018defaults}
+		\begin{itemize}
+			\item Test the effect of defaults on precautionary savings and mechanism analysis.
+
+			\item Randomly assign about 1000 employees to either 0\% or 5\% of their salary being automatically transferred to a savings account by default, and to a 0, 25, and 50 percent employer matching incentive (i.e. 2 x 3 design).
+
+			\item Effects of defaults, key findings: 1) employees in the default condition were 40 percentage points more likely to contribute to the account. 2) The default assignment increases savings by about as much as a 50 percent employer match. 3) Long term effects: 45\% or all participants elected to keep contributing to the account once financial incentives were removed, with participation 25\% higher in the default group. (Overall, this suggests habit formation in savings behaviour). Also, default group felt more financially secure, and 2 years later their savings balance remained higher.
+
+			\item Why do defaults work? Possible channels are 1) endorsement effect, 2) real or perceived switching costs, 3) mental cost of forming a financial plan (due to complexity), 4) unawareness of election, or lack of salience of switching option, 5) present biasedness (switching involves immediate cost and future benefits). They find that their results are mainly driven by mental cost of forming a plan and present biasedness.
+
+			\item Appendix B has a nice simple framework of their setting based on \citet{o1999doing}.
+		\end{itemize}
+	\end{itemize}
+
+
+	\item Retirement savings:
+	\begin{itemize}
+		\item laibson2020aea1 - laibson2020aea4 (and entire \href{https://www.aeaweb.org/webcasts/2020/aea-afa-joint-luncheon-nudges-are-not-enough}{talk}) for great overview of literature on retirement savings and on positive effect of defaults on proxy outcomes and neutral/very small effects on welfare (semblance of success. Basic point: the effects of defaults on retirement savings are very small. Reason: people in the control group seem to catch up over time, and there is a huge amount of leakage out of retirement savings accounts. Suggestions from new models: make savings in the US mandatory and illiquid (as in every other country).
+
+		\item laibson2007lionel2 for overview of why defaults work / are not neutral (in short: financial illiteracy, endorsement effect, complexity, time-inconsistency).
+
+		\item \citet{thaler2004save}: Elements of Save More Tomorrow:
+		\begin{itemize}
+			\item Bounded rationality: people might not be able to save the optimal savings problem.
+			\item Self-control: people might lack the willpower to implement the optimal savings plan now, but would be willing to do so in the future.
+			\item Procrastination and inertia (status-quo bias, \citet{samuelson1988status}, a consequence of hyperbolic discounting) suggest that once people are enrolled, they should stay enrolled and not be required to make more changes.
+			\item Nominal loss aversion: suggests that people are unwilling to accept a nominal reduction in disposable income (see references in thaler2004save).
+		\end{itemize}
+
+		\item \citet{madrian2001power}
+	\end{itemize}
+
+	\item Older psychology literature on the determinants of saving: \citet{lunt1991psychological,warneryd1989psychology}
+
+	\item Framing and goals
+	\item Norms, habits, feelings
+	\item Just-in-time savings
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Reducing debt}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+	\item Debt accrual
+	\item Debt repayment (credit cards)
+	\begin{itemize}
+		\item Repayment strongly bimodal: people tend to either pay in full or near minimum \citep{wang2014perverse}.
+
+		\item Repayment follows balance-matching heuristic, with repayment amounts for different cards being proportional to outstanding balances (instead of paying off highest-interest card first) \citep{gathergood2019individuals}.
+
+		\item Removing minimum repayment amounts and adding prompts to encourage higher repayments all increase repayments towards full repayments \citep{adams2018increasing, stewart2009cost}.
+
+		\item Disclosure information on duration and cost of debt amortisation under minimum payments not effective to increase repayment (most likely because consumers underestimate time it takes to amortise with minimum payments and avoid information telling them otherwise) \citep{adams2018conflict}.
+	\end{itemize}
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Budgeting}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+	\item See \citet{ameriks2003wealth}
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Spending}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+	\item \citet{agarwal2017shapes} provides an overview on household finance, including consumer spending and saving behaviour.
+
+	\item \citet{agarwal2007reaction} find that in reaction to the federal income tax rebates in 2001, consumers initially paid down debt but then increased spending.
+
+	\item \citet{agarwal2014consumption} find that Singaporeans increased consumption significantly following a one-time cash payment by the government: they spend SGD0.80 on average for every SGD1 received within the first 10 months after receiving the payment. The authors also find a strong announcement effect: 19 percent of the total response occurred via credit cards within the first two months.
+
+	\item \citet{stephens2006paycheque} finds that consumption is highly reactive to (anticipated) pay checks.
+
+	\item \citet{thaler1981economic} Propose a theory of self-control based on agency theory, where there is a conflict between a far-sighted planner and a mypic doer. As in agency theory, there are two basic ways to control the doer: change his incentives (changing his preferences, record keeping, and explicit change in incentives like price changes) and restrict his actions by rules (pre-commitment, norms, self-imposed rationing). Has some interesting predictions about savings behaviour and also for health (why not have chocolate at home, why not go to dinner party).
+
+\end{itemize}
+
+Look at:
+\begin{itemize}
+	\item \citet{thaler1999mental} for a review of mental accounting
+	\item \citet{deaton1992understanding} on consumer behaviour research
+	\item \citet{campbell1999force} because it might be interesting
+\end{itemize}
+
+\citet{thaler1994psychology}
+\begin{itemize}
+	\item Three a-priori criteria to judge whether optimisation approach to modelling behaviour is appropriate: 1) how hard is the problem? 2) are there opportunities for repeated learning? 3) are there simple heuristics to follow? For hard problems that occur only once and where there are no good heuristics to approach optimal behaviour, bounded rationality is particularly relevant.
+	\item
+\end{itemize}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+							\chapter{Determinants}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Cognitive limitations and financial literacy}
+\begin{itemize}
+	\item See \citet{agarwal2017shapes,greenberg2019financial} for summaries of the literature on the link between cognitive ability, age, and financial literacy and financial behaviour. In short: higher cognitive ability leads to better decisions, aging to worse ones (ageing dominates experience), and financial education is generally ineffective but might be helpful if delivered just in time.
+
+	\item Scarcity: \citet{shah2012some,mani2013poverty,mullainathan2013scarcity,haushofer2014psychology,carvalho2016poverty}
+	\item scarcity's impact on productivity \citet{kaur2021financial}
+\end{itemize}
+
+
+\section{Time preferences, self-control, and incentives}
+\begin{itemize}
+	\item See \citet{agarwal2017shapes, greenberg2019financial} for summaries of research on time preferences, and \citet{greenberg2019financial} for a discussion on connectedness to ones future self (which also shapes time preferences).
+
+	\item See \citet{loewenstein2003time} for book on time preferences.
+
+	\item Measuring time preferences: see \citet{cohen2016measuring} and sprenger2009time slide 3 for a core of papers that identify time preferences from consumption data (given cohen, sprenger is probably redundant).
+
+	\item See \citet{agarwal2017shapes} for research on self-control and incentives on optimal financial decision making.
+
+	\item On self-control: \citet{choi2004better} find that two thirds of people in their sample of 401(k) participants think their savings are too low, that about one third of these would like to start saving more in the next few months, but that 86 percent of them had made no changes to their plan four months later.
+
+	\item In economics, self-control problems are commonly modelled as an action that deviates from the ideal action which the agent would like to take because of the existence of some temptation. Types of models that capture this structure (typology from \citet{ameriks2007measuring}):
+	\begin{itemize}
+		\item Temptation and self-control: \citet{gul2001temptation}
+
+		\item Time-inconsistency: modelled using hyperbolic discounting \citep{ainslie1975specious} and can be modelled using sophisticated agents who are aware of the issue and try to deal with it \citep{laibson1997golden} or naive agents that are at least unaware of the extent of the problem \citep{o1999doing, o2001choice}. See \citet{frederick2002time} and sprenger2009time  for overview, and laibson2007lionel1 for basic modelling and neuroscience foundations.
+
+		\item Cue-triggered mistakes: \citep{bernheim2004addiction}
+
+		\item Dual-self: \citet{thaler1981economic,benhabib2005modeling,fudenberg2006dual,loewenstein2004animal}
+	\end{itemize}
+
+	\item Self-control and financial outcomes:
+	\begin{itemize}
+		\item \citet{biljanovska2018control} construct a measure of self-control grounded in psychological theory (Baumeister, see paper for exact references) and show that it is related to household wealth. Closely linked to \citet{gathergood2012self}, and helpful for me as it made me aware of the papers by Americs et al.
+
+		\item \citep{ameriks2007measuring} elicits degree of self-control problem from survey and then show that it is related to wealth.
+
+		\item \citet{gathergood2012self} finds that lack of self-control and financial illiteracy are positively associated with non-payment of consumer credit and self- reported excessive financial burdens of debt.
+
+		\item \citet{somville2018saving}: find that transferring people's salary to their bank accounts instead of paying them in cash (in rural India) that the former more than doubles savings. People pay in cash simply consume more. They explain this as the result of transaction costs, lack of self-control, and mental accounting.
+	\end{itemize}
+
+	\item \citet{thaler1981economic}
+	\begin{itemize}
+		\item Model the individual as being comprised of a farsighted planner and a myopic doer and find that the implications are similar to principal-agents problems of firms.
+		\item Their model has two main predictions relevant for savings behaviour: 1) mandatory pension contributions should increase overall savings (because the cost of discretionary saving is now lower at the old total saving level, so that people will save more), 2) the shape of the income stream will affect the savings strategy adopted (pp. 400) e.g. people with uncertain income streams will find it harder to save a constant fraction each month, people who receive part of their annual salary as lump-sum will save more overall (because earning less through the rest of the year requires less self control than discretionary saving). They also suggest that family background and social class is a predictor of saving behaviour, as "the family is the most likely place for individuals to learn (or not learn) the rules and norms necessary to overcome the self-control problem" (certainly true in my case!).
+	\end{itemize}
+
+	\item Willpower
+	\begin{itemize}
+		\item Results in \citet{oaten2007improvements} show that building willpower by following a financial monitoring translates into performance in cognitively demanding task, implying that building willpower in one domain spills over into others (see lit in the paper for related literature). The 29 subjects in the treatment group also lowered their spending and increased their savings over the 4-month experimental period. This could be either due to increased willpower, or due to monitoring itself. (Same doesn't show up in mdb data.)
+
+		\item Willpower as a skill: those who have it perform better in academic settings (Duckworth research).
+
+		\item Willpower as a muscle: willpower depletes over time (e.g. a day), so doing something challenging at the end of the day, or after having exerted a lot of willpower (e.g. not eating cookies) is harder.
+
+		\item Build willpower by habitually overcoming inflection points: people with and without willpower differ little if things are normal or easy, the difference is usually that those with willpower keep going when the going gets though. A way to help with that is to anticipate such moments ahead of time and set implementation intentions to overcome them \citep{orbell2000motivational}.
+
+		\item Implementation intentions have been used by firms like Starbucks to train their employees and help them deal with difficult situations.
+
+		\item Final section of the chapter talks about how people do better at implementing these findings if they have agency.
+
+		\item Willpower research didn't survive the replication crisis unharmed (\href{http://www.slate.com/articles/health_and_science/cover_story/2016/03/ego_depletion_an_influential_theory_in_psychology_may_have_just_been_debunked.html?via=gdpr-consent}{Good Slate article}), which is no surprise, given the very underpowered studies I've seen.
+	\end{itemize}
+\end{itemize}
+
+
+\subsection{Measuring time preferences}
+
+Discounting models assume that people derive utility from consumption and that they weight utility depending on how far away from the present period it accrues. Hence, to elicit discount functions, the ideal experiment would involve letting people choose between an earlier lower amount of utils and a later larger amount of utils at different points in time, which would allow researchers to directly calculate implicit discount rates. Because researchers cannot provide utils, they usually opt for what seems the next best thing: either direct consumption experiences such as food or effort, or money \citet{frederick2002time,cohenFmeasuring}.
+
+To infer discount factors for the above models two assumptions are thus required and usually invoked: that money leads to consumption in the same period, and that consumption translates into utility linearly. These assumptions are made mainly for convenience, but neither of them is likely to be satisfied completely; people may reallocate consumption across periods, they might engage in intertemporal arbitrage (invest the small earlier amount of money to end up with more than the larger later amount), and generally utility functions are assumed to be concave in consumption because of diminishing marginal utility \citep{frederick2002time,cohenFmeasuring}. Somewhat more subtly, researchers also need to assume that people rely on ``narrow bracketing'' \citep{read1999choice}, thinking about the choices in isolation and ignoring opportunities for intertemporal arbitrage \citep{frederick2002time,read2018intertemporal}. In addition, factors like uncertainty, inflation, expectations of changing preferences, habit formation, framing, and their current levels of savings and debt might influence people's choices in elicitation task like these and hence skew the estimated time preference \citep{frederick2002time}. Finally, as discussed in \citet{read2018intertemporal}, the validity of the assumption that people apply the same discount rate to all goods remains an open question. Estimating time preferences is thus extremely challenging, and, just like the theoretical literature, the literature on how to measure discount rates is vast and diverse, and there is disagreement about what approaches are most appropriate to deal with the many challenges involved \citep{cohenFmeasuring}.
+
+At the broadest level, the approaches can be divided into lab and field experiments, and because I will introduce a new way to measure time preferences in the field, the discussion in the rest of this section will focus on these approaches.\footnote{For more comprehensive discussions, see \citet{frederick2002time,cohenFmeasuring}.} As discussed in \citet{frederick2002time,cohenFmeasuring}, there are three broad micro-econometric approaches that have been used to estimate time preferences: researchers have exploited natural experiments where people make a choice between a lump-sum payment and a fixed-term annuity \citep{warner2001personal}, have imputed discount rates from observed wage-risk tradeoffs in peoples' occupational choices \citet{moore1990models}, and -- most similar to the approach I will introduce in the next part -- they have inferred time preferences from consumer choices.
+
+The idea behind this approach is straightforward: if a person is indifferent between a low-cost appliance and one that costs $100$ more but saves them $20$ each year for ten years, then their implicit annual discount rate, $\rho$, can be calculated as $100 = \sum^{10}_{t=1} (1 / (1 + \rho))^{t}20$. Hence, if the person buys the low cost appliance, we can infer that their discount rate is at least $\rho$. The seminar study in this subliterature is \citet{hausman1979individual}, who looks at air-conditioner purchases and finds discount rates of 17-20 percent, well above market interest rates. He finds, however, that the discount rates correlates negatively with income, suggesting that liquidity constraints might play a role. \citet{busse2013consumers,allcott2014gasoline} use changes in gas and used-car prices to infer consumer's discount rate of future gasoline costs when deciding whether or not to invest in a fuel-efficient car and find mixed results: while \citet{busse2013consumers} find no evidence of overly high discount rates, \citet{allcott2014gasoline} estimate the discount rate to be around 15 percent, but emphasize that this is unlikely to measure time preferences alone, but may also be affected by factors such as attention and knowledge. As \citet{frederick2002time} point out, this is a general weakness of field studies: while they have high ecological validity because they directly and unobtrusively observe people's behaviour in real world situation, they cannot control for the myriads of confounding factors that govern choices in real life such as lack of information or an inability to translate information into optimal choices, incorrect beliefs about the cost and benefits of different options, or hidden costs like unappealing designs of certain options.
+
+Recently, in a study that uses an approach most similar to the one I will introduce below, \citet{kuchler2020sticking} measure present bias and naivete from high-frequency individual level credit card data, which they obtained from an app designed to help people reduce credit card debts. They measure impatience based on the co-movement of income and discretionary spending on immediately consumed goods like restaurants or snacks (present-biasedness predicts high income-consumption co-movement), and sophistication as the degree to which impatience is attenuated as the individual has more available resources.\footnote{The intuition for this is as follows: the sophisticated present-biased agents know that their future selves will spend money out of line of their current preferences. When considering whether to pass on resources to the next period, they thus consider how much of these resources their impatient future self will consume. If income is higher, the marginal propensity to consume across all periods is lower, and so the agent will pass on more resources to his future self because that self will spend less of it. For a naive agent, who is unaware of the discrepancy of his current plans and future behaviour, income changes will make no different in this regard.} As a measure of debt reduction success, they use the difference between people's debt paydown goal and actual paydown. They find that planned paydown is predictive of actual paydown, that the average person falls considerably short of their goal by repaying only 25 cents for each planned dollar or paydown. They also find that present bias plays an important role in explaining high permanent levels of debt and that repayment differs depending on the level of sophistication (for a given level of outstanding debt).
+
+
+\subsection{Literature using high-frequency consumption data}
+
+From financial aggregator apps:
+\begin{itemize}
+	\item \citet{kuchler2020sticking}
+	\begin{itemize}
+    \item Measure present bias and naivete from high-frequency transactional data and find that (i) present bias plays an important role in explaining high permanent levels of debt and (ii) that repayment differs depending on the level of sophistication (for a given level of outstanding debt).
+
+    \item Use difference between actual debt paydown and attempted paydown as measure of success (data from app that helps people manage debt and asks for paydown goal). This is important: allows to interpret deviations as deviations from planned behaviour, rather than ex-ante optimal behaviour given unobservables. That's why we ideally want savings goals for mdb users.
+
+    \item While planned paydown is predictive of actual paydown, the average user falls considerably short of their goal and only repays 25 to 30 cents per dollar they aimed to repay.
+
+    \item Measure impatience using expenditures on goods that are immediately consumed (e.g. restaurants) immediately after payday while taking credit constraints into account \footnote{This is based on present-bias literature, which suggests high co-movement between income and spending. Look at their footnote 1 for literature on measuring consumption responses to paychecks if relevalt. This seems like the best way to validate our machine-learned time-preferences.}, and measures sophistication as the degree to which impatience is attenuated if individual has more resources (not clear why this makes sense.)
+
+    \item Advantage of approach: can measure impatience and sophistication from high-frequency data (esp. sophistication very hard to measure thus far).
+	\end{itemize}
+
+	\item \citet{gelman2014harnessing}
+	\begin{itemize}
+		\item Use data from financial aggregator to test whether daily spending is independent of paycheck arrival, as theory would predict.
+
+		\item Find that: (1) total spending goes up considerably on days after paycheck (violating theory), (2) at least 40 percent of this can be explained by the timing of regular non-discretionary expenses (e.g. rent), and (3) heterogeneity in above patterns are drive by liquidity and credit availability in line with the theory: the more liquidity and credit constrained, the higher the spending response to paycheck arrival.
+	\end{itemize}
+
+	\item \citet{olafsson2018liquid}. Very similar to \citet{gelman2014harnessing}, but using data from Iceland and looking at a few more income and spending categories. Overall results are in line with Gelman in that spending does react to income, and does more so for less wealthy and liquidity, and credit constrained people.
+
+	\item \citet{baker2018debt} Very thorough discussion of advantages and limitations of HF data, as well as very thorough validation exercise. Then examines effect of firm shocks on consumer finances, and consumption elasticities depending on types and levels of debt, finding evidence that heterogeneity in mpc is driven entirely by credit and liquidity constraints.
+
+	\item \citet{baugh2014disentangling}: spending behaviour resulting from tax returns.
+
+	\item \citet{carlin2019generational} provide basic summary stats on platform usage, debt and spending patterns for baby boomers, Gen X, and Millennials, finding that the latter two are more likely to access platform through app, and that BB are more likely to use credit, among other things.
+\end{itemize}
+
+From banks:
+\begin{itemize}
+	\item \citet{ganong2019consumer}: examine spending behaviour resulting from the predictable income drop from exhausting unemployment insurance benefits and find that spending drops sharply.
+
+	\item \citet{meyer2018fully}: analyse how individuals reinvest realised capital gains and losses.
+
+	\item \citet{muggleton2020evidence}: show that chaotic spending behaviour is a harbinger of financial distress.
+
+	\item
+
+\end{itemize}
+
+Other relevant papers:
+\begin{itemize}
+	\item \citet{lusardi1996permanent} provides commonly expenditure taxonomy of survey spending data.
+
+    \item \citet{keys2020determines} show that personal, rather than location, factors determine whether people end up in financial distress \footnote{Results might be driven by habits and attitudes, potentially learned early in life, that are socially determined and vary by location. Only read abstract, need to read more if it seems relevant.} We could test whether that factor is people's discount rates, by testing whether our MLTP are related to savings strategies and financial mistakes.
+
+    \item Verify time preferences using procrastination behaviour: \citet{brown2015procrastination} show that procrastination predicts financial behaviour and find that this is so because procrastination reflects present-biasedness. Might be able to use this to validate our preferences (i.e. if we can capture degree of procrastination in data, we might be able to use Brown's approach to measure implied discount rates, and then check whether they are similar to our machine learned ones) To measure degree of procrastination, look at things for which we know the deadline and how close to it people actually make the payment (e.g. taxes). Have to take into account that if money earns interest, then paying later might be rational.
+\end{itemize}
+
+
+\section{Rational inattention}
+\begin{itemize}
+	\item For pension contributions \citep{chetty2014active} and credit card repayments \citep{gathergood2019individuals} this seems unlikely to be the driver, as the degree of misallocation is invariant to financial stakes.
+
+	\item In tax salience lab experiment, attention does increase with increasing tax rates \citep{taubinsky2018attention}
+\end{itemize}
+
+
+\section{Attitudes towards money and spending}
+\begin{itemize}
+	\item See \citet{greenberg2019financial} for a summary of the literature.
+\end{itemize}
+
+\section{Psychological bias}
+\begin{itemize}
+ 	\item See \citet{agarwal2017shapes} for a summary of the literature on perceived control, optimism, disposition, narrow framing, and propensity to gamble. In short: having an internal locus of control, being moderately optimistic, and having a tendency to frame decisions broadly (rather than narrowly) are associated with better financial decisions.
+
+ 	\item \citet{kumar2008decision} use trade clustering (a series of trades executed together) as a proxy for broad framing and find that investors who execute more clustered trades exhibit weaker disposition effects and hold better-diversified portfolios. Trade clustering is also related to stock preferences and portfolio returns.\footnote{\textit{Narrow framing} occurs if the interactions among multiple decisions are ignored \citep{kahneman2003maps, thaler1985, thaler1999mental,read1999choice}; \citet{kumar2008decision} provide a good succinct summary of the literature in the introduction. \textit{The disposition effect} is the tendency of investors to sell winning positions in their portfolio while holding on to losing ones. Again, \citet{kumar2008decision} provide a helpful introduction to the idea, link to relevant literature, and explain its relationship to prospect theory (investors are risk-averse in the domain of gains and prefer realising wins to further gambling, but risk-seeking in the domain of losses and prefer further gambling to realising losses).}
+ \end{itemize}
+
+\section{Social networks}
+\begin{itemize}
+	\item See \citet{agarwal2017shapes} for a review. In short: more socially connected people seem to be more likely to invest, the experience of far away friends can influence people's expectation of and likelihood to invest in the housing market \citep{bailey2016social}, and people signing up to a retirement plan after having been encouraged to attend a fair that provides information on the plan makes it more likely that their peers -- who didn't attend the fair -- sign up to the same plan, too \citep{duflo2003role}.
+\end{itemize}
+
+
+\section{Repayment heuristics}
+\begin{itemize}
+	\item Balance matching \citep{gathergood2019individuals}
+	\item 1/N heuristic \citep{benartzi2001naive}
+	\item Debt snowball method and debt account aversion \citep{amar2011winning}
+\end{itemize}
+
+\section{Lack of financial planning}
+\begin{itemize}
+	\item Consumers incur avoidable bank fees and make other costly mistakes \citep{jorring2018costs,jorring2019financial}.
+
+	\item \citet{ameriks2003wealth}
+	\begin{itemize}
+		\item Show that a survey measure of financial planning correlates with wealth, when controlling for common life-cycle and demographic variables.
+		\item Then try to find personal characteristics that correlate with financial planing but not with wealth (when controlling for controls). They find two: extent to which someone plans their vacation, and a person's confidence in their mathematical skills.
+		\item On page 22 the authors point out that the main contribution of the instruments is to rule out reverse causality, not other forms of endogeneity. They explicitly do not argue that exogenous shifts in the propensity give rise to shifts in wealth. However, they do show that the higher levels of the propensity to plan are associated with higher levels of wealth. I might do something similar for my savings strategies. In fact, I could then test the degree to which this analysis suffers from endogeneity if I were to run experiments and encourage people to take up certain strategies.
+		\item Also, IV results are quite similar to OLS results, suggesting that reverse causality is not a big issue. Hence: the correlation between wealth and planning is largely driven by the effect of planning on wealth.
+		\item In section 5.3, they show that the propensity to plan is (positively) correlated with savings.
+		\item In section 7, they that the propensity to plan is correlated with budgeting and with tightly monitoring ones short-term spending. If mdb provides us with data for logins and logouts, then we can construct a measure of monitoring intensity, which could be a proxy for financial planning, which -- one could argue -- captures most omitted variables in the strategy savings regression. For this argument to hold, we would need that: 1) monitoring is predictive of the chosen saving strategy (informativeness) and 2) monitoring is uncorrelated with the error term in the strategy - savings regression (validity, monitoring is not correlated with savings other than through strategy. Think of ways this could be wrong!).
+	\end{itemize}
+\end{itemize}
+
+\section{Habits}
+\begin{itemize}
+	\item \citet{blumenstock2018defaults} find that defaulting people into saving might change their attitude to saving and creating a habit for doing so.
+
+	\item \citet{schaner2018persistent} finds that paying higher interests rates for three months leads to more savings 3.5 years later. Findings cannot be explained simply by an increase in the short-run capital stock, since there was no long-run effect among participants who received a cash-payment at the end of three months. She concludes that incentivising people to save might lead them to build habits for saving \citep{becker1988theory} or make them adopt new heuristics that support long-term behaviour change \citep{thaler1999mental}.
+
+	\item \citet{de2013deposit}: find evidence that deposit collection services helped Sri Lankan study participants form a savings habit, but they do not study impacts on outcomes beyond saving.
+\end{itemize}
+
+\section{Environmental determinants of financial behaviour}
+\begin{itemize}
+	\item Wealth perception \citep{greenberg2019financial}
+	\item The economy \citep{greenberg2019financial}
+	\item Relative status \citep{greenberg2019financial}
+	\item Financial product design and marketing \citep{agarwal2017shapes}
+	\item Regulation \citep{agarwal2017shapes}
+
+	\item \citet{keys2020determines} find that while personal factors seem to determine whether people get into financial distress, location based factors (bankruptcy laws) determine whether bankruptcy is a way out.
+\end{itemize}
+
+
+\section{Neuroscience of saving behaviour}
+\begin{itemize}
+	\item \citet{schultz2006behavioral}
+	\item \citet{zangemeister2016neural}
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+					\chapter{Changing financial behaviour}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+	\item Defaults \citep{thaler2004save,madrian2001power}
+	\item Small steps \citep{hershfield2019temporal}
+	\item Build good and break bad habits (little evidence for financial behaviour)
+	\item Remove barriers for good behaviour -- make saving and investing easier (little evidence)
+\end{itemize}
+
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+							\part{Habits}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Habits and ML, Camerer et al. 2021}
+
+Data
+\begin{itemize}
+    \item Data from 24 hour fitness, sample size of 7,352 people.
+
+    \item Drop people who go to gym infrequentyly to avoid (rare events / sample
+        imbalance problem) and construct a balanced panel of regular gym goers.
+        They choose data such that for everyone in the sample, the value of the
+        f function increases as they they increase the time window, which means
+        that the person becomes more habitual over time. The calculate AUC for
+        everyone in the sample and find that it's about 0.75 for gym going on
+        average. Only a small fraction of people is below 0.55. But only for
+        about 40 percent of people in the sample can they fit habit formation
+        curves as described above (i.e. is the f value increasing as the window
+        increases).
+    
+    \item For each person, data start when they join the gym (and assume that
+        member hadn't been to other gym before, so that time of joining is time
+        when new habit could be initiated.)
+
+    \item Also use hospital handwashing data to replicate results. (We could do
+        the same using Fable, MDB, Huq, etc.)
+\end{itemize}
+
+Model
+\begin{itemize}
+    \item LASSO logistic regression (to filter our personalised set of features
+        for each user that is useful to predict behaviour, after starting with a
+        very large list of "context" features. This allows). 
+
+    \item Dependent variable is gym visit on a certain day
+
+    \item
+\end{itemize}
+
+Predictive features
+\begin{itemize}
+    \item Time lag sinze last visit
+    \item Day of week dummies
+    \item Rates (attendance last 7 days, etc.)
+    \item Streaks (days in a row, day-of-week in a row, etc.)
+    \item Fixed effects (how often does person go in general)
+    \item 
+\end{itemize}
+
+
+Findings and interpretations
+\begin{itemize}
+    \item Holdout AUC for predictability of gym visits is not related to
+        frequency, which contradicts often made assumption in habit literature
+        that frequent repetition begets a habit.
+
+    \item For 40\% of people for whom data fit well, $T^*$ is 198 days (i.e.
+        around 6 months)
+
+    \item Strongest predictor for going to the gym today is whether people went
+        in the past. Common explanation in economics goes back to
+        \citet{becker1988} arguing that there is a complementarity between
+        present and future behaviour. Camerer instead believes that the
+        empirical pattern is the result of a two-mode decision making process,
+        whereby people either act habitually or goal-directed depending on an
+        action's reward reliability \citep{camerer2018neuroeconomics}.
+\end{itemize}
+
+Interesting things to do
+\begin{itemize}
+    \item Compare set of predictive variables amond individuals to see whether
+        there is heterogeneity in what makes people go or not go to the gym.
+        Might be able to use clustering methods to see whether there are
+        different types of people.
+
+    \item For important features, check share of cases for which they go in the
+        same direction (e.g. positive and non-zero).
+
+    \item In Huq data, we can see whether after a move, a person's new gym is
+        nearer or further from their home or work, and see whether this change
+        in friction impacts their habit.
+\end{itemize}
+
+Caveats
+\begin{itemize}
+
+    \item Is predictability the same as habit formation? "It's necessary but not
+        sufficient".
+
+    \item Only subset of people with long span data, for whom behaviour neither
+        too rare nor too common (f increases over time)
+    
+    \item Without additional data cannot distinguish between preference
+        formation (do people just take time to figure out when going to the gym
+        works best for them) and habit fomation (observed behaviour is result of
+        neurological rewiring)
+\end{itemize}
+
+Features to use
+\begin{itemize}
+
+    \item Day of week, week of month, week of year
+
+\end{itemize}
+
+
+\subsection{The psychology of habits} % (fold)
+\label{sub:the_psychology_of_habits}
+
+% subsection the_psychology_of_habits (end)
+\begin{itemize}
+
+	\item \citet{wood2016psychology}
+	\begin{itemize}
+		\item Two defining features of habits (common across all fields of study): learning through repeated responding so as to form context-response associations in memory, and performance that is relatively insensitive to changes in value or contingency of the response outcomes.
+
+		\item Relationship between intentions/goals and habits: intentions are stronger predictor of irregular behaviours than of more regular ones, implying that habits are more relevant for regular behaviours \citet{ouellette1998habit}.
+
+		\item The ready response in mind when acting out a habit narrows focus and reduces deliberation, so as to reduce the chance that people will act against their habit.
+
+		\item Dual-process vs reinforcement-learning models: the former typically specify a default-interventionist architecture in which behaviour is habitual unless the deliberate system intervenes, while the latter often relies on a parallel architecture in which planning is active alongside habitual control \citep{evans2013dual}.
+	\end{itemize}
+
+	\item \citet{wood2009habitual}
+
+	\item \citet{verplanken2006beyond}: From abstract: while repetition is necessary for habits to develop, these studies demonstrate that habit should not be equated with frequency of occurrence, but rather should be considered as a mental construct involving features of automaticity, such as lack of awareness, difficulty to control and mental efficiency.
+
+	\item \citet{cobb2014healthy} find that people with an internal locus of control are more likely to eat well and exercise regularly. Similarly, \citet{cobb2016locus} find that an internal locus of control is related to higher savings (though there might be an endogeneity issue there).
+\end{itemize}
+
+
+Use of high-frequency data in habit research:
+\begin{itemize}
+	\item \citet{ge2017energy} use high-frequency thermostat data to study habits in US households.
+\end{itemize}
+
+
+% ############################################################################
+\subsection{Habit formation}
+% ############################################################################
+
+Exercise and weight loss
+\begin{itemize}
+	\item \citet{john2011financial}
+	\item See old PhD proposal
+\end{itemize}
+
+Saving
+\begin{itemize}
+	\item See above.
+\end{itemize}
+
+Smoking
+\begin{itemize}
+	\item \citet{volpp2009randomized}: find that financial incentives to quit smoking have decaying impacts over the longer- run
+	\item \citet{gine2010put}: find that a commitment savings account tied to smoking behavior had small effects that lasted at least six months after savings were released
+\end{itemize}
+
+Education
+\begin{itemize}
+	\item \citet{jackson2010little}: finds that paying students for passing advanced placement tests improved standardized test scores and increased college matriculation.
+\end{itemize}
+
+Misc (categorise later):
+\begin{itemize}
+	\item \citet{hussam2017habit} (also look at Google scholar citation papers)
+	\item \citet{lally2013promoting}
+	\item \citet{lally2010habits}
+	\item \citet{courter2019break}
+	\item \citet{hardwick2019time}
+	\item \citet{carden2018habit}
+	% Point out that because habits are cued automatically and unintentionally by environmental features (that our brain associates with rewards based on past experience and that automatically capture our attention), behavioural interventions that target intention or information are of limited use, since they leave the situational context unchanged (can explain why financial rewards don’t lead to long-term change). In the framework of \citet{duckworth2018beyond}, this means that focusing on situational rather than cognitive interventions is more promising. Focus on environmental design, not intention (also means that while Wansink might have produced lots of bogus research, his overall ideas were correct). Carden and Wood also point out that people with high​ trait self-control​ seem to succeed not due to more willpower but because they design work and life environment such that they face fewer temptations. This does resonate with me. While my intentions have been stable for a long time, I think that it’s the design of my environment (no sweets at home) that play a huge role in my diet adherence, and that living with Molly now removes temptations to stay at home longer in the morning and get off track with the schedule. This might actually be the mechanism behind the effectiveness of publicly announcing goals or having someone to share ones intentions with or having someone checking ones behaviour: part of this might be the social approbation we are looking for as conventionally argued, but another part of it might be that it’s effectively a change in our environment that removes temptation (Molly being at home in the morning is like the option of “lying on the couch and reading” not being there).
+	\item \citet{beshears2017creating} look at flexible vs fixed gym routines.
+\end{itemize}
+
+
+% ############################################################################
+\subsection{Behaviour change}
+% ############################################################################
+
+\begin{itemize}
+	\item \citet{chapman2019decision}
+\end{itemize}
+
+
+% ############################################################################
+\subsection{Exercise behaviour}
+% ############################################################################
+
+\begin{itemize}
+	\item \citet{charness2009incentives}
+	% \item \citet{cappelen2017exercise} Incentivising students to go to the gym increases gym attendance and academic performance through – it seems – raising study hours, self-control, life satisfaction, and healthy lifestyle. Paper is very nicely done.
+\end{itemize}
+
+
+
+% ############################################################################
+\subsection{Fresh starts}
+% ############################################################################
+
+\begin{itemize}
+	\item \citet{dai2019experiencing} Summary of landmark literature showing that experiencing and expecting landmarks can increase motivation, discussing channels, and discussing circumstances under which landmarks could hurt motivation.
+
+	\item \citet{dai2014fresh}: Classic paper showing Google searches for "diet", "gym visits", and use of stickK all increase at the beginning of the week, month, year, and other temporal landmarks. Authors explain this by thinking of temporal landmarks as the result of temporal mental accounting -- people creating discrete junks of time in their mind -- that motivate goal pursuance because it separates people from past imperfections and promotes higher-level thinking.
+
+	\item \citet{dai2015put} companion paper to \citet{dai2014fresh} looking in more detail into temporal landmarks.
+\end{itemize}
+
+
+
+\paragraph{Importance of habitual behaviour:}
+	\begin{itemize}
+		\item \citet{bargh1999unbearable}
+	\end{itemize}
+
+
+\paragraph{Forming habits is hard}
+Changing habits is hard. Lab animals drop new habits in favour of previously acquired and thus more internalised ones \citep{bouton2004context}, two-thirds of alcoholics start drinking again within a year after completing rehabilitation \citep{kirshenbaum2009quantitative}, and almost everyone who gains weight on a diet gains it back within two years \citep{jeffery2000long}
+
+
+\paragraph{Habit formation in the behavioural health literature}
+\begin{itemize}
+	\item \citet{valois1988comparison} demonstrate the importance of habit for exercise behaviour.
+
+	\item \citet{dzewaltowski1990physical} find that social cognitive theory (self-efficacy?) is better predictor of exercise behaviour than theories of reasoned action and planned behaviour. (Cannot access paper, and abstract largely unintelligible, but it sounds relevant!)
+
+	\item \citet{reynolds1990psychosocial} find a positive correlation between physical activity and the intention to exercise, self-efficacy, stress, and direct social influence.
+
+	\item \citet{godin1993pattern} find that habit positively correlates with the intention to exercise (I think!).
+
+	\item \citet{godin1994theories} Abstract useless, but looks like useful review of the literature up to that point.
+\end{itemize}
+
+
+\paragraph{Achieving long-term behavioural change in \citet{hallsworth2016applying}:}
+\begin{itemize}
+	\item Make new behaviour the default, a rule of thumb, or a habit. (e.g. make people go to the gym eight times has lasting effect while going once does not \citep{charness2009incentives})
+
+	\item Carry out intervention close to the time when the target behaviour is to be performed. (Reminders to wear seatbelts is effective immediately before driving, but not five minutes before \citep{austin2006examination})
+
+	\item Implement reminders \citep{altmann2014nudges}. But be wary of frequency: daily reminders tend to be ignored, weekly ones seem to be effective \citep{pop2011mobile}.
+
+	\item Thus, exercising requires habit formation because: Other ways to facilitate sustained behavioural change are changes in default options and the formation of rules of thumb \citep{hallsworth2016applying}. Exercising is an active behaviour and doesn't just happen, so it cannot be the default, and new rules of thumbs can change affective behaviour in response to environmental cues, which exercising cannot be either. So, to help people exercise regularly, we need to make it a habit.
+\end{itemize}
+
+
+
+\chapter{Introduction}
+
+\paragraph{Key points from \citet{runger2015maintenance}:}
+\begin{itemize}
+	\item Habits are largely automatic, unconscious and sometimes unwanted cue-behaviour responses that have been formed by repeatedly performing a certain action in a particular context. As a result, habits do not change easily.
+
+	\item Interventions to build or change habits need to address that automatic aspect of behaviour. Disrupting bad habits requires that the cue-behaviour link be disrupted either by changing the cue/environment or by helping people remember that they want to react to it differently. Building new habits requires repeated performance of the behaviour in a stable context. The challenge is to help people achieve that.
+\end{itemize}
+
+\begin{itemize}
+	\item Summarises \citet{runger2015maintenanace}.
+	\item Why do habits matter?
+
+	\item NCDS are the major cause of death (see health part for numbers) yet they are preventable: more exercise, less drinking and tobacco consumption, and a healthier diet could dramatically reduce the risks.
+
+	\item Lifestyle-related diseases progress slowly, and so what is needed is behaviour that is healthy over the long term (going to the gym for a week won't do).
+
+	\item Hence, we need to help people form habits.
+
+	\item A new healthy behaviour maintains if people continue to perform it, despite frequent relapses, a few months beyond the intervention.\citep{fjeldsoe2011systematic}.
+
+	\item Interventions that aim to change conscious behaviour have a poor track record in producing long-lasting change. Changing automatic processes might be more promising \citep{marteau2012changing}.
+
+	\item Downside of these changes in choice architecture: there is (so far) no evidence that effects generalise to environment outside the specific choice architecture.
+
+	\item Dual-process models \citep{sherman2014dual}: Human behaviour is controlled by two sets of processes:
+	\begin{itemize}
+		\item Effortful, conscious, and controlled (System 2)
+		\item Effortless, unconscious, and automatic (System 1)
+	\end{itemize}
+
+	\item Many interventions fail because they do not take into account the (important) role of system 1 in daily decisions, and often make people relapse to old unhealthy habits despite their best intentions.
+\end{itemize}
+
+
+\chapter{Psychology of habits}
+
+\begin{itemize}
+	\item Lots of our day-to-day actions seem to be habitual \citep{wood2002habits}.
+\end{itemize}
+
+\paragraph{Features of habitual behaviour:}
+
+\begin{itemize}
+	\item What is a habit? A habit is a response pattern that occurs consistently in a particular context. They are a type of automatic responses to a cue that do not require goals or an intention to act \citep{wood2007new, gardner2015review}
+
+	\item To form a habit, behaviour needs to be performed repeatedly under recurring circumstances to form cognitive associations in memory between the cue and the behaviour.
+
+	\item Each repetition strengthens the association, until, eventually, the behaviour is performed automatically in response to the cue. This is when the habit is established.
+\end{itemize}
+
+\paragraph{Habits are context-cued responses:}
+\begin{itemize}
+	\item A variety of different cues can trigger a habit: other people (I become nervous when see my former boss), locations (I crave for a crepes when in Westgate), a time of day (I become hungry around 10am), ...
+
+	\item To harness that fact, we need to understand the cognitive processes that underlie the cue-response pattern.
+
+	\item \citet{neal2012habits} show that the perception of the cue can bring to mind the habit. After seeing (very quickly) an image of the environment in which they usually run, runners with a strong running habit were quicker in identifying words like ``jogging'' and ``running'' than runners without a strong habit (seeing one's running shoes or running partner would have had the same effect).
+
+	\item In a second study, the same authors also show that the habit is carried out unthinkingly when it is triggered by the cue. Assuming that sports fans that regularly attend matches in stadiums speak louder while there, they show that if people with a strong habit to attend games are shown the very stadium they frequent, they speak louder in a seemingly unrelated task, while those with a weak habit to attend games do not.
+
+	\item \citet{botvinick2004doing} show that complex behaviours that require a sequence of steps (making coffee: take cup, fill in grinds, add hot water) can be understood as recurrent perception-action loops.
+
+	\item The key insight from all of these studies for health interventions: context cues (environment, previous step in a sequence) directly (and unintentionally) activate mental representations of the associated habit and change overt behaviour.
+\end{itemize}
+
+\paragraph{Habits do not depend on goals:}
+\begin{itemize}
+	\item Some habits are in line with our long-term goals while some aren't. They psychology behind good and bad habits, however, is the same: a cue triggers a habit irrespective of whether we want to perform the resulting action or not \citep{neal2013people}.
+
+	\item \citet{dezfouli2012habits} show that the more habitual a behaviour, the less important its consequences become for whether it is activated or not in response to the cue. (The paper mainly talks about what type of reinforcement learning best explains habitual behaviour, so there is much more there.)
+
+	\item \citet{runger2015maintenance} discuss results from a study with rates and humans that show that strong habits are preformed even if they are disassociated from the positive reward they initially served, which, again, suggests that people do not perform habits because they are beneficial, but because they cannot help it.
+
+	\item \citet{neal2011pull} show the same in the context of health habits: movie-goers with a strong habit to eat popcorn during movies ate an equal amount of fresh and stale popcorn even though they reported to have strongly disliked the latter. Moviegoers without a strong popcorn habit ate more of the fresh popcorn and less of the stale one.
+
+	\item Important insight for health interventions: motivating people to exercise regularly and eat healthily does not alter the cues that trigger unhealthy behaviour and so might not succeed. It's possible that people are more motivated, and yet fail to carry out the good behaviour despite of their best intentions.
+
+	\item How do I overcome this when forming new habits?
+\end{itemize}
+
+
+
+
+\chapter{Habit formation}
+
+\begin{itemize}
+	\item The basic process of habit formation: repeat a behaviour frequently in a stable context to form an association between context-cue and behaviour. Eventually, the behaviour will come to mind automatically in that context.
+
+	\item Corollary: forming habits is easier for actions that repeat frequently (exercising, shopping for healthy food) than for actions that happen irregularly (getting a flu shot or a mammogram).
+\end{itemize}
+
+
+
+\paragraph{Econ theory on habit formation and rational addiction}
+\citet{	, taubinsky2013intentions}
+
+
+
+\paragraph{Forming habits through unintentional processes:}
+\begin{itemize}
+
+	\item Habits often form unintentionally:
+	\begin{itemize}
+		\item In the process of pursuing a goal (get breakfast) within constraints (stopping at Pret easier than buying all ingredients)
+		\item Complex sequences are learned unconsciously: sequence of response patterns \citep{runger2010defining}, tying shoe-laces, probably also hand-washing.
+		\item Social mimicry \citep{webb2011investigating}.
+	\end{itemize}
+
+	\item Challenge for health interventions: changing unwanted behaviour involved altering/manipulating the trigger, which is difficult if its unknown.
+\end{itemize}
+
+
+\paragraph{Interventions to form healthy habits:}
+
+\begin{itemize}
+	\item \citet{marteau2012changing} show that most interventions focus on short-term behaviour rather than on changing long-term habits.
+
+	\item Recent wave of research, inspired by \citet{lally2010habits} focuses on habit formation.
+
+	\item Using existing habits as cues for new habit is promising approach.
+	\begin{itemize}
+		\item \citet{judah2013forming}: flossing after brushing ones teeth, rather than before, led to stronger habit formation, which suggests that brushing (the existing behaviour) can act as a cue for flossing (the new behaviour)
+		\item \citet{stawarz2014personalized} use existing routine as reminder for medical regime adherence outperforms other techniques.
+	\end{itemize}
+
+	\item \citet{mcgowan2013healthy} show that a habit-formation intervention (helping parents form a habit for healthy feeding) did have a positive effect on habit formation.
+
+	\item \citet{carels2011transforming, carels2014randomized} test the efficacy of a weight-loss program designed to strengthen and establish healthy habits.
+\end{itemize}
+
+
+\paragraph{Incentives for habit formation:}
+
+\begin{itemize}
+	\item \citet{an2013effectiveness} tests efficacy of financial incentives to discourage consumption of unhealthy foods and consumption of health ones.
+
+	\item \citet{marteau2009using} review the efficacy of financial incentives to alter health behaviour and discuss ethics and unintended consequences.
+
+	\item Types of reward schedules:
+	\begin{itemize}
+		\item Interval rewards: reward received at the end of a specific interval, independent of precise performance. (E.g. \citet{charness2009incentives} reward participants if they attended the gym at least 8 times during a four week period, which makes the salience of the reward low during any given visit).
+		\item Ratio schedules: reward is a direct function of behaviour, which means reward has a high salience while behaviour is performed and is a strong motivator for the behaviour every single time.
+		\item Interval rewards have a better change of creating context-response patterns because they motivate overall behaviour rather than single instances thereof (as ratio schedules do), and so have a better change to build habits that continue once the incentives are removed.
+	\end{itemize}
+\end{itemize}
+
+\paragraph{Automaticity is key for behavioural maintenance:}
+
+\begin{itemize}
+	\item \citet{webb2006does} review 47 interventions that provide information, goal-setting tools, and skills needed for healthy behaviour. They find that higher intention to maintain behaviour translates into healthier behaviour for behaviours that are not habitual, but not for those that are habitual, presumably because for these behaviours, old bad habits take over and counteract good intentions.
+
+	\item The reason seems to be that in some way, habits are like sensorimotor skills (playing tennis, skiing) in that they are retained even if not used for a long time. Even implementation intentions (if-then plans) \citep{gollwitzer2006implementation} are not successful at changing them.
+\end{itemize}
+
+\paragraph{Factors that promote habitual behaviour:}
+
+\begin{itemize}
+	\item Habit strength: the stronger the habit, the more it guides behaviour relative to intentions \citep{ji2007purchase, danner2008habit, de2009adult}.
+
+	\item Absentmindedness: if people are distracted and do not think about what they are doing, they are most likely to fall back to old unwanted habits (i.e. the likelihood for action slips is largest) \citet{norman1981categorization, reason1992cognitive}.
+
+	\item Willpower: habits tend to overrule intentions, but willpower still plays a role and can increase the likelihood that the healthy behaviour is performed or the unhealthy one is not performed. But the strength model of willpower \citep{baumeister1996self, baumeister2000ego} argues that willpower is a finite recourse, and studies find that in situations where more willpower had been or is being exerted, participants are more likely to engage in unwanted behaviour \citep{hagger2010ego, muraven2002self, shmueli2009resisting, muraven2005daily}.
+
+	\item Stress: higher levels of stress increase the likelihood that people engage in habitual unwanted behaviour \citep{schwabe2013stress}.
+\end{itemize}
+
+\paragraph{The neural basis for goal-directed and habitual action:}
+
+\begin{itemize}
+	\item Behaviour can be habitual or goal-directed, and above are listed factors that facilitate or inhibit one or the other. The goal here is to uncover the causal mechanisms in the brain that underlie the link between, say, stress and our tendency for more habitual behaviour.
+
+	\item See relevant section in \citet{runger2015maintenance}.
+\end{itemize}
+
+
+\chapter{Behavioural interventions to change a habit}
+
+
+\paragraph{Self-control strategies}
+\begin{itemize}
+	\item Temptations versus habits: the distinction is not entirely clear from \citet{runger2015maintenance}. Roughly: temptations relate to visceral behaviour such as hunger, sex, and emotions, are often negative with regard to our goals, and are consciously experienced. (See \citet{loewenstein1996out} for more). Habits are neutral (they can be good or bad for our goals) and the cue-response pattern often happens unconscious.
+
+	\item The point of the section is that for neither behaviour, self-control is a very helpful intervention to change behaviour long-term.
+\end{itemize}
+
+\paragraph{Disrupting contexts}
+\begin{itemize}
+	\item \citet{verplanken2006interventions} discuss two types of interventions to change habits: downstream interventions that focus on the individual who performs a habit, and upstream interventions that focus on changing the environment.
+\end{itemize}
+
+\paragraph{Heightening the cognitive accessibility of healthy habits}
+\begin{itemize}
+	\item Increase the salience of the desirable option.
+	\item Implementation intentions: ``If I leave work, then I go to the gym before going home.'' \citep{gollwitzer2006implementation}
+	\item Point-of-choice prompts: ``Eat carrots, not chocolate'' note in the fridge \citep{soler2010point}.
+	\item Both methods can be particularly helpful in situations where people make choice under stress or when they are absent minded of have drained willpower \citep{salmon2014health}.
+\end{itemize}
+
+
+
+
+
+
+
+% ############################################################################
+\part{Misc.}
+% ############################################################################
+
+
+\section{Misc. papers}
+
+\begin{itemize}
+	\item \citet{labrecque2017habit} find that old habits can inhibit the use of new products.
+
+	\item \citet{houser2008checking} show waiting longer in the queue of a supermarket checkout line makes people more likely to buy tempting items (waiting 25 longer than average makes you 17 percent more likely). Broadly: confirm that exposure to temptation increases probability that people succumb to it.
+
+	\item \citet{berlin2017two} discusses positive and negative freedom. Might be useful when thinking about the philosophy of behavioural interventions. (see this and other references to Schelling and Freud in \citet{thaler1981economic})
+
+	% \item \citet{schelling1978egonomics} Makes the point that people engage in many behaviours that are puzzling from the view of consumer theory because they derive negative utility from them while paying money for the experience. Discusses examples clearly and in nice language, and has a cool idea for a nudge: to order lunch at 10am when I’m committed to healthy food.
+
+\end{itemize}
+
+
+
+
+
+% ############################################################################
+\section{Methods best practice}
+% ############################################################################
+
+\subsubsection*{Experimental best practices}
+\begin{itemize}
+	\item Have two control groups to test whether trajectories are indeed identical without treatment.
+
+	\item Do replication within trial: split sample into two and run two similar / identical trials \citep{hershfield2019temporal}
+
+	\item If we can identify customers who have added all accounts, can use that sample to check where additionally saved money comes from (e.g. do more savings lead to fewer purchases of gym classes or sth?)
+
+	\item Look at \href{https://blogs.worldbank.org/impactevaluations/be-careful-inference-2x2-experiments-and-other-cross-cutting-designs}{this post and paper} before relying on a factorial design.
+
+	\item See \citet{duflO2003role} for a best practice example of an encouragement experimental design that measures spillovers to peers.
+
+	\item \citet{dehejia2005program} for Bayesian experimental analysis
+
+	\item Randomisation procedure: \citet{bruhn2009pursuit}
+
+	\item Multiple hypothesis testing: \citet{list2019multiple}. See also \citet{blumenstock2018defaults} Table 3 for example of how to present P-values in the context of multiple hypothesis testing, and their footnote 25 for additional literature.
+
+	\item Visualisation of study procedure and events: \citet{blumenstock2018defaults} Figure 1.
+\end{itemize}
+
+\subsubsection*{Quasi-eperimental best practices}
+\begin{itemize}
+	\item \citet{melnikov2019gangs}: see below, for DiD and RDD
+	\item \citet{middleton2018lifting}: for RDD
+\end{itemize}
+
+\subsubsection{Misc.}
+\begin{itemize}
+	\item Use effect of one standard deviation change of x on outcome (e.g. \citet{ameriks2003wealth} p. 20).
+
+\end{itemize}
+
+\subsubsection*{\citet{melnikov2019gangs}}
+
+\paragraph{Summary}
+Show using a regression discontinuity design that living in a gang-controlled area in EL Salvador has substantially detrimental effects on a number of quality-of-life indicators. They carefully discuss identifying assumptions for the RD design, validate the findings using a difference-in-difference approach with different data, and conduct a battery of robustness tests.
+
+\paragraph{Methods}
+The RD design exploits a change in US deportation law in 1997, which led to a large increase in forced removals of gang members from the US back to their native San Salvador. The analysis uses census data from 1992 and 2007 together with detailed maps of gang-controlled areas in El Salvador. The effect of living in a gang-controlled area is then estimated as
+
+\begin{equation*}
+	y_i = \alpha_0 + \alpha_1 \text{distance}_i + \alpha_2 \text{gang territory}_i * \text{distance}_i + \alpha_3 \text{gang territory}_i + \epsilon_i,
+\end{equation*}
+
+where distance from gang-controlled territory is the forcing variable and $\alpha_3$ the parameter of interest (for more details on RD, see pischke2018regression and lee2010regression). The interaction term captures the difference in slope on distance inside and outside gang-controlled areas. Because the authors use the entire dataset rather than just a small neighbourhood around the cutoff, this is required for unbiased estimates (to see this, visualise fitting a straight line with a discontinuity through all data points -- this would lead to very different estimates of the causal effect). The identifying assumptions are the following: (1) borders or gang-controlled areas need to be as good as randomly assigned, and (2) there must not be selective migration in or out of areas.
+
+In addition, the authors use a difference-in-difference design to estimate the effect of gang presence on economic development (measured by luminosity growth) across all of El Salvador using the following regression model:
+
+\begin{equation}
+	\text{luminosity}_{i,t} = \rho_i + \gamma_t + \beta \text{gang presence}_i \times \{\text{Year} > 1997\}+ \epsilon_{i,t}
+\end{equation}
+
+where the first two coefficients are area and time fixed effects, and $\beta$ is the causal effect of interest, measuring the average difference in luminosity growth between areas with gang activity and those without.
+
+\paragraph{Key takeaways}
+This is a very thorough and convincing application of RD and DiD. Look at this for best practice guidance if I rely on these methods.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Tools}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+	\item \citet{scikit-learn}
+\end{itemize}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Online data to overcome measurement challenges in social sciences}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+	\item See footnote 2 in \citet{kuchler2018sticking}
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Quotes}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{itemize}
+	\item You cannot escape the responsibility of tomorrow by evading it today. -- Abraham Lincoln
+
+	\item The better is the enemy of the good. -- Voltaire
+
+	\item To abstain from the enjoyment which is in our power, or to seek distant rather than immediate results, are among the most painful exertions of the human will. Nassau William Senior (in \citet{senior1836outline}, page 60.)
+
+	\item "Every single qualification for success is acquired through habit. People form habits and habits form futures. If you do not deliberately form good habits, then unconsciously you will form bad ones. You are the kind of person you are because you have formed the habit of being that kind of person, and the only way you can change is through habit." Albert Gray, a life insurance executive at Prudential, discussing the importance of habits in the 1940s. (http://www.amnesta.net/mba/thecommondenominatorofsuccess-albertengray.pdf)
+
+
+
+\end{itemize}
+
+
+\newpage
+\printbibliography
+
+\end{document}
