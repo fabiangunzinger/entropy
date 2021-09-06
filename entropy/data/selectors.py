@@ -1,11 +1,9 @@
-# import pandas as pd
+import re
 from collections import Counter
 from functools import wraps
-# from .decorators import count, counter, selector
 
 
 selector_funcs = []
-count = Counter()
 
 
 def selector(func):
@@ -14,20 +12,25 @@ def selector(func):
     return func
 
 
+sample_counts = Counter()
+
+
 def counter(func):
     """Count sample after applying function.
 
     First line of func docstring is used for
     description in selection table.
     """
-    # @ wraps(func)
+    @ wraps(func)
     def wrapper(*args, **kwargs):
         df = func(*args, **kwargs)
         docstr = re.match('[^\n]*', func.__doc__).group()[:-1]
-        count.update({docstr + '@users': df.id.nunique(),
-                      docstr + '@accs': df.account_id.nunique(),
-                      docstr + '@txns': len(df),
-                      docstr + '@value': df.amount.abs().sum() / 1e6})
+        sample_counts.update({
+            docstr + '@users': df.id.nunique(),
+            docstr + '@accs': df.account_id.nunique(),
+            docstr + '@txns': len(df),
+            docstr + '@value': df.amount.abs().sum() / 1e6
+        })
         return df
     return wrapper
 

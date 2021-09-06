@@ -3,4 +3,8 @@ Project configuration file.
 
 """
 
-aws_profile = 'tracker-fgu'
+AWS_PROFILE = 'tracker-fgu'
+
+TABDIR = 'output/tables'
+
+

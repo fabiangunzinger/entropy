@@ -18,7 +18,7 @@ class S3BucketManager:
     
     def __init__(self, bucket_name):
         self.basepath = os.path.join('s3://', bucket_name)
-        self.profile = config.aws_profile
+        self.profile = config.AWS_PROFILE
         self.fs = s3fs.S3FileSystem(profile = self.profile)
     
     def list_raw(self):
@@ -38,13 +38,13 @@ class S3BucketManager:
 
 
 
-def s3read_csv(path, profile=config.aws_profile, **kwargs):
+def s3read_csv(path, profile=config.AWS_PROFILE, **kwargs):
     """Read from s3 path."""
     options = dict(storage_options=dict(profile=profile))
     return pd.read_csv(path, **options, **kwargs)
 
 
-def s3write_csv(df, path, profile=config.aws_profile, **kwargs):
+def s3write_csv(df, path, profile=config.AWS_PROFILE, **kwargs):
     """Write df to s3 path."""
     options = dict(storage_options=dict(profile=profile))
     df.to_csv(path, index=False, **options, **kwargs)
@@ -52,13 +52,13 @@ def s3write_csv(df, path, profile=config.aws_profile, **kwargs):
     return df
 
 
-def s3read_parquet(path, profile=config.aws_profile, **kwargs):
+def s3read_parquet(path, profile=config.AWS_PROFILE, **kwargs):
     """Read from s3 path."""
     options = dict(storage_options=dict(profile=profile))
     return pd.read_parquet(path, **options, **kwargs)
 
 
-def s3write_parquet(df, path, profile=config.aws_profile, **kwargs):
+def s3write_parquet(df, path, profile=config.AWS_PROFILE, **kwargs):
     """Write df to s3 path."""
     options = dict(storage_options=dict(profile=profile))
     df.to_parquet(path, index=False, **options, **kwargs)

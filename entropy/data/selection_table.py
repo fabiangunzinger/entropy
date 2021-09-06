@@ -1,3 +1,6 @@
+import os
+import pandas as pd
+
 
 def selection_table(dict):
     """Create sample selection table for data appendix."""
@@ -16,11 +19,9 @@ def selection_table(dict):
     return df
 
 
-def save_selection_table(table, sample):
-    """Export sample selection table."""
-    name = f'sample_selection_{sample}.tex'
-    fp = os.path.join(config.TABDIR, name)
+def write_selection_table(table, path):
+    """Export sample selection table in Latex format."""
     with pd.option_context('max_colwidth', None):
-        with open(fp, 'w') as f:
+        with open(path, 'w') as f:
             f.write(table.to_latex(index=False, escape=False,
                                    column_format='lrrrr'))
