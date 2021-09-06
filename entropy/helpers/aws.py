@@ -8,7 +8,7 @@ import s3fs
 from entropy import config
 
 
-class BucketManager:
+class S3BucketManager:
     """Helper class to easily manage project bucket.
     
     Instantiate manager with a bucket name, and it will

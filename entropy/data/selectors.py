@@ -1,5 +1,35 @@
-import pandas as pd
-from .decorators import count, counter, selector
+# import pandas as pd
+from collections import Counter
+from functools import wraps
+# from .decorators import count, counter, selector
+
+
+selector_funcs = []
+count = Counter()
+
+
+def selector(func):
+    """Add function to list of selector functions."""
+    selector_funcs.append(func)
+    return func
+
+
+def counter(func):
+    """Count sample after applying function.
+
+    First line of func docstring is used for
+    description in selection table.
+    """
+    # @ wraps(func)
+    def wrapper(*args, **kwargs):
+        df = func(*args, **kwargs)
+        docstr = re.match('[^\n]*', func.__doc__).group()[:-1]
+        count.update({docstr + '@users': df.id.nunique(),
+                      docstr + '@accs': df.account_id.nunique(),
+                      docstr + '@txns': len(df),
+                      docstr + '@value': df.amount.abs().sum() / 1e6})
+        return df
+    return wrapper
 
 
 @selector
@@ -10,8 +40,8 @@ def add_raw_count(df):
     return df
 
 
-@selector
-@counter
+# @selector
+# @counter
 def min_number_of_months(df, min_months=6):
     """At least 6 months of data."""
     cond = df.groupby('user_id').ym.nunique() >= min_months
@@ -19,8 +49,8 @@ def min_number_of_months(df, min_months=6):
     return df[df.user_id.isin(users)]
 
 
-@selector
-@counter
+# @selector
+# @counter
 def current_account(df):
     """At least one current account."""
     mask = df.account_type.eq('current')
@@ -28,8 +58,8 @@ def current_account(df):
     return df[df.user_id.isin(users)]
 
 
-@selector
-@counter
+# @selector
+# @counter
 def min_spend(df, min_txns=10, min_spend=300):
     """At least 5 monthly debits totalling GBP200.
     Drops first and last month for each user due to possible incomplete data.
@@ -55,8 +85,8 @@ def min_spend(df, min_txns=10, min_spend=300):
     return df[df.user_id.isin(users)]
 
 
-@selector
-@counter
+# @selector
+# @counter
 def income_pmts(df):
     """Income payments in 2/3 of all observed months."""
     def helper(g):
@@ -68,8 +98,8 @@ def income_pmts(df):
     return df[df.user_id.isin(usrs)]
 
 
-@selector
-@counter
+# @selector
+# @counter
 def income_amount(df, lower=5_000, upper=100_000):
     """Yearly incomes between 5k and 100k.
     Yearly income calculated on rolling basis from first month of data,
@@ -86,8 +116,8 @@ def income_amount(df, lower=5_000, upper=100_000):
     return df.groupby('user_id').filter(helper)
 
 
-@selector
-@counter
+# @selector
+# @counter
 def max_accounts(df):
     """No more than 10 active accounts in any year."""
     year = pd.Grouper(freq='M', key='transaction_date')
@@ -97,8 +127,8 @@ def max_accounts(df):
     return df[df.user_id.isin(users)]
 
 
-@selector
-@counter
+# @selector
+# @counter
 def max_debits(df):
     """Debits of no more than 100k in any month."""
     month = pd.Grouper(freq='M', key='transaction_date')
@@ -109,23 +139,23 @@ def max_debits(df):
     return df[df.user_id.isin(users)]
 
 
-@selector
-@counter
+# @selector
+# @counter
 def working_age(df):
     """Working-age."""
     age = 2020 - df.year_of_birth
     return df[age.between(18, 64)]
 
 
-@selector
-@counter
+# @selector
+# @counter
 def add_final_count(df):
     """Final sample.
     Add count of final dataset to selection table."""
     return df
 
 
-@selector
+# @selector
 def returner(df):
     """Return final data and counter."""
     return df, count

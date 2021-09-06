@@ -20,6 +20,7 @@ resource "aws_instance" "vm" {
   security_groups      = [aws_security_group.traffic_rules.name]
   iam_instance_profile = aws_iam_instance_profile.iam_profile.name
   key_name             = var.instance_key_pair
+  user_data            = file("vm-setup.sh")
 
   tags = {
     Name = var.instance_name

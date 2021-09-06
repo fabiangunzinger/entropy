@@ -1,7 +1,3 @@
-import os
-import pandas as pd
-from mlbt import config
-
 
 def selection_table(dict):
     """Create sample selection table for data appendix."""
