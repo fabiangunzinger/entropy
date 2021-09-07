@@ -44,7 +44,7 @@ def clean_headers(df):
     """Turn column headers into snake case."""
     df.columns = (df.columns
                   .str.lower()
-                  .str.replace(r'[_.]', '_', regex=True)
+                  .str.replace(r'[\s\.]', '_', regex=True)
                   .str.strip())
     return df
 
@@ -61,57 +61,24 @@ def order_salaries(df):
 
 
 @cleaner
-def order_and_sort(df):
-    """Order columns and sort values."""
-    cols = df.columns
-    first = ['id', 'date', 'user_id', 'amount', 'desc', 'merchant', 'tag_up']    
-    user = cols[cols.str.startswith('user') & ~cols.isin(first)]
-    account = cols[cols.str.startswith('account') & ~cols.isin(first)]
-    txn = cols[~cols.isin(user.append(account)) & ~cols.isin(first)]    
-    order = first + sorted(user) + sorted(account) + sorted(txn)
-
-    return df[order].sort_values(['user_id', 'date'])
-
-
-# @cleaner
-def add_variables(df):
-    """Create helper variables."""
-    y = df.date.dt.year * 100
-    m = df.date.dt.month
-    df['ym'] = y + m
-    return df
-
-
-# @cleaner
-def drop_last_month(df):
-    """Drop last month, which might have missing data.
-    For first month, Jan 2012, we have complete data.
-    """
-    ym = df.transaction_date.dt.to_period('M')
-    return df[ym < ym.max()]
-
-
-# @cleaner
 def clean_gender(df):
-    """Categorise 'u' as missing."""
-    df['gender'] = df.gender.str.replace('u', '')
+    """Replace gender with female."""
+    df['user_female'] = df.user_gender == 'F'
+    df['user_female'] = df.user_female.where(df.user_gender != 'U')
+    return df.drop(columns='user_gender')
+
+
+@cleaner
+def missings_to_nan(df):
+    """Convert missing category values to NaN."""
+    mbl = 'merchant_business_line'
+    mbl_missing = ['No Merchant Business Line', 'Unknown Merchant']
+    df[mbl] = df[mbl].cat.remove_categories(mbl_missing)     
+    df['merchant'] = df['merchant'].cat.remove_categories(['No Merchant'])
+    df['tag_up'] = df['tag_up'].cat.remove_categories(['No Tag'])
+    df['tag_auto'] = df['tag_auto'].cat.remove_categories(['No Tag'])
+    df['tag_manual'] = df['tag_manual'].cat.remove_categories(['No Tag'])
     return df
-
-
-# @cleaner
-def clean_tags(df):
-    """Replace parenthesis with dash for save regex searches."""
-    for tag in ['up_tag', 'auto_tag', 'manual_tag']:
-        df[tag] = df[tag].str.replace('(', '- ').str.replace(')', '')
-    return df
-
-
-def drop_duplicate_accounts(df):
-    pass
-
-
-def drop_business_accounts(df):
-    pass
 
 
 # @cleaner
@@ -321,5 +288,35 @@ def order_columns(df):
 # @cleaner
 def sort_rows(df):
     return df.sort_values(['user_id', 'transaction_date'], ignore_index=True)
+
+
+@cleaner
+def order_and_sort(df):
+    """Order columns and sort values."""
+    cols = df.columns
+    first = ['id', 'date', 'user_id', 'amount', 'desc', 'merchant', 'tag_up']    
+    user = cols[cols.str.startswith('user') & ~cols.isin(first)]
+    account = cols[cols.str.startswith('account') & ~cols.isin(first)]
+    txn = cols[~cols.isin(user.append(account)) & ~cols.isin(first)]    
+    order = first + sorted(user) + sorted(account) + sorted(txn)
+
+    return df[order].sort_values(['user_id', 'date'])
+
+
+# @cleaner
+def add_variables(df):
+    """Create helper variables."""
+    y = df.date.dt.year * 100
+    m = df.date.dt.month
+    df['ym'] = y + m
+    return df
+
+
+# @cleaner
+def clean_tags(df):
+    """Replace parenthesis with dash for save regex searches."""
+    for tag in ['up_tag', 'auto_tag', 'manual_tag']:
+        df[tag] = df[tag].str.replace('(', '- ').str.replace(')', '')
+    return df
 
 

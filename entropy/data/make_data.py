@@ -32,24 +32,20 @@ def get_sample_name(path):
     return re.search(sample_name_pattern, filename).group()
 
 
-def main(input_path):
+def main(input_path, output_path):
     df = clean_data(input_path)
+    aws.s3write_parquet(df, output_path)
+
     table = selection_table(sample_counts)
-
     sample_name = get_sample_name(input_path)
-    tbl_name = f'sample_selection_{sample_name}.tex'
-    tbl_path = os.path.join(config.TABDIR, tbl_name)
-    write_selection_table(table, tbl_path)
-
-    # print(selection_table)
-    # print(input_path)
-    # print(df.columns)
-    # print(df.head())
-    # print(df.info())
+    table_name = f'sample_selection_{sample_name}.tex'
+    table_path = os.path.join(config.TABDIR, table_name)
+    write_selection_table(table, table_path)
+    print(table)
 
 
 if __name__ == "__main__":
 
     args = parse_args(sys.argv)
 
-    main(args.input_path)
+    main(args.input_path, args.output_path)
