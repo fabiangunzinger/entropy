@@ -7,15 +7,18 @@ TESTSAMPLE := 000
 
 
 
+.PHONY: all
+all: $(SAMPLES)
+
+
+$(SAMPLES):
+	@python -m entropy.data.make_data\
+		$(RAWDIR)/mdb_$@.parquet\
+		$(CLEANDIR)/entropy_$@.parquet
+
+
 .PHONY: test
 test:
 	@python -m entropy.data.make_data\
 		$(RAWDIR)/mdb_$(TESTSAMPLE).parquet \
 		$(CLEANDIR)/entropy_$(TESTSAMPLE).parquet
-
-.PHONY: all
-all: $(SAMPLES)
-
-
-# $(SAMPLES):
-# 	@python mdb/raw_parquet.py $(RAWDIR)/mdb_$@.csv $(RAWDIR)/mdb_$@.parquet

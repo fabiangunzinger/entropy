@@ -40,12 +40,29 @@ def rename_cols(df):
 
 
 @cleaner
+def drop_unneeded_vars(df):
+    vars = ['user_lsoa', 'user_msoa', 'updated_flag']
+    return df.drop(columns=vars)
+
+
+@cleaner
 def clean_headers(df):
     """Turn column headers into snake case."""
     df.columns = (df.columns
                   .str.lower()
                   .str.replace(r'[\s\.]', '_', regex=True)
                   .str.strip())
+    return df
+
+
+@cleaner
+def lowercase_categories(df):
+    """Convert all category values to lowercase to simplify regex searcher."""
+    cats = df.select_dtypes('category').columns
+    df[cats] = (df[cats]
+                .astype('str')
+                .apply(lambda x: x.str.lower())
+                .astype('category'))
     return df
 
 
@@ -61,24 +78,113 @@ def order_salaries(df):
 
 
 @cleaner
-def clean_gender(df):
-    """Replace gender with female."""
-    df['user_female'] = df.user_gender == 'F'
-    df['user_female'] = df.user_female.where(df.user_gender != 'U')
+def gender_to_female(df):
+    """Replace gender variable with female dummy."""
+    df['user_female'] = df.user_gender == 'f'
+    df['user_female'] = df.user_female.where(df.user_gender != 'u')
     return df.drop(columns='user_gender')
+
+
+@cleaner
+def credit_debit_to_debit(df):
+    """Replace credit_debit variable with credit dummy."""
+    df['debit'] = df.credit_debit == 'debit'
+    return df.drop(columns='credit_debit')
+
+
+@cleaner
+def sign_amount(df):
+    """Make credits negative."""
+    df['amount'] = df.amount.where(df.debit, df.amount.mul(-1))
+    return df
 
 
 @cleaner
 def missings_to_nan(df):
     """Convert missing category values to NaN."""
     mbl = 'merchant_business_line'
-    mbl_missing = ['No Merchant Business Line', 'Unknown Merchant']
+    mbl_missing = ['no merchant business line', 'unknown merchant']
     df[mbl] = df[mbl].cat.remove_categories(mbl_missing)     
-    df['merchant'] = df['merchant'].cat.remove_categories(['No Merchant'])
-    df['tag_up'] = df['tag_up'].cat.remove_categories(['No Tag'])
-    df['tag_auto'] = df['tag_auto'].cat.remove_categories(['No Tag'])
-    df['tag_manual'] = df['tag_manual'].cat.remove_categories(['No Tag'])
+    df['merchant'] = df['merchant'].cat.remove_categories(['no merchant'])
+    df['tag_up'] = df['tag_up'].cat.remove_categories(['no tag'])
+    df['tag_auto'] = df['tag_auto'].cat.remove_categories(['no tag'])
+    df['tag_manual'] = df['tag_manual'].cat.remove_categories(['no tag'])
     return df
+
+
+@cleaner
+def add_tag(df):
+    """Create empty tag variable for custom categories."""
+    df['tag'] = None
+    return df
+
+
+@cleaner
+def tag_incomes(df):
+    """Tag earnings, pensions, benefits, and other income.
+    Based on Appendix A in Haciouglu et al. (2020).
+    """
+    incomes = {
+        'earnings': [
+            'salary or wages - main',
+            'salary or wages - other',
+            'salary - secondary',
+        ],
+        'pensions': [
+            'pension - other',
+            'pension',
+            'work pension',
+            'state pension',
+            'pension or investments',
+        ],
+        'benefits': [
+            'benefits',
+            'family benefits',
+            'job seekers benefits',
+            'other benefits',
+            'incapacity benefits'
+        ],
+        'other': [
+            'rental income - whole property',
+            'rental income - room',
+            'rental income',
+            'irregular income or gifts',
+            'miscellaneous income - other',
+            'investment income - other',
+            'loan or credit income',
+            'bond income',
+            'interest income',
+            'dividend',
+            'student loan funds',
+        ],
+    }
+
+    for type, tags in incomes.items():
+        pattern = '|'.join(tags)
+        mask = df.tag_up.str.match(pattern) & ~df.debit
+        df.loc[mask, 'tag'] = type + '_income'
+
+    return df
+
+
+@cleaner
+def fill_tag(df):
+    """Replace tag with up_tag if missing ."""
+    df['tag'] = df.tag.where(df.tag.notna(), df.tag_up)
+    return df
+
+
+@cleaner
+def order_and_sort(df):
+    """Order columns and sort values."""
+    cols = df.columns
+    first = ['id', 'date', 'user_id', 'amount', 'desc', 'merchant', 'tag_up']    
+    user = cols[cols.str.startswith('user') & ~cols.isin(first)]
+    account = cols[cols.str.startswith('account') & ~cols.isin(first)]
+    txn = cols[~cols.isin(user.append(account)) & ~cols.isin(first)]    
+    order = first + sorted(user) + sorted(account) + sorted(txn)
+
+    return df[order].sort_values(['user_id', 'date'])
 
 
 # @cleaner
@@ -88,13 +194,6 @@ def correct_up_tag(df):
     """
     manual_tag_exists = df.manual_tag.values != 'no tag'
     df['up_tag'] = np.where(manual_tag_exists, df.manual_tag, df.auto_tag)
-    return df
-
-
-# @cleaner
-def add_tag(df):
-    """Create empty corrected tag variable."""
-    df['tag'] = None
     return df
 
 
@@ -163,53 +262,6 @@ def drop_untagged(df):
 
 
 # @cleaner
-def tag_incomes(df):
-    """Tag earnings, pensions, benefits, and other income.
-    Based on Appendix A in Haciouglu et al. (2020).
-    """
-    incomes = {
-        'earnings': [
-            'salary or wages - main',
-            'salary or wages - other',
-            'salary - secondary',
-        ],
-        'pensions': [
-            'pension - other',
-            'pension',
-            'work pension',
-            'state pension',
-            'pension or investments',
-        ],
-        'benefits': [
-            'benefits',
-            'family benefits',
-            'job seekers benefits',
-            'other benefits',
-            'incapacity benefits'
-        ],
-        'other': [
-            'rental income - whole property',
-            'rental income - room',
-            'rental income',
-            'irregular income or gifts',
-            'miscellaneous income - other',
-            'investment income - other',
-            'loan or credit income',
-            'bond income',
-            'interest income',
-            'dividend',
-            'student loan funds',
-        ],
-    }
-    for type, tags in incomes.items():
-        tagvar = config.TAGVAR
-        pattern = '|'.join(tags)
-        mask = df[tagvar].str.match(pattern) & df.credit_debit.eq('credit')
-        df.loc[mask, 'tag'] = type + '_income'
-    return df
-
-
-# @cleaner
 def tag_corrections(df):
     """Correct or consolidate tag variable."""
     new_tags = {
@@ -217,15 +269,8 @@ def tag_corrections(df):
     }
     for new_tag, old_tags in new_tags.items():
         pattern = '|'.join(old_tags)
-        mask = df[config.TAGVAR].str.match(pattern)
+        mask = df[df.tag_up].str.match(pattern)
         df.loc[mask, 'tag'] = new_tag
-    return df
-
-
-# @cleaner
-def fill_tag(df):
-    """Replace tag with up_tag if missing ."""
-    df['tag'] = np.where(df.tag.isna(), df.up_tag, df.tag)
     return df
 
 
@@ -236,71 +281,6 @@ def drop_card_repayments(df):
     pattern = '|'.join(tags)
     mask = df.auto_tag.str.contains(pattern) & df.account_type.eq('current')
     return df[~mask]
-
-
-# @cleaner
-def sign_amount(df):
-    """Make credits negative."""
-    credit = df.credit_debit.values == 'credit'
-    df['amount'] = np.where(credit, df.amount.mul(-1), df.amount)
-    return df
-
-
-# @cleaner
-def str_to_cat(df):
-    """Convert string columns to categoricals for efficient storage."""
-    strs = df.select_dtypes('object')
-    df[strs.columns] = strs.astype('category')
-    return df
-
-
-# @cleaner
-def order_salaries(df):
-    """Turn salary range into ordered variable."""
-    cats = ['< 10k', '10k to 20k', '20k to 30k',
-            '30k to 40k', '40k to 50k', '50k to 60k',
-            '60k to 70k', '70k to 80k', '> 80k']
-    df['salary_range'] = (df.salary_range.cat
-                          .set_categories(cats, ordered=True))
-    return df
-
-
-# @cleaner
-def drop_unneeded_vars(df):
-    """Drop unneeded variables."""
-    # vars = ['auto_tag', 'manual_tag', 'up_tag']
-    vars = ['auto_tag', 'manual_tag']
-
-    return df.drop(columns=vars)
-
-
-# @cleaner
-def order_columns(df):
-    first = [
-        'user_id', 'transaction_date', 'amount',
-        'transaction_description', 'merchant_name', 'tag',
-    ]
-    rest = set(df.columns) - set(first)
-    ordered = first + list(rest)
-    return df[ordered]
-
-
-# @cleaner
-def sort_rows(df):
-    return df.sort_values(['user_id', 'transaction_date'], ignore_index=True)
-
-
-@cleaner
-def order_and_sort(df):
-    """Order columns and sort values."""
-    cols = df.columns
-    first = ['id', 'date', 'user_id', 'amount', 'desc', 'merchant', 'tag_up']    
-    user = cols[cols.str.startswith('user') & ~cols.isin(first)]
-    account = cols[cols.str.startswith('account') & ~cols.isin(first)]
-    txn = cols[~cols.isin(user.append(account)) & ~cols.isin(first)]    
-    order = first + sorted(user) + sorted(account) + sorted(txn)
-
-    return df[order].sort_values(['user_id', 'date'])
 
 
 # @cleaner

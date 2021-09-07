@@ -58,11 +58,18 @@ def s3read_parquet(path, profile=config.AWS_PROFILE, **kwargs):
     return pd.read_parquet(path, **options, **kwargs)
 
 
-def s3write_parquet(df, path, profile=config.AWS_PROFILE, **kwargs):
+def s3write_parquet(
+        df,
+        path,
+        profile=config.AWS_PROFILE,
+        verbose=False,
+        **kwargs
+):
     """Write df to s3 path."""
     options = dict(storage_options=dict(profile=profile))
     df.to_parquet(path, index=False, **options, **kwargs)
-    print(f'{path} (of shape {df.shape}) written.')
+    if verbose:
+        print(f'{path} (of shape {df.shape}) written.')
     return df
 
 

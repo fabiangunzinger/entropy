@@ -35,6 +35,16 @@ def counter(func):
     return wrapper
 
 
+@cleaner
+@counter
+def drop_last_month(df):
+    """Drop last month, which might have missing data.
+    For first month, Jan 2012, we have complete data.
+    """
+    ym = df.transaction_date.dt.to_period('M')
+    return df[ym < ym.max()]
+
+
 @selector
 @counter
 def add_raw_count(df):
