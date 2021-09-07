@@ -175,6 +175,15 @@ def fill_tag(df):
 
 
 @cleaner
+def add_variables(df):
+    """Create helper variables."""
+    y = df.date.dt.year * 100
+    m = df.date.dt.month
+    df['ym'] = y + m
+    return df
+
+
+@cleaner
 def order_and_sort(df):
     """Order columns and sort values."""
     cols = df.columns
@@ -281,15 +290,6 @@ def drop_card_repayments(df):
     pattern = '|'.join(tags)
     mask = df.auto_tag.str.contains(pattern) & df.account_type.eq('current')
     return df[~mask]
-
-
-# @cleaner
-def add_variables(df):
-    """Create helper variables."""
-    y = df.date.dt.year * 100
-    m = df.date.dt.month
-    df['ym'] = y + m
-    return df
 
 
 # @cleaner
