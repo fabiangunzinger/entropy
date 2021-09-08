@@ -1,3 +1,6 @@
+import numpy as np
+
+
 cleaner_funcs = []
 
 
@@ -113,9 +116,29 @@ def missings_to_nan(df):
 
 
 @cleaner
+def correct_tag_up(df):
+    """Set tag_up to tag_manual if tag_manual not missing else to tag_auto.
+    
+    This definition of tag_up is violated in two ways: sometimes tag_up is
+    missing while one of the other two tags isn't, sometimes tag_up is
+    not missing but both other tags are. In the latter case, we leave tag_up
+    unchanged.
+    """
+    correct_up_value = (df.tag_manual
+                        .astype('object')
+                        .fillna(df.tag_auto)
+                        .astype('category'))
+
+    df['tag_up'] = (df.tag_up
+                    .astype('object')
+                    .where(df.tag_up.notna(), correct_up_value)
+                    .astype('category'))
+    return df
+
+@cleaner
 def add_tag(df):
     """Create empty tag variable for custom categories."""
-    df['tag'] = None
+    df['tag'] = np.nan
     return df
 
 
@@ -169,8 +192,8 @@ def tag_incomes(df):
 
 @cleaner
 def fill_tag(df):
-    """Replace tag with up_tag if missing ."""
-    df['tag'] = df.tag.where(df.tag.notna(), df.tag_up)
+    """Fill empty tags with user-precedence tag convert to category."""
+    df['tag'] = df.tag.where(df.tag.notna(), df.tag_up).astype('category')
     return df
 
 
@@ -194,16 +217,6 @@ def order_and_sort(df):
     order = first + sorted(user) + sorted(account) + sorted(txn)
 
     return df[order].sort_values(['user_id', 'date'])
-
-
-# @cleaner
-def correct_up_tag(df):
-    """Set up_tag equal to manual_tag if it exists and auto_tag otherwise.
-    This is how up_tag is supposed to behave but doesn't always.
-    """
-    manual_tag_exists = df.manual_tag.values != 'no tag'
-    df['up_tag'] = np.where(manual_tag_exists, df.manual_tag, df.auto_tag)
-    return df
 
 
 # @cleaner

@@ -38,6 +38,31 @@ class S3BucketManager:
 
 
 
+def read_parquet(path, aws_profile=config.AWS_PROFILE, **kwargs):
+    if path.startswith('s3'):
+        options = dict(storage_options=dict(profile=profile))
+        return pd.read_parquet(path, **options, **kwargs)
+    return pd.read_parquet(path, **kwargs)
+
+
+def write_parquet(
+        df,
+        path,
+        aws_profile=config.AWS_PROFILE,
+        verbose=False,
+        **kwargs
+):
+    """Write df to s3 path."""
+    if path.startswith('s3'):
+        options = dict(storage_options=dict(profile=profile))
+        df.to_parquet(path, index=False, **options, **kwargs)
+    else:
+        df.to_parquet(path, index=False, **kwargs)
+    if verbose:
+        print(f'{path} (of shape {df.shape}) written.')
+    return df
+
+
 def s3read_csv(path, profile=config.AWS_PROFILE, **kwargs):
     """Read from s3 path."""
     options = dict(storage_options=dict(profile=profile))

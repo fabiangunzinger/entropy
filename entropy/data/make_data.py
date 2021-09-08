@@ -25,7 +25,7 @@ def timer(func):
         if diff > 60:
             diff = diff / 60
             unit = 'minutes'
-        print(f'{func.__name__:12} time: {diff:.2f} {unit}')
+        print(f'Time for {func.__name__:12}: {diff:.2f} {unit}')
         return result
     return wrapper
 
@@ -39,7 +39,7 @@ def parse_args(argv):
 
 @timer
 def read_data(path):
-    return aws.s3read_parquet(path)
+    return aws.read_parquet(path)
 
 
 @timer
@@ -58,7 +58,7 @@ def select_data(df):
 
 @timer
 def write_data(df, path):
-    aws.s3write_parquet(df, path)
+    aws.write_parquet(df, path)
     return df
 
 
