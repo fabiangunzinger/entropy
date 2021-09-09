@@ -1,33 +1,16 @@
 import argparse
-from functools import wraps
 import os
 import re
 import sys
-import time
 
 import pandas as pd
 
 from .. import config
 from ..helpers import aws
+from ..helpers.helpers import timer
 from .cleaners import cleaner_funcs
 from .selectors import selector_funcs, sample_counts
 from .selection_table import selection_table, write_selection_table
-
-
-def timer(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        end = time.time()
-        diff = end - start
-        unit = 'seconds'
-        if diff > 60:
-            diff = diff / 60
-            unit = 'minutes'
-        print(f'Time for {func.__name__:12}: {diff:.2f} {unit}')
-        return result
-    return wrapper
 
 
 def parse_args(argv):

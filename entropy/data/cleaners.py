@@ -38,6 +38,7 @@ def rename_cols(df):
         'Auto Purpose Tag Name': 'tag_auto',
         'Manual Tag Name': 'tag_manual',
         'User Precedence Tag Name': 'tag_up',
+        'Latest Recorded Balance': 'latest_balance',
     }
     return df.rename(columns=new_names)
 
@@ -135,6 +136,7 @@ def correct_tag_up(df):
                     .astype('category'))
     return df
 
+
 @cleaner
 def add_tag(df):
     """Create empty tag variable for custom categories."""
@@ -210,7 +212,7 @@ def add_variables(df):
 def order_and_sort(df):
     """Order columns and sort values."""
     cols = df.columns
-    first = ['id', 'date', 'user_id', 'amount', 'desc', 'merchant', 'tag_up']    
+    first = ['id', 'date', 'user_id', 'amount', 'desc', 'merchant', 'tag']    
     user = cols[cols.str.startswith('user') & ~cols.isin(first)]
     account = cols[cols.str.startswith('account') & ~cols.isin(first)]
     txn = cols[~cols.isin(user.append(account)) & ~cols.isin(first)]    
