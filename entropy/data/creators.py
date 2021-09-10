@@ -23,10 +23,10 @@ def calc_balance(df):
     refresh date. Exact zero values are likely due to unsuccessful
     account refresh (see data dictionary) and thus treated as missing.
 
-    Balance is calculated as the sum of the cumulative balance and
-    the starting balance -- the difference between the cumulative
-    balance and the actually reported balance on the day of the
-    last refresh.
+    Daily account balance is calculated as the sum of the cumulative
+    balance and the starting balance, which is the difference between
+    the cumulative balance and the actually reported balance on the
+    day of the last refresh.
     """
     def helper(g):
         last_refresh_balance = g.latest_balance.iloc[0]
