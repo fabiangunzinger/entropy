@@ -16,12 +16,17 @@ def creator(func):
 
 
 @creator
-def calc_balances(df):
-    """Calculate running account balances.
+def calc_balance(df):
+    """Calculate running account balance.
 
     Latest balance column refers to account balance at last account
     refresh date. Exact zero values are likely due to unsuccessful
-    account refresh (see data dictionary) and treated as missing.
+    account refresh (see data dictionary) and thus treated as missing.
+
+    Balance is calculated as the sum of the cumulative balance and
+    the starting balance -- the difference between the cumulative
+    balance and the actually reported balance on the day of the
+    last refresh.
     """
     def helper(g):
         last_refresh_balance = g.latest_balance.iloc[0]
@@ -35,20 +40,13 @@ def calc_balances(df):
         last_refresh_cum_balance = cum_balance[idx]
 
         starting_balance = last_refresh_balance - last_refresh_cum_balance
-        return cum_balance + starting_balance
+        balance = cum_balance.add(starting_balance).rename('balance')
+        return balance
 
 
-    df['latest_balance'] = (df.latest_balance
-                            .where(df.latest_balance != 0, np.nan))
-
-    balance = (df.groupby('account_id')
-                .apply(helper)
-                .rename('balance')
-                .reset_index())
-
+    df['latest_balance'] = df.latest_balance.replace(0, np.nan)
+    balance = df.groupby('account_id').apply(helper).reset_index()
     return df.merge(balance, how='left', validate='m:1')
-
-
 
 
 def calculate_salaries(df):
