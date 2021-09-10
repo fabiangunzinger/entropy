@@ -19,10 +19,9 @@ def creator(func):
 def calc_balances(df):
     """Calculate running account balances.
 
-    Latest balance column refers to account balance at last
-    account refresh date. Exact zero values are likely due to
-    unsuccessful account refreshes (see data dictionary), and
-    thus treated as missing.
+    Latest balance column refers to account balance at last account
+    refresh date. Exact zero values are likely due to unsuccessful
+    account refresh (see data dictionary) and treated as missing.
     """
     def helper(g):
         last_refresh_balance = g.latest_balance.iloc[0]
