@@ -10,6 +10,7 @@ from ..helpers import aws
 from ..helpers.helpers import timer
 from .cleaners import cleaner_funcs
 from .selectors import selector_funcs, sample_counts
+from .creators import creator_funcs
 from .selection_table import selection_table, write_selection_table
 
 
@@ -40,6 +41,14 @@ def select_data(df):
 
 
 @timer
+def create_vars(df):
+    if not df.empty:
+        for func in creator_funcs:
+            df = func(df)
+    return df
+
+
+@timer
 def write_data(df, path):
     aws.write_parquet(df, path)
     return df
@@ -57,13 +66,16 @@ def main(input_path, output_path):
     df = (read_data(input_path)
           .pipe(clean_data)
           .pipe(select_data)
+          .pipe(create_vars)
           .pipe(write_data, output_path))
 
     table = selection_table(sample_counts)
     table_name = f'sample_selection_{sample_name}.tex'
     table_path = os.path.join(config.TABDIR, table_name)
     write_selection_table(table, table_path)
-    print(table)
+
+    with pd.option_context('max_colwidth', 25):
+        print(table)
 
 
 if __name__ == "__main__":

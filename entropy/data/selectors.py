@@ -28,9 +28,9 @@ def counter(func):
         df = func(*args, **kwargs)
         docstr = re.match('[^\n]*', func.__doc__).group()[:-1]
         sample_counts.update({
-            docstr + '@users': df.id.nunique(),
+            docstr + '@users': df.user_id.nunique(),
             docstr + '@accs': df.account_id.nunique(),
-            docstr + '@txns': len(df),
+            docstr + '@txns': df.id.nunique(),
             docstr + '@value': df.amount.abs().sum() / 1e6
         })
         return df

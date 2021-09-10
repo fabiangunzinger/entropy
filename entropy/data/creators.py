@@ -16,83 +16,38 @@ def creator(func):
 
 
 @creator
-def calc_balances(df, window=3, aggfunc='mean'):
-    """Calculate daily balances.
-
-    Default calculates balance for each day as the mean of the balances of
-    the current day and the two subsequent days.
-    """
-    def helper(g):
-        mask = g.desc.eq('_balance')
-        latest_balance = g[mask].amount.values[0]
-        refresh_date = g[mask].date.dt.date.values[0]
-
-        pre_refresh = g.date.dt.date < refresh_date
-        # pre_refresh_balances = (
-        #     g[pre_refresh]
-        #     .set_index('date')
-        #     .resample('D').amount.sum()
-        #     .sort_index(ascending=False)
-        #     .rolling(window=window, min_periods=1).agg(aggfunc)
-        #     .cumsum()
-        #     .add(latest_balance)
-        # )
-        # post_refresh_balances = (
-        #     g[~pre_refresh]
-        #     .set_index('date')
-        #     .resample('D').amount.sum().mul(-1)
-        #     .sort_index(ascending=True)
-        #     .rolling(window=window, min_periods=1).agg(aggfunc)
-        #     .cumsum()
-        # )
-        # return (
-        #     pre_refresh_balances
-        #     .append(post_refresh_balances)
-        #     .sort_index()
-        #     .rename('balance')
-        # )
-        return g
-
-    data = _latest_balance_as_row(df)
-    balances = data.groupby('account_id').apply(helper).reset_index()
-    # return df.merge(balances, how='left', validate='m:1')
-    return data
-
-
-def _latest_balance_as_row(df, zero_replace_value=np.nan):
-    """Add latest balance as a temporary row.
-
-    MDB data dict notes that exact zero values result from unsuccessful
-    account refreshes. So, to be conservative, they are treated as missing
-    by default.
-    """
-    cols = ['account_id', 'account_last_refreshed', 'latest_balance']
-    latest_balances = df[cols].drop_duplicates().copy()
-    latest_balances['desc'] = '_balance'
-    new_names = {'account_last_refreshed': 'date', 'latest_balance': 'amount'}
-    latest_balances.rename(columns=new_names, inplace=True)
-    latest_balances.amount.replace(0, zero_replace_value, inplace=True)
-    return df.append(latest_balances).sort_values(['account_id', 'date'])
-
-
-
 def calc_balances(df):
+    """Calculate running account balances.
 
+    Latest balance column refers to account balance at last
+    account refresh date. Exact zero values are likely due to
+    unsuccessful account refreshes (see data dictionary), and
+    thus treated as missing.
+    """
     def helper(g):
-        last_balance = g.latest_balance.iloc[0]
+        last_refresh_balance = g.latest_balance.iloc[0]
         last_refresh_date = g.account_last_refreshed.iloc[0]
+        
+        daily_net_spend = g.set_index('date').resample('D').amount.sum()
+        cum_spend = daily_net_spend.cumsum()
 
-        cumsum = g.set_index('date').resample('D').amount.sum().cumsum()
+        # get cum_spend on last refreshed date or nearest preceeding date 
+        idx = cum_spend.index.get_loc(last_refresh_date, method='ffill')
+        last_refresh_cum_spend = cum_spend[idx]
 
-        pre_refresh = cumsum.truncate(after=last_refresh_date)
-        cumsum_total = pre_refresh[-1]
-        starting_balance = last_balance - cumsum_total
+        starting_balance = last_refresh_balance - last_refresh_cum_spend
+        return cum_spend + starting_balance
 
-        return cumsum.add(starting_balance)
 
-    balances = (df.groupby('account_id').apply(helper)
-                .rename('balances').reset_index())
-    return df.merge(balances, how='left', validate='m:1')
+    df['latest_balance'] = (df.latest_balance
+                            .where(df.latest_balance != 0, np.nan))
+
+    balance = (df.groupby('account_id')
+                .apply(helper)
+                .rename('balance')
+                .reset_index())
+
+    return df.merge(balance, how='left', validate='m:1')
 
 
 
