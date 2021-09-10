@@ -73,7 +73,6 @@ def main(input_path, output_path):
     table_name = f'sample_selection_{sample_name}.tex'
     table_path = os.path.join(config.TABDIR, table_name)
     write_selection_table(table, table_path)
-
     with pd.option_context('max_colwidth', 25):
         print(table)
 
