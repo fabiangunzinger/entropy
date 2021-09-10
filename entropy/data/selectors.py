@@ -1,4 +1,4 @@
-from collections import Counter
+from collections import Counter, namedtuple
 from functools import wraps
 import re
 
@@ -7,11 +7,15 @@ import pandas as pd
 
 selector_funcs = []
 
+FuncWithKwargs = namedtuple('FuncWithKwargs', ['func', 'kwargs'])
 
-def selector(func):
+
+def selector(func=None, **kwargs):
     """Add function to list of selector functions."""
-    selector_funcs.append(func)
-    return func
+    def wrapper(func):
+        selector_funcs.append(FuncWithKwargs(func, kwargs))
+        return func
+    return wrapper(func) if func else wrapper
 
 
 sample_counts = Counter()
@@ -113,7 +117,7 @@ def income_pmts(df, income_months_ratio=2/3):
     return df[df.user_id.isin(usrs)]
 
 
-@selector
+@selector(lower=0)
 @counter
 def income_amount(df, lower=5_000, upper=100_000):
     """Yearly incomes between 5k and 100k.

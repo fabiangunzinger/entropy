@@ -36,7 +36,7 @@ def clean_data(df):
 @timer
 def select_data(df):
     for func in selector_funcs:
-        df = func(df)
+        df = func.func(df, **func.kwargs)
     return df
 
 
