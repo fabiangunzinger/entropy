@@ -44,6 +44,15 @@ def rename_cols(df):
 
 
 @cleaner
+def drop_last_month(df):
+    """Drop last month.
+    Might have missing data. For first month, Jan 2012, we have complete data.
+    """
+    ym = df.date.dt.to_period('M')
+    return df[ym < ym.max()]
+
+
+@cleaner
 def drop_unneeded_vars(df):
     vars = ['user_lsoa', 'user_msoa', 'updated_flag']
     return df.drop(columns=vars)
@@ -117,6 +126,18 @@ def missings_to_nan(df):
 
 
 @cleaner
+def zero_balances_to_missing(df):
+    """Replace zero latest balances with missings.
+
+    Latest balance column refers to account balance at last account
+    refresh date. Exact zero values are likely due to unsuccessful
+    account refresh (see data dictionary) and thus treated as missing.
+    """
+    df['latest_balance'] = df.latest_balance.replace(0, np.nan)
+    return df
+
+
+@cleaner
 def correct_tag_up(df):
     """Set tag_up to tag_manual if tag_manual not missing else to tag_auto.
     
@@ -136,7 +157,6 @@ def correct_tag_up(df):
                     .astype('category'))
     return df
 
-
 @cleaner
 def add_tag(df):
     """Create empty tag variable for custom categories."""
@@ -151,9 +171,9 @@ def tag_incomes(df):
     """
     incomes = {
         'earnings': [
-            'salary or wages - main',
-            'salary or wages - other',
-            'salary - secondary',
+            'salary or wages \(main\)',
+            'salary or wages \(other\)',
+            'salary \(secondary\)',
         ],
         'pensions': [
             'pension - other',
@@ -200,8 +220,8 @@ def fill_tag(df):
 
 
 @cleaner
-def add_variables(df):
-    """Create helper variables."""
+def add_helpers(df):
+    """Create helper variables used for selection."""
     y = df.date.dt.year * 100
     m = df.date.dt.month
     df['ym'] = y + m

@@ -19,10 +19,6 @@ def creator(func):
 def calc_balance(df):
     """Calculate running account balance.
 
-    Latest balance column refers to account balance at last account
-    refresh date. Exact zero values are likely due to unsuccessful
-    account refresh (see data dictionary) and thus treated as missing.
-
     Daily account balance is calculated as the sum of the cumulative
     balance and the starting balance, which is the difference between
     the cumulative balance and the actually reported balance on the
@@ -43,8 +39,6 @@ def calc_balance(df):
         balance = cum_balance.add(starting_balance).rename('balance')
         return balance
 
-
-    df['latest_balance'] = df.latest_balance.replace(0, np.nan)
     balance = df.groupby('account_id').apply(helper).reset_index()
     return df.merge(balance, how='left', validate='m:1')
 

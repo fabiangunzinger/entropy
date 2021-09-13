@@ -30,12 +30,12 @@ def counter(func):
     @ wraps(func)
     def wrapper(*args, **kwargs):
         df = func(*args, **kwargs)
-        docstr = re.match('[^\n]*', func.__doc__).group()[:-1]
+        description = func.__doc__.splitlines()[0]
         sample_counts.update({
-            docstr + '@users': df.user_id.nunique(),
-            docstr + '@accs': df.account_id.nunique(),
-            docstr + '@txns': df.id.nunique(),
-            docstr + '@value': df.amount.abs().sum() / 1e6
+            description + '@users': df.user_id.nunique(),
+            description + '@accs': df.account_id.nunique(),
+            description + '@txns': df.id.nunique(),
+            description + '@value': df.amount.abs().sum() / 1e6
         })
         return df
     return wrapper
@@ -47,16 +47,6 @@ def add_raw_count(df):
     """Raw sample.
     Add count of raw dataset to selection table."""
     return df
-
-
-@selector
-@counter
-def drop_last_month(df):
-    """Drop last month.
-    Might have missing data. For first month, Jan 2012, we have complete data.
-    """
-    ym = df.date.dt.to_period('M')
-    return df[ym < ym.max()]
 
 
 @selector
@@ -117,7 +107,7 @@ def income_pmts(df, income_months_ratio=2/3):
     return df[df.user_id.isin(usrs)]
 
 
-@selector(lower=0)
+@selector
 @counter
 def income_amount(df, lower=5_000, upper=100_000):
     """Yearly incomes between 5k and 100k.

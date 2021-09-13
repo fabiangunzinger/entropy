@@ -49,8 +49,8 @@ def create_vars(df):
 
 
 @timer
-def write_data(df, path):
-    aws.write_parquet(df, path)
+def write_data(df, path, **kwargs):
+    aws.write_parquet(df, path, **kwargs)
     return df
 
 
@@ -67,7 +67,7 @@ def main(input_path, output_path):
           .pipe(clean_data)
           .pipe(select_data)
           .pipe(create_vars)
-          .pipe(write_data, output_path))
+          .pipe(write_data, output_path, verbose=True))
 
     table = selection_table(sample_counts)
     table_name = f'sample_selection_{sample_name}.tex'
