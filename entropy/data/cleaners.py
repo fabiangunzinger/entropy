@@ -190,8 +190,8 @@ def tag_incomes(df):
             'incapacity benefits'
         ],
         'other': [
-            'rental income - whole property',
-            'rental income - room',
+            'rental income \(whole property\)',
+            'rental income \(room\)',
             'rental income',
             'irregular income or gifts',
             'miscellaneous income - other',
