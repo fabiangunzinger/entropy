@@ -43,9 +43,37 @@ def calc_balance(df):
     return df.merge(balance, how='left', validate='m:1')
 
 
-def calculate_salaries(df):
+@creator
+def calc_income(df):
+    """Return yearly income for each user.
+
+    Data inspection suggests that most users get income payments
+    every month of the year except in the first and last year we 
+    observe them. We thus scale income to represent a full 
+    12 months.
     """
-    Return monthly and yearly salary for each user.
+    mask = df.tag.str.endswith('_income')
+    yearly_income_payments = (df.loc[mask]
+                              .set_index('date')
+                              .groupby('user_id')
+                              .resample('Y'))
+    yearly_payments_total = yearly_income_payments.amount.sum().mul(-1)
+    yearly_unique_months = yearly_income_payments.ym.nunique()
+    yearly_income = yearly_payments_total / yearly_unique_months * 12
+    
+    yearly_income = (yearly_income
+                     .rename('income')
+                     .reset_index()
+                     .assign(y=lambda df: df.date.dt.year)
+                     .drop(columns='date'))
+    df['y'] = df.date.dt.year
+    keys = ['user_id', 'y']
+    merged = df.merge(yearly_income, how='left', on=keys, validate='m:1')
+    return merged.drop(columns='y')
+
+
+def calculate_salaries(df):
+    """Return monthly and yearly salary for each user.
 
     Salaries are monthly/yearly aggregated sums of
     all transactions tagged as salaries by MDB.

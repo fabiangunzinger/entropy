@@ -157,6 +157,7 @@ def correct_tag_up(df):
                     .astype('category'))
     return df
 
+
 @cleaner
 def add_tag(df):
     """Create empty tag variable for custom categories."""
@@ -206,7 +207,7 @@ def tag_incomes(df):
 
     for type, tags in incomes.items():
         pattern = '|'.join(tags)
-        mask = df.tag_up.str.match(pattern) & ~df.debit
+        mask = df.tag_auto.str.match(pattern) & ~df.debit
         df.loc[mask, 'tag'] = type + '_income'
 
     return df
@@ -214,8 +215,10 @@ def tag_incomes(df):
 
 @cleaner
 def fill_tag(df):
-    """Fill empty tags with user-precedence tag convert to category."""
-    df['tag'] = df.tag.where(df.tag.notna(), df.tag_up).astype('category')
+    """Fill empty tag with auto tag if nonmissing else with manual tag."""
+    s = df.tag_auto.astype('str')
+    fill_value = s.where(s.notna(), df.tag_manual)
+    df['tag'] = df.tag.where(df.tag.notna(), fill_value).astype('category')
     return df
 
 
