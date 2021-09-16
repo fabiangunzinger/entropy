@@ -63,6 +63,7 @@ def _get_sample_name(path):
 def main(input_path, output_path):
     sample_name = _get_sample_name(input_path)
     print('Sample:', sample_name)
+
     df = (read_data(input_path)
           .pipe(clean_data)
           .pipe(select_data)
