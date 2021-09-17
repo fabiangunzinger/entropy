@@ -30,15 +30,15 @@ def calc_balance(df):
         last_refresh_date = g.account_last_refreshed.iloc[0]
         
         daily_net_spend = g.set_index('date').resample('D').amount.sum()
-        cum_balance = daily_net_spend.cumsum()
+        cum_balance = daily_net_spend.cumsum().mul(-1)
 
         # get cum_balance on last refreshed date or nearest preceeding date 
         idx = cum_balance.index.get_loc(last_refresh_date, method='ffill')
         last_refresh_cum_balance = cum_balance[idx]
 
         starting_balance = last_refresh_balance - last_refresh_cum_balance
-        balance = cum_balance.add(starting_balance).rename('balance')
-        return balance
+        balance = cum_balance + starting_balance
+        return balance.rename('balance')
 
     balance = df.groupby('account_id').apply(helper).reset_index()
     return df.merge(balance, how='left', validate='m:1')
