@@ -66,16 +66,16 @@ def main(input_path, output_path):
 
     df = (read_data(input_path)
           .pipe(clean_data)
-          .pipe(select_data)
-          .pipe(create_vars)
+          # .pipe(select_data)
+          # .pipe(create_vars)
           .pipe(write_data, output_path, verbose=True))
 
-    table = selection_table(sample_counts)
-    table_name = f'sample_selection_{sample_name}.tex'
-    table_path = os.path.join(config.TABDIR, table_name)
-    write_selection_table(table, table_path)
-    with pd.option_context('max_colwidth', 25):
-        print(table)
+    # table = selection_table(sample_counts)
+    # table_name = f'sample_selection_{sample_name}.tex'
+    # table_path = os.path.join(config.TABDIR, table_name)
+    # write_selection_table(table, table_path)
+    # with pd.option_context('max_colwidth', 25):
+    #     print(table)
 
 
 if __name__ == "__main__":

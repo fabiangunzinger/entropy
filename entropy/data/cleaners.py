@@ -216,9 +216,14 @@ def tag_incomes(df):
 @cleaner
 def fill_tag(df):
     """Fill empty tag with auto tag if nonmissing else with manual tag."""
-    s = df.tag_auto.astype('str')
-    fill_value = s.where(s.notna(), df.tag_manual)
-    df['tag'] = df.tag.where(df.tag.notna(), fill_value).astype('category')
+    def cat_to_str(cat):
+        return cat.astype('str').replace('nan', np.nan)
+
+    tag = cat_to_str(df.tag)
+    auto = cat_to_str(df.tag_auto)
+    manual = cat_to_str(df.tag_manual)
+    fill_value = auto.where(auto.notna(), manual)
+    df['tag'] = tag.where(tag.notna(), fill_value).astype('category')
     return df
 
 
