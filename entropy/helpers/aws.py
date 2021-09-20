@@ -54,7 +54,7 @@ def write_parquet(
 ):
     """Write df to s3 path."""
     if path.startswith('s3'):
-        options = dict(storage_options=dict(profile=profile))
+        options = dict(storage_options=dict(profile=aws_profile))
         df.to_parquet(path, index=False, **options, **kwargs)
     else:
         df.to_parquet(path, index=False, **kwargs)
