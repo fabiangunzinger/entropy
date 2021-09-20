@@ -54,28 +54,32 @@ def write_data(df, path, **kwargs):
     return df
 
 
-def _get_sample_name(path):
+def get_sample_name(path):
     sample_name_pattern = '[X\d]+'
     filename = os.path.basename(path)
     return re.search(sample_name_pattern, filename).group()
 
 
+def get_table_path(sample_name):
+    table_name = f'sample_selection_{sample_name}.tex'
+    return os.path.join(config.TABDIR, table_name)
+
+
 def main(input_path, output_path):
-    sample_name = _get_sample_name(input_path)
+    sample_name = get_sample_name(input_path)
     print('Sample:', sample_name)
 
     df = (read_data(input_path)
           .pipe(clean_data)
-          # .pipe(select_data)
-          # .pipe(create_vars)
+          .pipe(select_data)
+          .pipe(create_vars)
           .pipe(write_data, output_path, verbose=True))
 
-    # table = selection_table(sample_counts)
-    # table_name = f'sample_selection_{sample_name}.tex'
-    # table_path = os.path.join(config.TABDIR, table_name)
-    # write_selection_table(table, table_path)
-    # with pd.option_context('max_colwidth', 25):
-    #     print(table)
+    table = selection_table(sample_counts)
+    tbl_path = get_table_path(sample_name)
+    write_selection_table(table, tbl_path)
+    with pd.option_context('max_colwidth', 25):
+        print(table)
 
 
 if __name__ == "__main__":
