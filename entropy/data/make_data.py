@@ -11,6 +11,7 @@ from ..helpers.helpers import timer
 from .cleaners import cleaner_funcs
 from .selectors import selector_funcs, sample_counts
 from .creators import creator_funcs
+from .validators import validator_funcs
 from .selection_table import selection_table, write_selection_table
 
 
@@ -45,6 +46,13 @@ def create_vars(df):
     if not df.empty:
         for func in creator_funcs:
             df = func(df)
+    return df
+
+
+@timer
+def validate_date(df):
+    for func in validator_funcs:
+        df = func(df)
     return df
 
 
