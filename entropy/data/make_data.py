@@ -50,7 +50,7 @@ def create_vars(df):
 
 
 @timer
-def validate_date(df):
+def validate_data(df):
     for func in validator_funcs:
         df = func(df)
     return df
@@ -81,7 +81,8 @@ def main(input_path, output_path):
           .pipe(clean_data)
           .pipe(select_data)
           .pipe(create_vars)
-          .pipe(write_data, output_path, verbose=True))
+          .pipe(validate_data)
+          .pipe(write_data, output_path))
 
     table = selection_table(sample_counts)
     tbl_path = get_table_path(sample_name)

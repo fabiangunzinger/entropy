@@ -13,7 +13,7 @@ def timer(func):
         if diff > 60:
             diff = diff / 60
             unit = 'minutes'
-        print(f'Time for {func.__name__:12}: {diff:.2f} {unit}')
+        print(f'Time for {func.__name__:15}: {diff:.2f} {unit}')
         return result
     return wrapper
 
