@@ -139,6 +139,46 @@ def zero_balances_to_missing(df):
     return df
 
 
+def _apply_grouping(grouping, df, col_name):
+    """Apply grouping to col_name in dataframe.
+
+    Args:
+      - grouping: a dict with name-tags pairs, where name
+        is the group name that will be applied to each txn
+        for which tag_auto equals one of the tags.
+      - col_name: a column from df into which the group
+        names will be stored.
+    """
+    for group, tags in grouping.items():
+        escaped_tags = [re.escape(tag) for tag in tags]
+        pattern = '|'.join(escaped_tags)
+        mask = df.tag_auto.str.fullmatch(pattern, na=False)
+        df.loc[mask, col_name] = group
+
+    return df
+
+
+@cleaner
+def add_tag_group(df):
+    """Group transactions into income, spend, and transfers."""
+    df['tag_group'] = np.nan
+    _apply_grouping(helpers.tag_groups, df, 'tag_group')
+    return df
+
+
+@cleaner
+def add_tag(df):
+    """Create custom transaction tag.
+
+    This is the main tag used throughout the analysis.
+    """
+    df['tag'] = np.nan
+    _apply_grouping(helpers.lloyds_spend, df, 'tag')
+    _apply_grouping(helpers.hacioglu_income, df, 'tag')
+    _apply_grouping(helpers.custom_transfers, df, 'tag')
+    return df
+
+
 @cleaner
 def correct_tag_up(df):
     """Ensure user precedence tag is defined as in data dictionary.
@@ -162,92 +202,8 @@ def correct_tag_up(df):
 
 
 @cleaner
-def add_tag_group(df):
-    """Group transactions into income, spend, and transfers."""
-    df['tag_group'] = np.nan
-
-    for group, tags in helpers.tag_groups.items():
-        escaped_tags = [re.escape(tag) for tag in tags]
-        pattern = '|'.join(escaped_tags)
-        mask = df.tag_auto.str.match(pattern, na=False)
-        df.loc[mask, 'tag_group'] = group
-
-    return df
-
-
-
-@cleaner
-def add_tag(df):
-    """Create empty tag variable for custom categories."""
-    df['tag'] = np.nan
-    return df
-
-
-@cleaner
-def tag_incomes(df):
-    """Tag earnings, pensions, benefits, and other income.
-    Based on Appendix A in Haciouglu et al. (2020).
-    """
-    incomes = {
-        'earnings': [
-            'salary or wages \(main\)',
-            'salary or wages \(other\)',
-            'salary \(secondary\)',
-        ],
-        'pensions': [
-            'pension - other',
-            'pension',
-            'work pension',
-            'state pension',
-            'pension or investments',
-        ],
-        'benefits': [
-            'benefits',
-            'family benefits',
-            'job seekers benefits',
-            'other benefits',
-            'incapacity benefits'
-        ],
-        'other': [
-            'rental income \(whole property\)',
-            'rental income \(room\)',
-            'rental income',
-            'irregular income or gifts',
-            'miscellaneous income - other',
-            'investment income - other',
-            'loan or credit income',
-            'bond income',
-            'interest income',
-            'dividend',
-            'student loan funds',
-        ],
-    }
-
-    for type, tags in incomes.items():
-        pattern = '|'.join(tags)
-        mask = df.tag_auto.str.match(pattern) & ~df.debit
-        df.loc[mask, 'tag'] = type + '_income'
-
-    return df
-
-
-@cleaner
-def fill_tag(df):
-    """Fill empty tag with auto tag if nonmissing else with manual tag."""
-    def cat_to_str(cat):
-        return cat.astype('str').replace('nan', np.nan)
-
-    tag = cat_to_str(df.tag)
-    auto = cat_to_str(df.tag_auto)
-    manual = cat_to_str(df.tag_manual)
-    fill_value = auto.where(auto.notna(), manual)
-    df['tag'] = tag.where(tag.notna(), fill_value).astype('category')
-    return df
-
-
-@cleaner
-def add_helpers(df):
-    """Create helper variables used for selection."""
+def add_year_month_variable(df):
+    """Create year-month date as helper variable."""
     y = df.date.dt.year * 100
     m = df.date.dt.month
     df['ym'] = y + m
@@ -258,7 +214,8 @@ def add_helpers(df):
 def order_and_sort(df):
     """Order columns and sort values."""
     cols = df.columns
-    first = ['id', 'date', 'user_id', 'amount', 'desc', 'merchant', 'tag']    
+    first = ['id', 'date', 'user_id', 'amount', 'desc', 'merchant',
+             'tag_group', 'tag']    
     user = cols[cols.str.startswith('user') & ~cols.isin(first)]
     account = cols[cols.str.startswith('account') & ~cols.isin(first)]
     txn = cols[~cols.isin(user.append(account)) & ~cols.isin(first)]    
@@ -339,7 +296,7 @@ def tag_corrections(df):
     }
     for new_tag, old_tags in new_tags.items():
         pattern = '|'.join(old_tags)
-        mask = df[df.tag_up].str.match(pattern)
+        mask = df[df.tag_up].str.fullmatch(pattern)
         df.loc[mask, 'tag'] = new_tag
     return df
 

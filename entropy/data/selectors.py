@@ -100,9 +100,9 @@ def income_pmts(df, income_months_ratio=2/3):
     """Income payments in 2/3 of all observed months."""
     def helper(g):
         tot_months = g.ym.nunique()
-        inc_months = g[g.tag.str.contains('_income', na=False)].ym.nunique()
+        inc_months = g[g.tag_group.str.match('income', na=False)].ym.nunique()
         return (inc_months / tot_months) >= income_months_ratio
-    data = df[['user_id', 'date', 'tag', 'ym']]
+    data = df[['user_id', 'date', 'tag_group', 'ym']]
     usrs = data.groupby('user_id').filter(helper).user_id.unique()
     return df[df.user_id.isin(usrs)]
 
@@ -119,7 +119,7 @@ def income_amount(df, lower=5_000, upper=100_000):
         first_month = g.date.min().strftime('%b')
         yearly_freq = 'AS-' + first_month.upper()
         year = pd.Grouper(freq=yearly_freq, key='date')
-        yearly_inc = (g[g.tag.str.contains('_income', na=False)]
+        yearly_inc = (g[g.tag_group.str.match('income', na=False)]
                       .groupby(year)
                       .amount.sum().mul(-1))
         return yearly_inc.between(lower, upper).all()

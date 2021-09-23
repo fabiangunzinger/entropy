@@ -234,11 +234,33 @@ tag_groups = {
 }
 
 
+custom_transfers = {
+    'savings': [
+        'general savings',
+        'investment - other',
+        'investments or shares',
+        'isa',
+        'saving (general)',
+        'savings (general)',
+        'savings',
+    ],
+
+    'transfer': [
+        'car fund',
+        'credit card repayment',
+        'credit card',
+        'current account',
+        'paypal account',
+        'transfers',
+    ],
+}
+
+
 lloyds_spend = {
-    # spend grouping based on lloyds banking group,
-    # see muggleton2021evidence
+    # spend grouping based on lloyds banking group, from muggleton2021evidence
+    # changes: dropped miscellaneous category
     
-    'Communication': [
+    'communication': [
         'media bundle',
         'mobile',
         'mobile app',
@@ -248,7 +270,7 @@ lloyds_spend = {
         'tv licence',
     ],
     
-    'Finance': [
+    'finance': [
         'bank charges',
         'banking charges',
         'breakdown cover',
@@ -282,7 +304,7 @@ lloyds_spend = {
         'web hosting',
     ],
     
-    'Hobbies': [
+    'hobbies': [
         'art',
         'art supplies',
         'cycling',
@@ -301,12 +323,13 @@ lloyds_spend = {
         'sports equipment',
     ],
     
-    'Household': [
+    'household': [
         'alcohol',
         'appliances or electrical',
         'bills',
         'broadband',
         'coal/oil/lpg/other',
+        'diy',
         'electricity',
         'energy (gas, elec, other)',
         'flowers',
@@ -333,9 +356,18 @@ lloyds_spend = {
         'water',
     ],
         
-    'Motor': [],
+    'motor': [
+        'driving lessons',
+        'parking',
+        'parking or tolls',
+        'road charges',
+        'vehicle',
+        'vehicle hire',
+        'vehicle running costs',
+        'vehicle tax',
+    ],
     
-    'Retail': [
+    'retail': [
         'accessories',
         'appearance',
         'beauty products',
@@ -343,7 +375,7 @@ lloyds_spend = {
         'books / magazines / newspapers',
         'child - clothes',
         'child - everyday or childcare',
-        'child - toys, clubs o other',
+        'child - toys, clubs or other',
         'clothes',
         'clothes - designer or other',
         'clothes - everyday or work',
@@ -366,7 +398,7 @@ lloyds_spend = {
         'vet',
     ],
     
-    'Services': [
+    'services': [
         'childcare fees',
         'childrens club fees',
         'cinema',
@@ -401,32 +433,23 @@ lloyds_spend = {
         'zoo/theme park'
     ],
     
-    'Travel': [
-        'driving lessons',
+    'travel': [
         'flights',
         'holiday',
         'holidays',
-        'parking',
-        'parking or tolls',
         'public transport',
-        'road charges',
         'taxi',
         'taxis or vehicle hire',
         'transport',
-        'vehicle',
-        'vehicle hire',
-        'vehicle running costs',
-        'vehicle tax',
     ],
     
-    'Other': [
+    'other_spend': [
         'administration - other',
         'business expenses',
         'cash',
         'charity - other',
         'children - other',
         'device rental',
-        'diy',
         'donation to organisation',
         'electrical equipment',
         'expenses',
@@ -439,13 +462,15 @@ lloyds_spend = {
 }
 
 
-hacioglu_incomes = {
+hacioglu_income = {
     # income categorisation following haciouglu2020evidence
+    # added unsecured load funds, winnings, and bursary to
+    # other income.
 
     'earnings': [
-        'salary or wages \(main\)',
-        'salary or wages \(other\)',
-        'salary \(secondary\)',
+        'salary or wages (main)',
+        'salary or wages (other)',
+        'salary (secondary)',
     ],
 
     'pensions': [
@@ -464,9 +489,9 @@ hacioglu_incomes = {
         'incapacity benefits'
     ],
 
-    'other': [
-        'rental income \(whole property\)',
-        'rental income \(room\)',
+    'other_income': [
+        'rental income (whole property)',
+        'rental income (room)',
         'rental income',
         'irregular income or gifts',
         'miscellaneous income - other',
@@ -476,6 +501,9 @@ hacioglu_incomes = {
         'interest income',
         'dividend',
         'student loan funds',
+        'unsecured loan funds',
+        'winnings',
+        'bursary',
     ],
 }
 

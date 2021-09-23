@@ -12,3 +12,10 @@ def validator(func):
     return func
 
 
+def tag(df):
+    # check that tag only missing if tag_auto is missing
+    return df
+
+
+
+
