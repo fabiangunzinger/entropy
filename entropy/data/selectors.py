@@ -1,3 +1,10 @@
+"""
+Functions that perform sample selection. First line of docstring is being used
+for description of procedure in sample selection table.
+
+"""
+
+
 from collections import Counter, namedtuple
 from functools import wraps
 import re

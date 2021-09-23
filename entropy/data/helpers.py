@@ -3,7 +3,7 @@ Transaction tag groups and categorisations.
 
 Transactions are first grouped into income, spending, and transfers. Within
 those groups, they are then grouped further (e.g. spend into Lloyds categories).
-All groupings are based on tag_auto. 
+All groupings are based on tag_auto, to ensure consistency across users.
 
 """
 
@@ -216,7 +216,7 @@ tag_groups = {
         'zoo/theme park'
     ],
 
-    'transfer': [
+    'transfers': [
         'car fund',
         'credit card repayment',
         'credit card',
@@ -245,7 +245,7 @@ custom_transfers = {
         'savings',
     ],
 
-    'transfer': [
+    'tsransfer': [
         'car fund',
         'credit card repayment',
         'credit card',
@@ -261,6 +261,7 @@ lloyds_spend = {
     # changes: dropped miscellaneous category
     
     'communication': [
+        'broadband',
         'media bundle',
         'mobile',
         'mobile app',
@@ -327,7 +328,6 @@ lloyds_spend = {
         'alcohol',
         'appliances or electrical',
         'bills',
-        'broadband',
         'coal/oil/lpg/other',
         'diy',
         'electricity',

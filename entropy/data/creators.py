@@ -10,14 +10,14 @@ creator_funcs = []
 
 
 def creator(func):
-    """Add func to list of creator functions."""
+    """Adds func to list of creator functions."""
     creator_funcs.append(func)
     return func
 
 
 @creator
 def calc_balance(df):
-    """Calculate running account balance.
+    """Calculates running account balance.
 
     Daily account balance is calculated as the sum of the cumulative
     balance and the starting balance, where the starting balance is
@@ -46,7 +46,7 @@ def calc_balance(df):
 
 @creator
 def calc_income(df):
-    """Return yearly income for each user.
+    """Returns yearly income for each user.
 
     Data inspection suggests that most users get income payments
     every month of the year except in the first and last year we 

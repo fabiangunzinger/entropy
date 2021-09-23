@@ -7,14 +7,14 @@ cleaner_funcs = []
 
 
 def cleaner(func):
-    """Add function to list of cleaner functions."""
+    """Adds function to list of cleaner functions."""
     cleaner_funcs.append(func)
     return func
 
 
 @cleaner
 def rename_cols(df):
-    """Rename columns where needed.
+    """Renames columns where needed.
 
     Each variable in the data pertains either to a txn, a user,
     or an account, and is prepended by an appropriate prefix,
@@ -47,7 +47,7 @@ def rename_cols(df):
 
 @cleaner
 def drop_last_month(df):
-    """Drop last month.
+    """Drops last month.
     Might have missing data. For first month, Jan 2012, we have complete data.
     """
     ym = df.date.dt.to_period('M')
@@ -62,7 +62,7 @@ def drop_unneeded_vars(df):
 
 @cleaner
 def clean_headers(df):
-    """Turn column headers into snake case."""
+    """Turns column headers into snake case."""
     df.columns = (df.columns
                   .str.lower()
                   .str.replace(r'[\s\.]', '_', regex=True)
@@ -72,7 +72,7 @@ def clean_headers(df):
 
 @cleaner
 def lowercase_categories(df):
-    """Convert all category values to lowercase to simplify regex searcher."""
+    """Converts all category values to lowercase to simplify regex searcher."""
     cats = df.select_dtypes('category').columns
     df[cats] = (df[cats]
                 .astype('str')
@@ -83,7 +83,7 @@ def lowercase_categories(df):
 
 @cleaner
 def order_salaries(df):
-    """Order salary category variable."""
+    """Orders salary category variable."""
     cats = ['< 10k', '10k to 20k', '20k to 30k',
             '30k to 40k', '40k to 50k', '50k to 60k',
             '60k to 70k', '70k to 80k', '> 80k']
@@ -94,7 +94,7 @@ def order_salaries(df):
 
 @cleaner
 def gender_to_female(df):
-    """Replace gender variable with female dummy."""
+    """Replaces gender variable with female dummy."""
     df['user_female'] = df.user_gender == 'f'
     df['user_female'] = df.user_female.where(df.user_gender != 'u')
     return df.drop(columns='user_gender')
@@ -102,21 +102,21 @@ def gender_to_female(df):
 
 @cleaner
 def credit_debit_to_debit(df):
-    """Replace credit_debit variable with credit dummy."""
+    """Replaces credit_debit variable with credit dummy."""
     df['debit'] = df.credit_debit == 'debit'
     return df.drop(columns='credit_debit')
 
 
 @cleaner
 def sign_amount(df):
-    """Make credits negative."""
+    """Makes credits negative."""
     df['amount'] = df.amount.where(df.debit, df.amount.mul(-1))
     return df
 
 
 @cleaner
 def missings_to_nan(df):
-    """Convert missing category values to NaN."""
+    """Converts missing category values to NaN."""
     mbl = 'merchant_business_line'
     mbl_missing = ['no merchant business line', 'unknown merchant']
     df[mbl] = df[mbl].cat.remove_categories(mbl_missing)     
@@ -129,7 +129,7 @@ def missings_to_nan(df):
 
 @cleaner
 def zero_balances_to_missing(df):
-    """Replace zero latest balances with missings.
+    """Replaces zero latest balances with missings.
 
     Latest balance column refers to account balance at last account
     refresh date. Exact zero values are likely due to unsuccessful
@@ -140,7 +140,7 @@ def zero_balances_to_missing(df):
 
 
 def _apply_grouping(grouping, df, col_name):
-    """Apply grouping to col_name in dataframe.
+    """Applies grouping to col_name in dataframe in-place.
 
     Args:
       - grouping: a dict with name-tags pairs, where name
@@ -160,7 +160,7 @@ def _apply_grouping(grouping, df, col_name):
 
 @cleaner
 def add_tag_group(df):
-    """Group transactions into income, spend, and transfers."""
+    """Groups transactions into income, spend, and transfers."""
     df['tag_group'] = np.nan
     _apply_grouping(helpers.tag_groups, df, 'tag_group')
     return df
@@ -168,10 +168,7 @@ def add_tag_group(df):
 
 @cleaner
 def add_tag(df):
-    """Create custom transaction tag.
-
-    This is the main tag used throughout the analysis.
-    """
+    """Creates custom transaction tag."""
     df['tag'] = np.nan
     _apply_grouping(helpers.lloyds_spend, df, 'tag')
     _apply_grouping(helpers.hacioglu_income, df, 'tag')
@@ -181,7 +178,7 @@ def add_tag(df):
 
 @cleaner
 def correct_tag_up(df):
-    """Ensure user precedence tag is defined as in data dictionary.
+    """Ensures user precedence tag is defined as in data dictionary.
 
     tag_up is defined as equalling tag_manual if tag_manual not missing else
     tag_auto. This definition is violated in two ways in the data: sometimes
@@ -203,7 +200,7 @@ def correct_tag_up(df):
 
 @cleaner
 def add_year_month_variable(df):
-    """Create year-month date as helper variable."""
+    """Creates year-month date as helper variable."""
     y = df.date.dt.year * 100
     m = df.date.dt.month
     df['ym'] = y + m
@@ -212,7 +209,7 @@ def add_year_month_variable(df):
 
 @cleaner
 def order_and_sort(df):
-    """Order columns and sort values."""
+    """Orders columns and sort values."""
     cols = df.columns
     first = ['id', 'date', 'user_id', 'amount', 'desc', 'merchant',
              'tag_group', 'tag']    
@@ -226,7 +223,7 @@ def order_and_sort(df):
 
 # @cleaner
 def tag_pmt_pairs(df, knn=5):
-    """Tag payments from one account to another as transfers.
+    """Tags payments from one account to another as transfers.
 
     Identification criteria:
     1. same user
@@ -270,18 +267,25 @@ def tag_pmt_pairs(df, knn=5):
 
 # @cleaner
 def tag_transfers(df):
-    """Tag txns with description indicating tranfser payment."""
+    """Tags txns with description indicating tranfser payment."""
+
     tfr_strings = [' ft', ' trf', 'xfer', 'transfer']
-    exclude = ['fee', 'interest']
-    mask = (df.transaction_description.str.contains('|'.join(tfr_strings))
-            & ~df.transaction_description.str.contains('|'.join(exclude)))
-    df.loc[mask, 'tag'] = 'transfers'
+    exclude_strings = ['fee', 'interest']
+
+    tfr_pat = '|'.join(tfr_strings)
+    exclude_pat = '|'.join(exclude_strings)
+
+    mask = df.desc.str.contains(tfr_pat) & ~df.desc.str.contains(exclude_pat)
+
+    df['test'] = df.where(df.tag.notna(), mask)
+
+    # df.loc[mask, 'test'] = True
     return df
 
 
 # @cleaner
 def drop_untagged(df):
-    """Drop untagged transactions."""
+    """Drops untagged transactions."""
     mask = (df.up_tag.eq('no tag')
             & df.manual_tag.eq('no tag')
             & df.auto_tag.eq('no tag'))
@@ -289,32 +293,11 @@ def drop_untagged(df):
 
 
 # @cleaner
-def tag_corrections(df):
-    """Correct or consolidate tag variable."""
-    new_tags = {
-        'housing': ['rent', 'mortgage or rent', 'mortgage payment']
-    }
-    for new_tag, old_tags in new_tags.items():
-        pattern = '|'.join(old_tags)
-        mask = df[df.tag_up].str.fullmatch(pattern)
-        df.loc[mask, 'tag'] = new_tag
-    return df
-
-
-# @cleaner
 def drop_card_repayments(df):
-    """Drop card repayment transactions from current accounts."""
+    """Drops card repayment transactions from current accounts."""
     tags = ['credit card repayment', 'credit card payment', 'credit card']
     pattern = '|'.join(tags)
     mask = df.auto_tag.str.contains(pattern) & df.account_type.eq('current')
     return df[~mask]
-
-
-# @cleaner
-def clean_tags(df):
-    """Replace parenthesis with dash for save regex searches."""
-    for tag in ['up_tag', 'auto_tag', 'manual_tag']:
-        df[tag] = df[tag].str.replace('(', '- ').str.replace(')', '')
-    return df
 
 
