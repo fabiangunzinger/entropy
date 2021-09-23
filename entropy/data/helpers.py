@@ -337,7 +337,6 @@ lloyds_spend = {
         'furniture',
         'furniture, furnishing, gardens',
         'garden',
-        'fuel',
         'gas',
         'gas and electricity',
         'groceries',
@@ -358,6 +357,7 @@ lloyds_spend = {
         
     'motor': [
         'driving lessons',
+        'fuel',
         'parking',
         'parking or tolls',
         'road charges',
