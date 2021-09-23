@@ -1,4 +1,6 @@
+import re
 import numpy as np
+from entropy.data import helpers
 
 
 cleaner_funcs = []
@@ -139,10 +141,11 @@ def zero_balances_to_missing(df):
 
 @cleaner
 def correct_tag_up(df):
-    """Set tag_up to tag_manual if tag_manual not missing else to tag_auto.
-    
-    This definition of tag_up is violated in two ways: sometimes tag_up is
-    missing while one of the other two tags isn't, sometimes tag_up is
+    """Ensure user precedence tag is defined as in data dictionary.
+
+    tag_up is defined as equalling tag_manual if tag_manual not missing else
+    tag_auto. This definition is violated in two ways in the data: sometimes
+    tag_up is missing while one of the other two tags isn't, sometimes tag_up is
     not missing but both other tags are. In the latter case, we leave tag_up
     unchanged.
     """
@@ -156,6 +159,21 @@ def correct_tag_up(df):
                     .where(df.tag_up.notna(), correct_up_value)
                     .astype('category'))
     return df
+
+
+@cleaner
+def add_tag_group(df):
+    """Group transactions into income, spend, and transfers."""
+    df['tag_group'] = np.nan
+
+    for group, tags in helpers.tag_groups.items():
+        escaped_tags = [re.escape(tag) for tag in tags]
+        pattern = '|'.join(escaped_tags)
+        mask = df.tag_auto.str.match(pattern, na=False)
+        df.loc[mask, 'tag_group'] = group
+
+    return df
+
 
 
 @cleaner
