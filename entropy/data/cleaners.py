@@ -56,7 +56,7 @@ def drop_last_month(df):
 
 @cleaner
 def drop_unneeded_vars(df):
-    vars = ['user_lsoa', 'user_msoa', 'updated_flag']
+    vars = ['user_lsoa', 'user_msoa']
     return df.drop(columns=vars)
 
 
@@ -139,14 +139,30 @@ def zero_balances_to_missing(df):
     return df
 
 
+@cleaner
+def tag_transfers(df):
+    """Tags untagged tranfsers."""
+    tfr_strings = [' ft', ' trf', 'xfer', 'transfer']
+    exclude_strings = ['fee', 'interest', 'rewards']
+
+    tfr_pattern = '|'.join(tfr_strings)
+    exclude_pattern = '|'.join(exclude_strings)
+    mask = (df.desc.str.contains(tfr_pattern)
+            & ~df.desc.str.contains(exclude_pattern)
+            & df.tag_auto.isna())
+
+    df.loc[mask, 'tag_auto'] = 'transfers'
+    return df
+
+
 def _apply_grouping(grouping, df, col_name):
     """Applies grouping to col_name in dataframe in-place.
 
     Args:
-      - grouping: a dict with name-tags pairs, where name
+      grouping: a dict with name-tags pairs, where name
         is the group name that will be applied to each txn
         for which tag_auto equals one of the tags.
-      - col_name: a column from df into which the group
+      col_name: a column from df into which the group
         names will be stored.
     """
     for group, tags in grouping.items():
@@ -219,85 +235,5 @@ def order_and_sort(df):
     order = first + sorted(user) + sorted(account) + sorted(txn)
 
     return df[order].sort_values(['user_id', 'date'])
-
-
-# @cleaner
-def tag_pmt_pairs(df, knn=5):
-    """Tags payments from one account to another as transfers.
-
-    Identification criteria:
-    1. same user
-    2. larger than GBP50
-    3. same amount
-    4. no more than 4 days apart
-    5. of the opposite sign (debit/credit)
-    6. not already part of another transfer pair. This can happen in two ways:
-       - A txn forms a pair with two neighbours at different distances,
-         addressed in <1>.
-       - A txn forms a pair with a neighbour and the neighbour with one
-         of its own neighbours, addressed in <2>.
-
-    Code sorts data by user, amount, and transaction date, and checks for each
-    txn and each of its k nearest preceeding neighbours whether, together, they
-    meet the above criteria.
-    """
-    df['amount'] = df.amount.abs()
-    df = df.sort_values(['user_id', 'amount', 'transaction_date'])
-    for k in range(1, knn+1):
-        meets_conds = (
-            (df.user_id.values == df.user_id.shift(k).values)
-            & (df.amount.values > 50)
-            & (df.amount.values == df.amount.shift(k).values)
-            & (df.transaction_date.diff(k).dt.days.values <= 4)
-            & (df.credit_debit.values != df.credit_debit.shift(k).values)
-            & (df.tag.values != 'transfers')                       # <1>
-            & (df.tag.shift(k).values != 'transfers')              # <1>
-        )
-        # tag first txn of pair
-        neighbr_meets_cond = np.roll(meets_conds, k)
-        neighbr_meets_cond[:k] = False
-        is_tfr = meets_conds & ~neighbr_meets_cond                 # <2>
-        df['tag'] = np.where(is_tfr, 'transfers', df.tag)
-        # tag second txn of pair
-        mask = np.roll(meets_conds, -k)
-        mask[-k:] = False
-        df['tag'] = np.where(mask, 'transfers', df.tag)
-    return df
-
-
-# @cleaner
-def tag_transfers(df):
-    """Tags txns with description indicating tranfser payment."""
-
-    tfr_strings = [' ft', ' trf', 'xfer', 'transfer']
-    exclude_strings = ['fee', 'interest']
-
-    tfr_pat = '|'.join(tfr_strings)
-    exclude_pat = '|'.join(exclude_strings)
-
-    mask = df.desc.str.contains(tfr_pat) & ~df.desc.str.contains(exclude_pat)
-
-    df['test'] = df.where(df.tag.notna(), mask)
-
-    # df.loc[mask, 'test'] = True
-    return df
-
-
-# @cleaner
-def drop_untagged(df):
-    """Drops untagged transactions."""
-    mask = (df.up_tag.eq('no tag')
-            & df.manual_tag.eq('no tag')
-            & df.auto_tag.eq('no tag'))
-    return df[~mask]
-
-
-# @cleaner
-def drop_card_repayments(df):
-    """Drops card repayment transactions from current accounts."""
-    tags = ['credit card repayment', 'credit card payment', 'credit card']
-    pattern = '|'.join(tags)
-    mask = df.auto_tag.str.contains(pattern) & df.account_type.eq('current')
-    return df[~mask]
 
 

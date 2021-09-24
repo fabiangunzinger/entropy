@@ -35,7 +35,7 @@ def clean_data(df):
 
 
 @timer
-def select_data(df):
+def select_sample(df):
     for func in selector_funcs:
         df = func.func(df, **func.kwargs)
     return df
@@ -79,7 +79,7 @@ def main(input_path, output_path):
 
     df = (read_data(input_path)
           .pipe(clean_data)
-          .pipe(select_data)
+          .pipe(select_sample)
           .pipe(create_vars)
           .pipe(validate_data)
           .pipe(write_data, output_path))

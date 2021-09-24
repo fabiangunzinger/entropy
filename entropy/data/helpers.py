@@ -1,14 +1,31 @@
 """
-Transaction tag groups and categorisations.
-
-Transactions are first grouped into income, spending, and transfers. Within
-those groups, they are then grouped further (e.g. spend into Lloyds categories).
-All groupings are based on tag_auto, to ensure consistency across users.
+Data preprocessing and exploration helper objects. 
 
 """
 
+import numpy as np
+
+
+def user_date_data(df, user_id, date):
+    """Returns data for specified user and date sorted by amount."""
+    return (df.loc[df.user_id == user_id]
+            .set_index('date')
+            .loc[date]
+            .sort_values('amount', ascending=False))
+
+
+def breakdown(df, group_var, group_var_value, component_var, net=False):
+    """Calculates sorted breakdown of group_var_value by component_var."""
+    return (df[df[group_var] == group_var_value]
+            .assign(amount=lambda df: df.amount if net else df.amount.abs())
+            .groupby(component_var)
+            .amount.sum()
+            .replace(0, np.nan).dropna()
+            .sort_values())
+
+ 
 tag_groups = {
-    # tag categorisation into main groups
+    # tag_auto categorisation into main groups income, spend, and transfers.
 
     'income': [
         'benefits',
