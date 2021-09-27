@@ -139,22 +139,6 @@ def zero_balances_to_missing(df):
     return df
 
 
-@cleaner
-def tag_transfers(df):
-    """Tags untagged tranfsers."""
-    tfr_strings = [' ft', ' trf', 'xfer', 'transfer']
-    exclude_strings = ['fee', 'interest', 'rewards']
-
-    tfr_pattern = '|'.join(tfr_strings)
-    exclude_pattern = '|'.join(exclude_strings)
-    mask = (df.desc.str.contains(tfr_pattern)
-            & ~df.desc.str.contains(exclude_pattern)
-            & df.tag_auto.isna())
-
-    df.loc[mask, 'tag_auto'] = 'transfers'
-    return df
-
-
 def _apply_grouping(grouping, df, col_name):
     """Applies grouping to col_name in dataframe in-place.
 
@@ -175,14 +159,6 @@ def _apply_grouping(grouping, df, col_name):
 
 
 @cleaner
-def add_tag_group(df):
-    """Groups transactions into income, spend, and transfers."""
-    df['tag_group'] = np.nan
-    _apply_grouping(helpers.tag_groups, df, 'tag_group')
-    return df
-
-
-@cleaner
 def add_tag(df):
     """Creates custom transaction tag."""
     df['tag'] = np.nan
@@ -193,24 +169,36 @@ def add_tag(df):
 
 
 @cleaner
-def correct_tag_up(df):
-    """Ensures user precedence tag is defined as in data dictionary.
+def manual_tag_corrections(df):
+    """Manually classify certain untagged txns.
 
-    tag_up is defined as equalling tag_manual if tag_manual not missing else
-    tag_auto. This definition is violated in two ways in the data: sometimes
-    tag_up is missing while one of the other two tags isn't, sometimes tag_up is
-    not missing but both other tags are. In the latter case, we leave tag_up
-    unchanged.
+    Correction is applied to `tag` to leave `tag_auto`
+    unchanged but to ensure that correction will be taken
+    into account in `add_tag_group()` below.
     """
-    correct_up_value = (df.tag_manual
-                        .astype('object')
-                        .fillna(df.tag_auto)
-                        .astype('category'))
+    # tag as transfer if desc clearly indicates as much
+    tfr_strings = [' ft', ' trf', 'xfer', 'transfer']
+    exclude_strings = ['fee', 'interest', 'rewards']
+    tfr_pattern = '|'.join(tfr_strings)
+    exclude_pattern = '|'.join(exclude_strings)
+    mask = (df.desc.str.contains(tfr_pattern)
+            & ~df.desc.str.contains(exclude_pattern)
+            & df.tag.isna())
+    df.loc[mask, 'tag'] = 'transfers'
 
-    df['tag_up'] = (df.tag_up
-                    .astype('object')
-                    .where(df.tag_up.notna(), correct_up_value)
-                    .astype('category'))
+    # tag as other_spend if desc contains "bbp"
+    # which is short for bill payment
+    mask = df.desc.str.contains('bbp') & df.tag.isna()
+    df.loc[mask, 'tag'] = 'other_spend'
+
+    return df
+
+
+@cleaner
+def add_tag_group(df):
+    """Groups transactions into income, spend, and transfers."""
+    df['tag_group'] = np.nan
+    _apply_grouping(helpers.tag_groups, df, 'tag_group')
     return df
 
 
@@ -235,5 +223,27 @@ def order_and_sort(df):
     order = first + sorted(user) + sorted(account) + sorted(txn)
 
     return df[order].sort_values(['user_id', 'date'])
+
+
+# @cleaner
+def correct_tag_up(df):
+    """Ensures user precedence tag is defined as in data dictionary.
+
+    tag_up is defined as equalling tag_manual if tag_manual not missing else
+    tag_auto. This definition is violated in two ways in the data: sometimes
+    tag_up is missing while one of the other two tags isn't, sometimes tag_up is
+    not missing but both other tags are. In the latter case, we leave tag_up
+    unchanged.
+    """
+    correct_up_value = (df.tag_manual
+                        .astype('object')
+                        .fillna(df.tag_auto)
+                        .astype('category'))
+
+    df['tag_up'] = (df.tag_up
+                    .astype('object')
+                    .where(df.tag_up.notna(), correct_up_value)
+                    .astype('category'))
+    return df
 
 
