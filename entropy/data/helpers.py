@@ -74,6 +74,7 @@ tag_groups = {
         'breakdown cover',
         'broadband',
         'business expenses',
+        'car fund',
         'cash',
         'charity - other',
         'child - clothes',
@@ -234,7 +235,6 @@ tag_groups = {
     ],
 
     'transfers': [
-        'car fund',
         'credit card repayment',
         'credit card',
         'current account',
@@ -373,6 +373,7 @@ lloyds_spend = {
     ],
         
     'motor': [
+        'car fund',
         'driving lessons',
         'fuel',
         'parking',
@@ -523,4 +524,17 @@ hacioglu_income = {
         'bursary',
     ],
 }
+
+
+savings = [
+    # all MDB auto tags pertaining to savings transactions
+    'general savings',
+    'investment - other',
+    'investments or shares',
+    'isa',
+    'saving (general)',
+    'savings (general)',
+    'savings',
+]
+
 

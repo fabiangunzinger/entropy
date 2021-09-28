@@ -4,6 +4,7 @@ Functions that create additional variables.
 """
 
 import numpy as np
+from entropy.data import helpers
 
 
 creator_funcs = []
@@ -48,9 +49,8 @@ def calc_balance(df):
 def calc_income(df):
     """Returns yearly income for each user.
 
-    Data inspection suggests that most users get income payments
-    every month of the year except in the first and last year we 
-    observe them. We thus scale income to represent a full 
+    To account for years where we don't observe users for the 
+    full 12 months, we scale yearly income to represent a full
     12 months.
     """
     mask = df.tag.str.endswith('_income', na=False)
@@ -71,5 +71,12 @@ def calc_income(df):
     keys = ['user_id', 'y']
     merged = df.merge(yearly_income, how='left', on=keys, validate='m:1')
     return merged.drop(columns='y')
+
+
+@creator
+def tag_savings(df):
+    """Tags all txns with auto tag indicating savings."""
+    df['savings'] = df.tag_auto.isin(helpers.savings)
+    return df
 
 
