@@ -53,7 +53,7 @@ def calc_income(df):
     full 12 months, we scale yearly income to represent a full
     12 months.
     """
-    mask = df.tag.str.endswith('_income', na=False)
+    mask = df.tag_group.str.match('income', na=False)
     yearly_income_payments = (df.loc[mask]
                               .set_index('date')
                               .groupby('user_id')
