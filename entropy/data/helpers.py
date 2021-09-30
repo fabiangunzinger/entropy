@@ -42,7 +42,6 @@ tag_groups = {
         'miscellaneous income - other',
         'other benefits',
         'pension - other',
-        'pension or investments',
         'pension',
         'rental income (room)',
         'rental income (whole property)',
@@ -52,9 +51,8 @@ tag_groups = {
         'salary or wages (other)',
         'state pension',
         'student loan funds',
-        'unsecured loan funds',
-        'winnings',
         'work pension',
+        'winnings',
     ],
 
     'spend': [
@@ -243,10 +241,12 @@ tag_groups = {
         'investments or shares',
         'isa',
         'paypal account',
+        'pension or investments',
         'saving (general)',
         'savings (general)',
         'savings',
         'transfers',
+        'unsecured loan funds',
     ],
 }
 
@@ -481,9 +481,10 @@ lloyds_spend = {
 
 
 hacioglu_income = {
-    # income categorisation following haciouglu2020evidence
-    # added unsecured load funds, winnings, and bursary to
-    # other income.
+    # income categorisation following haciouglu2020distributional
+    # adding winnings and bursary to other income, and removing 
+    # 'pension or investments' from pensions because these txns
+    # are mostly contributions.
 
     'earnings': [
         'salary or wages (main)',
@@ -496,7 +497,6 @@ hacioglu_income = {
         'pension',
         'work pension',
         'state pension',
-        'pension or investments',
     ],
 
     'benefits': [
@@ -519,19 +519,21 @@ hacioglu_income = {
         'interest income',
         'dividend',
         'student loan funds',
-        'unsecured loan funds',
+        # 'unsecured loan funds',
         'winnings',
-        'bursary',
+        # 'bursary',
     ],
 }
 
 
 savings = [
     # all MDB auto tags pertaining to savings transactions
+    # 'pension or investments' only savings if debit
     'general savings',
     'investment - other',
     'investments or shares',
     'isa',
+    'pension or investments',
     'saving (general)',
     'savings (general)',
     'savings',

@@ -169,8 +169,8 @@ def add_tag(df):
 
 
 @cleaner
-def manual_tag_corrections(df):
-    """Manually classify certain untagged txns.
+def tag_corrections(df):
+    """Fix issues with automatic tagging.
 
     Correction is applied to `tag` to leave `tag_auto`
     unchanged but to ensure that correction will be taken
@@ -190,6 +190,16 @@ def manual_tag_corrections(df):
     # which is short for bill payment
     mask = df.desc.str.contains('bbp') & df.tag.isna()
     df.loc[mask, 'tag'] = 'other_spend'
+
+    # reclassify 'pension or investments' as income if txn is a credit
+    # while most txns in this category are contributions, these are payouts
+    mask = df.tag_auto.eq('pension or investments') & ~df.debit
+    df.loc[mask, 'tag'] = 'income'
+
+    # reclassify 'interest income' as finance spend if txn is a debit
+    # these are mostly overdraft fees
+    mask = df.tag_auto.eq('interest income') & df.debit
+    df.loc[mask, 'tag'] = 'finance'
 
     return df
 

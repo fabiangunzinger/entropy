@@ -82,7 +82,7 @@ def main(input_path, output_path):
           .pipe(select_sample)
           .pipe(create_vars)
           .pipe(validate_data)
-          .pipe(write_data, output_path))
+          .pipe(write_data, output_path, verbose=True))
 
     table = selection_table(sample_counts)
     tbl_path = get_table_path(sample_name)
