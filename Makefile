@@ -26,3 +26,7 @@ $(SAMPLES):
 	@python -m entropy.data.make_data\
 		$(RAWDIR)/mdb_$@.parquet\
 		$(CLEANDIR)/entropy_$@.parquet
+
+.PHONY: figures
+figures:
+	@python -m entropy.figures.figures
