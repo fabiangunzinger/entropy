@@ -1,4 +1,5 @@
 import re
+import string
 import numpy as np
 from entropy.data import helpers
 
@@ -218,6 +219,26 @@ def add_year_month_variable(df):
     y = df.date.dt.year * 100
     m = df.date.dt.month
     df['ym'] = y + m
+    return df
+
+
+@cleaner
+def clean_description(df):
+    """Removes characters from txn description that hinder duplicate detection.
+    
+    Removes common suffixes such as -vis, -p/p, and - e gbp; all
+    punctuation; multiple x characters, which are used to mask card
+    or account numbers: and extra whitespace. Also splits digits
+    suffixes -- but not prefixes, as these are usually dates -- from
+    words (e.g. 'no14' becomes 'no 14', '14jan' remains unchanged).
+    """
+    kwargs = dict(repl=' ', regex=True)
+    df['desc'] = (df.desc.str.replace(r'-\s(\w\s)?.{2,3}$', **kwargs)
+                  .str.replace(fr'[{string.punctuation}]+', **kwargs)
+                  .str.replace(r'[x]{2,}', **kwargs)
+                  .str.replace(r'(?<=[a-zA-Z])(?=\d)', **kwargs)
+                  .str.replace(r'\s{2,}', **kwargs)
+                  .str.strip())
     return df
 
 
