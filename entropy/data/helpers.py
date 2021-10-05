@@ -262,7 +262,7 @@ custom_transfers = {
         'savings',
     ],
 
-    'tsransfer': [
+    'transfers': [
         'car fund',
         'credit card repayment',
         'credit card',
