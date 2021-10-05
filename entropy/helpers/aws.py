@@ -37,10 +37,23 @@ class S3BucketManager:
         display(self.fs.ls(path))
 
 
+def s3read_csv(path, profile=config.AWS_PROFILE, **kwargs):
+    """Read from s3 path."""
+    options = dict(storage_options=dict(profile=profile))
+    return pd.read_csv(path, **options, **kwargs)
+
+
+def s3write_csv(df, path, profile=config.AWS_PROFILE, **kwargs):
+    """Write df to s3 path."""
+    options = dict(storage_options=dict(profile=profile))
+    df.to_csv(path, index=False, **options, **kwargs)
+    print(f'{path} (of shape {df.shape}) written.')
+    return df
+
 
 def read_parquet(path, aws_profile=config.AWS_PROFILE, **kwargs):
     if path.startswith('s3'):
-        options = dict(storage_options=dict(profile=profile))
+        options = dict(storage_options=dict(profile=aws_profile))
         return pd.read_parquet(path, **options, **kwargs)
     return pd.read_parquet(path, **kwargs)
 
@@ -58,41 +71,6 @@ def write_parquet(
         df.to_parquet(path, index=False, **options, **kwargs)
     else:
         df.to_parquet(path, index=False, **kwargs)
-    if verbose:
-        print(f'{path} (of shape {df.shape}) written.')
-    return df
-
-
-def s3read_csv(path, profile=config.AWS_PROFILE, **kwargs):
-    """Read from s3 path."""
-    options = dict(storage_options=dict(profile=profile))
-    return pd.read_csv(path, **options, **kwargs)
-
-
-def s3write_csv(df, path, profile=config.AWS_PROFILE, **kwargs):
-    """Write df to s3 path."""
-    options = dict(storage_options=dict(profile=profile))
-    df.to_csv(path, index=False, **options, **kwargs)
-    print(f'{path} (of shape {df.shape}) written.')
-    return df
-
-
-def s3read_parquet(path, profile=config.AWS_PROFILE, **kwargs):
-    """Read from s3 path."""
-    options = dict(storage_options=dict(profile=profile))
-    return pd.read_parquet(path, **options, **kwargs)
-
-
-def s3write_parquet(
-        df,
-        path,
-        profile=config.AWS_PROFILE,
-        verbose=False,
-        **kwargs
-):
-    """Write df to s3 path."""
-    options = dict(storage_options=dict(profile=profile))
-    df.to_parquet(path, index=False, **options, **kwargs)
     if verbose:
         print(f'{path} (of shape {df.shape}) written.')
     return df
