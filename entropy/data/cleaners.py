@@ -228,13 +228,13 @@ def clean_description(df):
     
     Removes common suffixes such as -vis, -p/p, and - e gbp; all
     punctuation; multiple x characters, which are used to mask card
-    or account numbers: and extra whitespace. Also splits digits
+    or account numbers; and extra whitespace. Also splits digits
     suffixes -- but not prefixes, as these are usually dates -- from
     words (e.g. 'no14' becomes 'no 14', '14jan' remains unchanged).
     """
     kwargs = dict(repl=' ', regex=True)
     df['desc'] = (df.desc.str.replace(r'-\s(\w\s)?.{2,3}$', **kwargs)
-                  .str.replace(fr'[{string.punctuation}]+', **kwargs)
+                  .str.replace(fr'[{string.punctuation}]', **kwargs)
                   .str.replace(r'[x]{2,}', **kwargs)
                   .str.replace(r'(?<=[a-zA-Z])(?=\d)', **kwargs)
                   .str.replace(r'\s{2,}', **kwargs)
