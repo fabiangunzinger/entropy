@@ -1,3 +1,4 @@
+import itertools
 import re
 import string
 import numpy as np
@@ -241,6 +242,72 @@ def clean_description(df):
                   .str.replace(r'\s{2,}', **kwargs)
                   .str.strip())
     return df
+
+
+@cleaner
+def drop_type1_dups(df):
+    """Drops Type 1 duplicates.
+    
+    A Type 1 duplicate is the second of two txns with identical user and
+    account ids, dates, amounts, and txn descriptions.
+    """
+    df = df.copy()
+    cols = ['user_id', 'account_id', 'date', 'amount', 'desc']
+    return df.drop_duplicates(subset=cols)
+
+
+def _potential_type2_dups(df):
+    """Returns desc and duplicate group id for potential Type 2 duplicates."""
+    cols = ['date', 'user_id', 'account_id', 'amount']
+    return (df.loc[df.duplicated(subset=cols, keep=False)]
+            .assign(group=lambda df: df.groupby(cols).ngroup())
+            .loc[:,['desc', 'group']])
+
+
+def _each_word_in_string(words, string):
+    """Tests whether each word from words appears in string.
+    Allows each substring in string to be matched only once.
+    """
+    unmatched = string
+    for w in words:
+        if w not in unmatched:
+            return False
+        unmatched = unmatched.replace(w, '', 1)
+    return True
+
+
+def _type2_dups_indices(g):
+    """Checks for each txn pair in a group whether one txn is a Type 2
+    duplicate of the other, and returns idx of all duplicates in group.
+    """
+    dups = []
+    pairs = list(itertools.combinations(g.index, 2))
+    for first, second in pairs:
+        words = g.loc[first].desc.split()
+        string = g.loc[second].desc
+        if _each_word_in_string(words, string):
+            dups.append(first)
+            break
+        words = g.loc[second].desc.split()
+        string = g.loc[first].desc
+        if _each_word_in_string(words, string):
+            dups.append(second)
+    return dups
+
+
+@cleaner
+def drop_type2_dups(df):
+    """Drops Type 2 duplicates.
+    
+    A Type 2 duplicate is a txn whose user id, account id, date, and amount
+    are identical to another txn, and whose txn description is similar to that
+    other txn, where "similar" means that each word in the txn description 
+    appears in the description of the other txn.
+    """
+    potential_dups = _potential_type2_dups(df)
+    dups_by_group = potential_dups.groupby('group').apply(_type2_dups_indices)
+    all_dups = dups_by_group.sum()
+    return df.drop(all_dups)
 
 
 @cleaner
