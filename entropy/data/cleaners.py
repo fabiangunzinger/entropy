@@ -226,17 +226,18 @@ def add_year_month_variable(df):
 def clean_description(df):
     """Removes characters from txn description that hinder duplicate detection.
     
-    Removes common suffixes such as -vis, -p/p, and - e gbp; all
-    punctuation; multiple x characters, which are used to mask card
-    or account numbers; and extra whitespace. Also splits digits
-    suffixes -- but not prefixes, as these are usually dates -- from
-    words (e.g. 'no14' becomes 'no 14', '14jan' remains unchanged).
+    Removes common suffixes such as -vis, -p/p, and - e gbp; all punctuation;
+    multiple x characters, which are used to mask card or account numbers; and
+    extra whitespace. Also splits digits suffixes -- but not prefixes, as these
+    are usually dates -- from sequences of two or more letters (e.g. 'no14'
+    becomes 'no 14', 'o2', and '14jan' remain unchanged).
     """
     kwargs = dict(repl=' ', regex=True)
+    df['desc_old'] = df.desc
     df['desc'] = (df.desc.str.replace(r'-\s(\w\s)?.{2,3}$', **kwargs)
                   .str.replace(fr'[{string.punctuation}]', **kwargs)
                   .str.replace(r'[x]{2,}', **kwargs)
-                  .str.replace(r'(?<=[a-zA-Z])(?=\d)', **kwargs)
+                  .str.replace(r'(?<=[a-zA-Z]{2})(?=\d)', **kwargs)
                   .str.replace(r'\s{2,}', **kwargs)
                   .str.strip())
     return df
