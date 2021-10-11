@@ -5,16 +5,15 @@ for description of procedure in sample selection table.
 """
 
 
-from collections import Counter, namedtuple
-from functools import wraps
+import collections
+import functools
 import re
-
 import pandas as pd
 
 
 selector_funcs = []
-
-FuncWithKwargs = namedtuple('FuncWithKwargs', ['func', 'kwargs'])
+sample_counts = collections.Counter()
+FuncWithKwargs = collections.namedtuple('FuncWithKwargs', ['func', 'kwargs'])
 
 
 def selector(func=None, **kwargs):
@@ -25,16 +24,13 @@ def selector(func=None, **kwargs):
     return wrapper(func) if func else wrapper
 
 
-sample_counts = Counter()
-
-
 def counter(func):
     """Count sample after applying function.
 
     First line of func docstring is used for
     description in selection table.
     """
-    @ wraps(func)
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         df = func(*args, **kwargs)
         description = func.__doc__.splitlines()[0]
@@ -156,6 +152,21 @@ def max_debits(df, max_debits=100_000):
                .groupby('user_id').max())
     users = usr_max[usr_max <= max_debits].index
     return df[df.user_id.isin(users)]
+
+
+@selector
+@counter
+def current_and_savings_account_balances(df):
+    """Balances for current and savings accounts available.
+
+    Keep only users for whom `latest_balance` is available
+    for all current and savings accounts so we can calculate
+    the running balance for all these accounts.
+    """
+    mask = (df.account_type.isin(['current', 'savings'])
+            & df.latest_balance.isna())
+    users_to_drop = df[mask].user_id.unique()
+    return df[~df.user_id.isin(users_to_drop)]
 
 
 @selector
