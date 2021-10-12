@@ -112,8 +112,8 @@ def income_pmts(df, income_months_ratio=2/3):
 
 @selector
 @counter
-def income_amount(df, lower=5_000, upper=100_000):
-    """Yearly incomes between 5k and 100k.
+def income_amount(df, lower=5_000, upper=200_000):
+    """Yearly incomes between 5k and 200k.
 
     Yearly income calculated on rolling basis from
     first month of data.
@@ -157,7 +157,7 @@ def max_debits(df, max_debits=100_000):
 @selector
 @counter
 def current_and_savings_account_balances(df):
-    """Balances for current and savings accounts available.
+    """Current and savings account balances available.
 
     Keep only users for whom `latest_balance` is available
     for all current and savings accounts so we can calculate
