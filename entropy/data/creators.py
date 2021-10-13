@@ -75,8 +75,9 @@ def calc_income(df):
 
 @creator
 def tag_savings(df):
-    """Tags all txns with auto tag indicating savings."""
-    df['savings'] = df.tag_auto.isin(helpers.savings)
+    """Tags all credit txns with auto tag indicating savings."""
+    is_savings_txn = df.tag_auto.isin(helpers.savings) & ~df.debit
+    df['savings'] = is_savings_txn
     return df
 
 
