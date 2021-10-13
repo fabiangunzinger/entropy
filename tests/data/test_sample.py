@@ -1,12 +1,18 @@
 import pandas as pd
 import pytest
 
-@pytest.fixture
-def mdb_data():
-    df = pd.read_parquet('~/tmp/mdb_000.parquet')
-    return df
+from ..entropy.data import cleaners
+
+def test_drop_last_month_passes(df):
+    data = cleaners.drop_last_month(df)
+    assert data.date.dt.month.max() == 2
+
+
 
 
 def test_df(mdb_data):
     assert len(mdb_data.columns) == 27
+
+
+
 
