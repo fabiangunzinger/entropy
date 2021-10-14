@@ -28,21 +28,21 @@ def income_distribution(df):
     """Plots histogram of annual incomes."""
     incomes = df.groupby(['user_id', df.date.dt.year]).income.first()
     fig = sns.displot(incomes, aspect=2)
-    # fp = os.path.join(config.FIGDIR, 'income_distribution.png')
-    # plt.savefig(fp)
-
     _save_fig(fig, 'income_distribution.png')
 
 
 
 def balances_by_account_type(df, write=True):
 
-    def make_data(df, account_type='current', freq='w',
-                  agg='median', start=None, end=None):
-        """
-        Returns median values of user balances at
-        specified freq for each account type.
-        """
+    def make_data(
+        df,
+        account_type='current',
+        freq='w',
+        agg='median',
+        start=None,
+        end=None
+    ):
+        """Returns user balances at specified freq by account type."""
         return (df.loc[df.account_type.isin(account_type)]
                 # single daily balance for each account
                 .set_index('date')
