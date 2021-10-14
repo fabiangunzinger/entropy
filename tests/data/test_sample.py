@@ -24,3 +24,7 @@ def test_drop_last_month_passes():
     pd.testing.assert_frame_equal(actual, expected)
 
 
+def test_ci():
+    assert 1 == 2
+
+
