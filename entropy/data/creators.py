@@ -17,8 +17,8 @@ def creator(func):
 
 
 @creator
-def calc_balance(df):
-    """Calculates running account balance.
+def balances(df):
+    """Calculates running account balances.
 
     Daily account balance is calculated as the sum of the cumulative
     balance and the starting balance, where the starting balance is
@@ -46,7 +46,7 @@ def calc_balance(df):
 
 
 @creator
-def calc_income(df):
+def income(df):
     """Returns yearly income for each user.
 
     To account for years where we don't observe users for the 
@@ -74,10 +74,28 @@ def calc_income(df):
 
 
 @creator
-def tag_savings(df):
-    """Tags all credit txns with auto tag indicating savings."""
-    is_savings_txn = df.tag_auto.isin(helpers.savings) & ~df.debit
-    df['savings'] = is_savings_txn
+def entropy(df):
+    """Return Shannon Entropy for user and column name."""
+    from scipy.stats import entropy
+
+    def calc_entropy(user, num_cats):
+        total_txns = len(user)
+        txns_by_cat = user.groupby(column).size()
+        prop_by_cat = (txns_by_cat + 1) / (total_txns + num_cats)
+        return entropy(prop_by_cat, base=2)
+
+    g = df[df.debit].groupby('user_id')
+    for column in ['tag_auto', 'tag']:
+        col_name = '_'.join(['entropy', column])
+        num_cats = df[column].nunique()
+        scores = (g.apply(calc_entropy, num_cats)
+                  .rename(col_name)
+                  .reset_index())
+        df = df.merge(scores, validate='m:1') 
+
     return df
+
+
+
 
 

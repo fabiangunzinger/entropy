@@ -17,7 +17,7 @@ FuncWithKwargs = collections.namedtuple('FuncWithKwargs', ['func', 'kwargs'])
 
 
 def selector(func=None, **kwargs):
-    """Add function to list of selector functions."""
+    """Add function to list of selector functions"""
     def wrapper(func):
         selector_funcs.append(FuncWithKwargs(func, kwargs))
         return func
@@ -48,14 +48,14 @@ def counter(func):
 @counter
 def add_raw_count(df):
     """Raw sample.
-    Add count of raw dataset to selection table."""
+    Add count of raw dataset to selection table"""
     return df
 
 
 @selector
 @counter
 def min_number_of_months(df, min_months=6):
-    """At least 6 months of data."""
+    """At least 6 months of data"""
     cond = df.groupby('user_id').ym.nunique() >= min_months
     users = cond[cond].index
     return df[df.user_id.isin(users)]
@@ -64,7 +64,7 @@ def min_number_of_months(df, min_months=6):
 @selector
 @counter
 def current_account(df):
-    """At least one current account."""
+    """At least one current account"""
     mask = df.account_type.eq('current')
     users = df[mask].user_id.unique()
     return df[df.user_id.isin(users)]
@@ -73,7 +73,7 @@ def current_account(df):
 @selector
 @counter
 def min_spend(df, min_txns=10, min_spend=300):
-    """At least 5 monthly debits totalling GBP200.
+    """At least 5 monthly debits totalling GBP200
     Drops first and last month for each user due to possible incomplete data.
     """
     data = df[['user_id', 'ym', 'amount']]
@@ -100,7 +100,7 @@ def min_spend(df, min_txns=10, min_spend=300):
 @selector
 @counter
 def income_pmts(df, income_months_ratio=2/3):
-    """Income payments in 2/3 of all observed months."""
+    """Income payments in 2/3 of all observed months"""
     def helper(g):
         tot_months = g.ym.nunique()
         inc_months = g[g.tag_group.str.match('income', na=False)].ym.nunique()
@@ -113,7 +113,7 @@ def income_pmts(df, income_months_ratio=2/3):
 @selector
 @counter
 def income_amount(df, lower=5_000, upper=200_000):
-    """Yearly incomes between 5k and 200k.
+    """Yearly incomes between 5k and 200k
 
     Yearly income calculated on rolling basis from
     first month of data.
@@ -132,7 +132,7 @@ def income_amount(df, lower=5_000, upper=200_000):
 @selector
 @counter
 def max_accounts(df, max_accounts=10):
-    """No more than 10 active accounts in any year."""
+    """No more than 10 active accounts in any year"""
     year = pd.Grouper(freq='Y', key='date')
     usr_max = (df.groupby(['user_id', year])
                .account_id.nunique()
@@ -144,7 +144,7 @@ def max_accounts(df, max_accounts=10):
 @selector
 @counter
 def max_debits(df, max_debits=100_000):
-    """Debits of no more than 100k in any month."""
+    """Debits of no more than 100k in any month"""
     month = pd.Grouper(freq='M', key='date')
     debits = df[df.debit]
     usr_max = (debits.groupby(['user_id', month])
@@ -157,7 +157,7 @@ def max_debits(df, max_debits=100_000):
 @selector
 @counter
 def current_and_savings_account_balances(df):
-    """Current and savings account balances available.
+    """Current and savings account balances available
 
     Keep only users for whom `latest_balance` is available
     for all current and savings accounts so we can calculate
@@ -172,7 +172,7 @@ def current_and_savings_account_balances(df):
 @selector
 @counter
 def working_age(df, lower=18, upper=64):
-    """Working-age."""
+    """Working-age"""
     age = 2021 - df.user_yob
     return df[age.between(lower, upper)]
 
@@ -180,7 +180,7 @@ def working_age(df, lower=18, upper=64):
 @selector
 @counter
 def add_final_count(df):
-    """Final sample.
+    """Final sample
     Add count of final dataset to selection table."""
     return df
 

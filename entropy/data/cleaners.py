@@ -162,7 +162,7 @@ def _apply_grouping(grouping, df, col_name):
 
 @cleaner
 def add_tag(df):
-    """Creates custom transaction tag."""
+    """Creates custom transaction tags for spends, income, and transfers."""
     df['tag'] = np.nan
     _apply_grouping(helpers.lloyds_spend, df, 'tag')
     _apply_grouping(helpers.hacioglu_income, df, 'tag')
@@ -307,6 +307,14 @@ def drop_type2_dups(df):
     dups_by_group = potential_dups.groupby('group').apply(_type2_dups_indices)
     all_dups = dups_by_group.sum()
     return df.drop(all_dups)
+
+
+@cleaner
+def tag_savings(df):
+    """Tags all credit txns with auto tag indicating savings."""
+    is_savings_txn = df.tag_auto.isin(helpers.savings) & ~df.debit
+    df['savings'] = is_savings_txn
+    return df
 
 
 @cleaner

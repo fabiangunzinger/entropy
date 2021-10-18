@@ -12,19 +12,44 @@ Duplicate transactions
 \subsection{Sample selection}%
 \label{sub:sample_selection}
 
-
-\begin{table}[ht]
-\caption{Sample selection}\label{tab:selection}
-\input{\tabdir/sample_selection_777.tex}
-\end{table}
-
-
 \begin{table}[ht]
 \caption{Sample selection}\label{tab:selection}
 \input{\tabdir/sample_selection_X77.tex}
 \end{table}
 
 
+\subsection{Sample description}%
+\label{sub:sample_description}
+
+\begin{figure}[h]\center
+    \caption{Distribution of user incomes}    
+    \label{fig:income_distr}
+    \includegraphics[width=0.9\textwidth]{\figdir/income_distribution.png}
+\end{figure}
+
+\begin{figure}[h]\center
+    \newcommand\width{.9\textwidth}
+    \caption{Monthly transactions by account type}    
+    \label{fig:monthly_txns}
+    \includegraphics[width=\width]{\figdir/monthly_txns_by_account_type.png}
+    \fignote{\width}{The innermost boxes in the
+        \href{https://vita.had.co.nz/papers/letter-value-plot.html}{letter-value
+        plots} are identical to that of a boxplot, with the center line
+        corresponding to the median and the left and right edges to the first
+        and third quartiles, or half of the remaining data on either side of
+        the median.  Additional boxes on either side extend that principle by
+        corresponding to half of the remaining data on that side. For instance,
+        the second box to the right of the median in the current
+        accounts plot indicates that half of all
+        account-month observations to the right of the third quartile have
+        fewer than about 105 transactions. Boxes of the same height correspond
+        to the same level, individually drawn observations are outliers.}
+\end{figure}
+
+
+
+\subsection{Dependent variable}%
+\label{sub:dependent_variable}
 
 Types of balances, from \citet{becker2017does}, who treats balance at end of
 each month as observations:
@@ -39,17 +64,17 @@ each month as observations:
 \end{itemize}
 
 
-\begin{figure}[h]\center
-    \caption{Distribution of user incomes}    
-    \label{fig:income_distr}
-    \includegraphics[width=0.9\textwidth]{\figdir/income_distribution.png}
-\end{figure}
+\subsection{Independent variable}%
+\label{sub:independent_variable}
+
 
 \begin{figure}[h]\center
     \newcommand\width{.9\textwidth}
-    \caption{Monthly transactions by account type}    
-    \label{fig:monthly_txns}
-    \includegraphics[width=\width]{\figdir/monthly_txns_by_account_type.png}
-    \fignote{\width}{}
+    \caption{Distribution of entropy}    
+    \label{fig:entropy_dist}
+    \includegraphics[width=\width]{\figdir/entropy_distr.png}
+    \fignote{\width}{Explanation of what's going on.}
 \end{figure}
+
+
 

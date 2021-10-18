@@ -9,10 +9,12 @@ itself.
 
 """
 
+import functools
 import os
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import seaborn as sns
 
@@ -35,11 +37,11 @@ def _save_fig(fig, name):
     print(f'{name} written.')
 
     
-def income_distribution(df):
+def income_distr(df):
     """Plots histogram of annual incomes."""
     incomes = df.groupby(['user_id', df.date.dt.year]).income.first()
     fig = sns.displot(incomes, aspect=2)
-    _save_fig(fig, 'income_distribution.png')
+    _save_fig(fig, 'income_distr.png')
 
 
 
@@ -121,12 +123,37 @@ def monthly_txns_by_account_type(df, write=True):
 
 
 
+def entropy_distr(df, write=True):
+    """Plots distibutions of user-month txns and merchant categories,
+    and user-level entropy entropy."""
+
+    hist = functools.partial(sns.histplot, stat='percent')
+    g = df.set_index('date').groupby('user_id')    
+    fig, ax = plt.subplots(1, 3, figsize=(12, 3))
+
+    data = g.resample('M').id.count()
+    hist(data=data, bins=20, ax=ax[0])
+    ax[0].set(xlabel='Transactions', ylabel='User-months (%)')    
+
+    data = g.resample('M').tag.nunique()
+    bins = np.arange(df.tag.nunique() + 1) - 0.5
+    hist(data=data, bins=bins, ax=ax[1])
+    ax[1].set(xlabel='Merchant categories', ylabel='User-months (%)')
+    
+    data = g.entropy_tag.first()
+    hist(data=data, bins=15)
+    ax[2].set(xlabel='Entropy', ylabel='Users (%)')
+
+    if write:
+        _save_fig(fig, 'entropy_distr.png')
+
+
 if __name__ == '__main__':
 
     df = pd.read_parquet('~/tmp/entropy_X77.parquet')
 
     _set_style()
-    income_distribution(df)
-    balances_by_account_type(df)
-    monthly_txns_by_account_type(df)
-    
+    # income_distribution(df)
+    # balances_by_account_type(df)
+    # monthly_txns_by_account_type(df)
+    entropy_distr(df)
