@@ -124,31 +124,30 @@ def monthly_txns_by_account_type(df, write=True):
 
 
 def txns_distrs(df, write=True):
-    """Plots distibutions of user-month txns and spending categories,
-    and user-level entropy entropy."""
-
+    """Plots distibutions of txns, spending categories, and entropy."""
     def make_txns_hist(g):
-        data = g.resample('M').id.count()
-        hist(data=data, bins=20, ax=ax[0])
-        ax[0].set(xlabel='Transactions', ylabel='User-months (%)')    
+        data = g.id.count()
+        histplot(data=data, bins=20, ax=ax[0])
+        ax[0].set(xlabel='Transactions', ylabel=ylabel)    
 
     def make_spend_cat_hist(g):
-        data = g.resample('M').tag.nunique()
+        data = g.tag.nunique()
         bins = np.arange(df.tag.nunique() + 1) - 0.5
-        hist(data=data, bins=bins, ax=ax[1])
-        ax[1].set(xlabel='Spending categories', ylabel='User-months (%)')
+        histplot(data=data, bins=bins, ax=ax[1])
+        ax[1].set(xlabel='Spending categories', ylabel=ylabel)
 
     def make_entropy_hist(g):
         data = g.entropy_tag.first()
-        hist(data=data, bins=15)
-        ax[2].set(xlabel='Entropy', ylabel='Users (%)')
+        histplot(data=data, bins=20, ax=ax[2])
+        ax[2].set(xlabel='Entropy', ylabel=ylabel)
 
     def set_size(fig):
         fig.set_size_inches(8, 2.5)
         fig.tight_layout()
 
-    hist = functools.partial(sns.histplot, stat='percent')
-    g = df.set_index('date').groupby('user_id')    
+    g = df.set_index('date').groupby('user_id').resample('M')
+    histplot = functools.partial(sns.histplot, stat='percent')
+    ylabel = 'User-months (%)'
 
     fig, ax = plt.subplots(1, 3)
     make_txns_hist(g)
@@ -164,7 +163,7 @@ if __name__ == '__main__':
     df = pd.read_parquet('~/tmp/entropy_X77.parquet')
 
     _set_style()
-    income_distr(df)
-    balances_by_account_type(df)
-    monthly_txns_by_account_type(df)
+    # income_distr(df)
+    # balances_by_account_type(df)
+    # monthly_txns_by_account_type(df)
     txns_distrs(df)

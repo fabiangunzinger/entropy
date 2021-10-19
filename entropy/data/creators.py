@@ -4,6 +4,7 @@ Functions that create additional variables.
 """
 
 import numpy as np
+from scipy.stats import entropy
 from entropy.data import helpers
 
 
@@ -75,20 +76,25 @@ def income(df):
 
 @creator
 def entropy(df):
-    """Return Shannon Entropy for user and column name."""
-    from scipy.stats import entropy
+    """Return Shannon Entropy.
 
-    def calc_entropy(g, num_cats):
+    Calculated at user-month level, based on `tag` and optionally
+    additional columns.
+    """
+    def calc_entropy(g, column, num_cats):
         total_txns = len(g)
-        txns_by_cat = g.groupby(column).size()
+        txns_by_cat = g.groupby(c).size()
         prop_by_cat = (txns_by_cat + 1) / (total_txns + num_cats)
         return entropy(prop_by_cat, base=2)
 
-    debits = df[df.debit]
-    g = debits.groupby(['user_id', 'ym'])
-    for column in ['tag_auto', 'tag']:
-        col_name = '_'.join(['entropy', column])
-        num_cats = df[column].nunique()
+    
+    g = df[df.debit].groupby(['user_id', 'ym'])
+    cols = ['tag']
+
+    for c in cols:
+        col_name = '_'.join(['entropy', c])
+        num_cats = df[c].nunique()
+
         scores = (g.apply(calc_entropy, num_cats)
                   .rename(col_name)
                   .reset_index())

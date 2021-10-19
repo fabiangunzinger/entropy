@@ -99,6 +99,7 @@ def gender_to_female(df):
     """Replaces gender variable with female dummy."""
     df['user_female'] = df.user_gender == 'f'
     df['user_female'] = df.user_female.where(df.user_gender != 'u')
+    df['user_female'] = df.user_female.astype('category')
     return df.drop(columns='user_gender')
 
 
@@ -203,6 +204,7 @@ def tag_corrections(df):
     mask = df.tag_auto.eq('interest income') & df.debit
     df.loc[mask, 'tag'] = 'finance'
 
+    df['tag'] = df.tag.astype('category')
     return df
 
 
@@ -211,6 +213,7 @@ def add_tag_group(df):
     """Groups transactions into income, spend, and transfers."""
     df['tag_group'] = np.nan
     _apply_grouping(helpers.tag_groups, df, 'tag_group')
+    df['tag_group'] = df.tag_group.astype('category')
     return df
 
 
@@ -225,13 +228,14 @@ def add_year_month_variable(df):
 
 @cleaner
 def clean_description(df):
-    """Removes characters from txn description that hinder duplicate detection.
+    """Cleans up txnd description for better duplicate detection.
     
-    Removes common suffixes such as -vis, -p/p, and - e gbp; all punctuation;
-    multiple x characters, which are used to mask card or account numbers; and
-    extra whitespace. Also splits digits suffixes -- but not prefixes, as these
-    are usually dates -- from sequences of two or more letters (e.g. 'no14'
-    becomes 'no 14', 'o2', and '14jan' remain unchanged).
+    Removes common suffixes such as -vis, -p/p, and - e gbp; all
+    punctuation; multiple x characters, which are used to mask card
+    or account numbers; and extra whitespace. Also splits digits
+    suffixes -- but not prefixes, as these are usually dates -- from
+    sequences of two or more letters (e.g. 'no14' becomes 'no 14',
+    'o2', and '14jan' remain unchanged).
     """
     kwargs = dict(repl=' ', regex=True)
     df['desc'] = (df.desc.str.replace(r'-\s(\w\s)?.{2,3}$', **kwargs)
@@ -240,6 +244,7 @@ def clean_description(df):
                   .str.replace(r'(?<=[a-zA-Z]{2})(?=\d)', **kwargs)
                   .str.replace(r'\s{2,}', **kwargs)
                   .str.strip())
+    df['desc'] = df.desc.astype('category')
     return df
 
 

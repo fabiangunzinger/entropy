@@ -3,6 +3,8 @@ Functions to validate integrity of final dataset.
 
 """
 
+import entropy.data.helpers as hr
+
 validator_funcs = []
 
 
@@ -12,9 +14,18 @@ def validator(func):
     return func
 
 
+@validator
 def tag(df):
-    # check that tag only missing if tag_auto is missing
-    return df
+
+    # each txn is either one of defined tag groups or None
+    expected = set(hr.tag_groups.keys())
+    expected = expected.add(None)
+    df.tag_group.unique == expected
+
+    # tag for txns withing each tag group is one of Lloyds tags or None
+
+
+
 
 
 
