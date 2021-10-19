@@ -78,13 +78,14 @@ def entropy(df):
     """Return Shannon Entropy for user and column name."""
     from scipy.stats import entropy
 
-    def calc_entropy(user, num_cats):
-        total_txns = len(user)
-        txns_by_cat = user.groupby(column).size()
+    def calc_entropy(g, num_cats):
+        total_txns = len(g)
+        txns_by_cat = g.groupby(column).size()
         prop_by_cat = (txns_by_cat + 1) / (total_txns + num_cats)
         return entropy(prop_by_cat, base=2)
 
-    g = df[df.debit].groupby('user_id')
+    debits = df[df.debit]
+    g = debits.groupby(['user_id', 'ym'])
     for column in ['tag_auto', 'tag']:
         col_name = '_'.join(['entropy', column])
         num_cats = df[column].nunique()

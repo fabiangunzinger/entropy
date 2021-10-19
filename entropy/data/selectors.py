@@ -89,10 +89,10 @@ def min_spend(df, min_txns=10, min_spend=300):
     g = data.groupby(['user_id', 'ym']).amount
     spend = g.sum()
     txns = g.size()
-    user_spend = spend.groupby('user_id').min()
-    user_txns = txns.groupby('user_id').min()
+    user_min_spend = spend.groupby('user_id').min()
+    user_min_txns = txns.groupby('user_id').min()
 
-    mask = (user_txns >= min_txns) & (user_spend >= min_spend)
+    mask = (user_min_txns >= min_txns) & (user_min_spend >= min_spend)
     users = mask[mask].index
     return df[df.user_id.isin(users)]
 
