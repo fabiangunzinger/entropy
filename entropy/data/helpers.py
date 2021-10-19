@@ -274,8 +274,9 @@ custom_transfers = {
 
 
 lloyds_spend = {
-    # spend grouping based on lloyds banking group, from muggleton2021evidence
-    # changes: dropped miscellaneous category
+    # Spend grouping into 9 categories based on Lloyds Banking Group,
+    # as discussed in muggleton2020evidence.
+    # Changes made: merged 'miscellaneous' category with 'other'
     
     'communication': [
         'broadband',

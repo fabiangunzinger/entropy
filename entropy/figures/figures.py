@@ -124,7 +124,7 @@ def monthly_txns_by_account_type(df, write=True):
 
 
 def txns_distrs(df, write=True):
-    """Plots distibutions of user-month txns and txns categories,
+    """Plots distibutions of user-month txns and spending categories,
     and user-level entropy entropy."""
 
     def make_txns_hist(g):
@@ -132,11 +132,11 @@ def txns_distrs(df, write=True):
         hist(data=data, bins=20, ax=ax[0])
         ax[0].set(xlabel='Transactions', ylabel='User-months (%)')    
 
-    def make_txn_cat_hist(g):
+    def make_spend_cat_hist(g):
         data = g.resample('M').tag.nunique()
         bins = np.arange(df.tag.nunique() + 1) - 0.5
         hist(data=data, bins=bins, ax=ax[1])
-        ax[1].set(xlabel='Transaction categories', ylabel='User-months (%)')
+        ax[1].set(xlabel='Spending categories', ylabel='User-months (%)')
 
     def make_entropy_hist(g):
         data = g.entropy_tag.first()
@@ -152,7 +152,7 @@ def txns_distrs(df, write=True):
 
     fig, ax = plt.subplots(1, 3)
     make_txns_hist(g)
-    make_txn_cat_hist(g)
+    make_spend_cat_hist(g)
     make_entropy_hist(g)
     set_size(fig)
     if write:
