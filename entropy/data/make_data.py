@@ -79,16 +79,16 @@ def main(input_path, output_path):
 
     df = (read_data(input_path)
           .pipe(clean_data)
-          # .pipe(select_sample)
-          # .pipe(create_vars)
-          # .pipe(validate_data)
+          .pipe(select_sample)
+          .pipe(create_vars)
+          .pipe(validate_data)
           .pipe(write_data, output_path, verbose=True))
 
-    # table = selection_table(sample_counts)
-    # tbl_path = get_table_path(sample_name)
-    # write_selection_table(table, tbl_path)
-    # with pd.option_context('max_colwidth', 25):
-    #     print(table)
+    table = selection_table(sample_counts)
+    tbl_path = get_table_path(sample_name)
+    write_selection_table(table, tbl_path)
+    with pd.option_context('max_colwidth', 25):
+        print(table)
 
 
 if __name__ == "__main__":

@@ -75,38 +75,37 @@ def clean_headers(df):
 @cleaner
 def lowercase_categories(df):
     """Converts all category values to lowercase to simplify regex searcher."""
-    cats = df.select_dtypes('category').columns
-    df[cats] = (df[cats]
-                .astype('str')
-                .apply(lambda x: x.str.lower())
-                .astype('category'))
+    cat_vars = df.select_dtypes('category').columns
+    for var in cat_vars:
+        print(var)
+        print(df[var].cat.categories)
+        df[var] = df[var].cat.rename_categories(str.lower)
     return df
 
 
 @cleaner
 def order_salaries(df):
     """Orders salary category variable."""
-    cats = ['< 10k', '10k to 20k', '20k to 30k',
-            '30k to 40k', '40k to 50k', '50k to 60k',
-            '60k to 70k', '70k to 80k', '> 80k']
-    df['user_salary_range'] = (df.user_salary_range
-                               .cat.set_categories(cats, ordered=True))
+    ordered_value = ['< 10k', '10k to 20k', '20k to 30k',
+                     '30k to 40k', '40k to 50k', '50k to 60k',
+                     '60k to 70k', '70k to 80k', '> 80k']
+    df['user_salary_range'] = (df.user_salary_range.cat
+                               .set_categories(ordered_value, ordered=True))
     return df
 
 
 @cleaner
 def gender_to_female(df):
     """Replaces gender variable with female dummy."""
-    df['user_female'] = df.user_gender == 'f'
-    df['user_female'] = df.user_female.where(df.user_gender != 'u')
-    df['user_female'] = df.user_female.astype('category')
+    mapping = {'f': 1, 'm': 0, 'u': np.nan}
+    df['user_female'] = df.user_gender.map(mapping).astype('float32')
     return df.drop(columns='user_gender')
 
 
 @cleaner
 def credit_debit_to_debit(df):
     """Replaces credit_debit variable with credit dummy."""
-    df['debit'] = df.credit_debit == 'debit'
+    df['debit'] = df.credit_debit.eq('debit')
     return df.drop(columns='credit_debit')
 
 
@@ -168,6 +167,7 @@ def add_tag(df):
     _apply_grouping(helpers.lloyds_spend, df, 'tag')
     _apply_grouping(helpers.hacioglu_income, df, 'tag')
     _apply_grouping(helpers.custom_transfers, df, 'tag')
+    df['tag'] = df.tag.astype('category')
     return df
 
 
@@ -204,7 +204,6 @@ def tag_corrections(df):
     mask = df.tag_auto.eq('interest income') & df.debit
     df.loc[mask, 'tag'] = 'finance'
 
-    df['tag'] = df.tag.astype('category')
     return df
 
 
@@ -263,8 +262,10 @@ def drop_type1_dups(df):
 def _potential_type2_dups(df):
     """Returns desc and duplicate group id for potential Type 2 duplicates."""
     cols = ['date', 'user_id', 'account_id', 'amount']
-    return (df.loc[df.duplicated(subset=cols, keep=False)]
-            .assign(group=lambda df: df.groupby(cols).ngroup())
+    mask = df.duplicated(subset=cols, keep=False)
+    assign_group_id = lambda df: df.groupby(cols).ngroup()
+    return (df.loc[mask]
+            .assign(group=assign_group_id)
             .loc[:,['desc', 'group']])
 
 
@@ -309,16 +310,17 @@ def drop_type2_dups(df):
     appears in the description of the other txn.
     """
     potential_dups = _potential_type2_dups(df)
-    dups_by_group = potential_dups.groupby('group').apply(_type2_dups_indices)
-    all_dups = dups_by_group.sum()
-    return df.drop(all_dups)
+    g = potential_dups.groupby('group')
+    group_dup_indices = g.apply(_type2_dups_indices)
+    dup_indices = group_dup_indices.sum()
+    return df.drop(dup_indices)
 
 
-@cleaner
+# @cleaner
 def tag_savings(df):
     """Tags all credit txns with auto tag indicating savings."""
     is_savings_txn = df.tag_auto.isin(helpers.savings) & ~df.debit
-    df['savings'] = is_savings_txn
+    df['savings'] = is_savings_txn.astype('float32')
     return df
 
 
