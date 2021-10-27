@@ -1,4 +1,6 @@
 language: python
 python:
     - "3.9"
+install:
+    - pip intall -r environment.txt
 script: make test
