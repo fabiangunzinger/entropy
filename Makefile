@@ -9,11 +9,12 @@ SAMPLES := 000 777 X77
 # TESTSAMPLE := 000
 TESTSAMPLE := 000
 
+
+.PHONY: pptest
 .PHONY: test
 test:
 	python -m pytest
 
-.PHONY: pptest
 pptest:
 	@python -m entropy.data.make_data\
 		$(RAWDIR)/mdb_$(TESTSAMPLE).parquet \
