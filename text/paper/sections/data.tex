@@ -27,23 +27,22 @@ Duplicate transactions
     \includegraphics[width=0.9\textwidth]{\figdir/income_distribution.png}
 \end{figure}
 
-\begin{figure}[h]\center
-    \newcommand\width{.9\textwidth}
-    \caption{Monthly transactions by account type}    
-    \label{fig:monthly_txns}
-    \includegraphics[width=\width]{\figdir/monthly_txns_by_account_type.png}
-    \fignote{\width}{The innermost boxes in the
-        \href{https://vita.had.co.nz/papers/letter-value-plot.html}{letter-value
-        plots} are identical to that of a boxplot, with the center line
-        corresponding to the median and the left and right edges to the first
-        and third quartiles, or half of the remaining data on either side of
-        the median.  Additional boxes on either side extend that principle by
-        corresponding to half of the remaining data on that side. For instance,
-        the second box to the right of the median in the current
-        accounts plot indicates that half of all
-        account-month observations to the right of the third quartile have
-        fewer than about 105 transactions. Boxes of the same height correspond
-        to the same level, individually drawn observations are outliers.}
+\begin{figure}[h]\center \newcommand\width{.9\textwidth} \caption{Monthly
+        transactions by account type}    \label{fig:monthly_txns}
+        \includegraphics[width=\width]{\figdir/monthly_txns_by_account_type.png}
+        \fignote{\width}{The two innermost boxes in the
+            \href{https://vita.had.co.nz/papers/letter-value-plot.html}{letter-value
+            plots} are identical to those in a boxplot, with the center line
+            corresponding to the median and the left and right edges to the
+            first and third quartiles, respectively -- or half of the remaining
+            data on either side of the median.  Additional boxes on either side
+            extend that principle by corresponding to half of the remaining
+            data on that side. For instance, the second box to the right of the
+            median in the current accounts plot indicates that half of all
+            account-month observations to the right of the third quartile have
+            fewer than about 105 transactions. Boxes of the same height
+            correspond to the same level, individually drawn observations are
+        outliers.}
 \end{figure}
 
 
@@ -81,7 +80,7 @@ Spending entropy:
         pattern is predictable, whith a higher score indicating less
         predictability.
 
-    \item To calculate individual entropy scores, group spending into 9
+    \item To calculate individual entropy scores, we group spending into 9
         spending categories (SC), based on the classification used
         by Lloyds Banking Group as discussed in \citet{muggleton2020evidence}.
 
@@ -104,8 +103,8 @@ Spending entropy:
     \label{fig:entropy_dist}
     \includegraphics[width=\width]{\figdir/entropy_distr.png}
     \fignote{\width}{Distribution of the number of transactions per user-month
-    (left), the number of different spending categories fall into (middle), and
-user-level entropy scores based on spending categories (right).}
+    (left), the number of different spending categories these transactions fall into (middle), and
+user-level entropy scores based on these same spending categories (right).}
 \end{figure}
 
 

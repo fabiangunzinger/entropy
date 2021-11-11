@@ -19,7 +19,7 @@ def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('input_path')
     parser.add_argument('output_path')
-    return parser.parse_args()
+    return parser.parse_args(argv)
 
 
 @timer
@@ -75,23 +75,25 @@ def get_table_path(sample_name):
 
 def main(input_path, output_path):
     sample_name = get_sample_name(input_path)
-    print('Sample:', sample_name)
+    print('Making sample:', sample_name)
 
     df = (read_data(input_path)
           .pipe(clean_data)
-          .pipe(select_sample)
-          .pipe(create_vars)
-          .pipe(validate_data)
-          .pipe(write_data, output_path, verbose=True))
+          # .pipe(select_sample)
+          # .pipe(create_vars)
+          # .pipe(validate_data)
+          # .pipe(write_data, output_path, verbose=True))
+          )
 
-    table = selection_table(sample_counts)
-    tbl_path = get_table_path(sample_name)
-    write_selection_table(table, tbl_path)
-    with pd.option_context('max_colwidth', 25):
-        print(table)
+    # table = selection_table(sample_counts)
+    # tbl_path = get_table_path(sample_name)
+    # write_selection_table(table, tbl_path)
+    # with pd.option_context('max_colwidth', 25):
+    #     print(table)
 
 
 if __name__ == "__main__":
-    args = parse_args(sys.argv)
+    args = parse_args(sys.argv[1:])
+    print(args)
     main(args.input_path, args.output_path)
 

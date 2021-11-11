@@ -64,7 +64,7 @@ def drop_unneeded_vars(df):
 
 @cleaner
 def clean_headers(df):
-    """Turns column headers into snake case."""
+    """Converts column headers to snake case."""
     df.columns = (df.columns
                   .str.lower()
                   .str.replace(r'[\s\.]', '_', regex=True)
@@ -76,10 +76,8 @@ def clean_headers(df):
 def lowercase_categories(df):
     """Converts all category values to lowercase to simplify regex searcher."""
     cat_vars = df.select_dtypes('category').columns
-    for var in cat_vars:
-        print(var)
-        print(df[var].cat.categories)
-        df[var] = df[var].cat.rename_categories(str.lower)
+    df[cat_vars] = (df[cat_vars].apply(lambda x: x.str.lower())
+                    .astype('category'))
     return df
 
 
@@ -96,7 +94,10 @@ def order_salaries(df):
 
 @cleaner
 def gender_to_female(df):
-    """Replaces gender variable with female dummy."""
+    """Replaces gender variable with female dummy.
+
+    Uses float type becuase bool type doesn't handle na values well.
+    """
     mapping = {'f': 1, 'm': 0, 'u': np.nan}
     df['user_female'] = df.user_gender.map(mapping).astype('float32')
     return df.drop(columns='user_gender')
@@ -316,14 +317,6 @@ def drop_type2_dups(df):
     return df.drop(dup_indices)
 
 
-# @cleaner
-def tag_savings(df):
-    """Tags all credit txns with auto tag indicating savings."""
-    is_savings_txn = df.tag_auto.isin(helpers.savings) & ~df.debit
-    df['savings'] = is_savings_txn.astype('float32')
-    return df
-
-
 @cleaner
 def order_and_sort(df):
     """Orders columns and sort values."""
@@ -336,6 +329,14 @@ def order_and_sort(df):
     order = first + sorted(user) + sorted(account) + sorted(txn)
 
     return df[order].sort_values(['user_id', 'date'])
+
+
+# @cleaner
+def tag_savings(df):
+    """Tags all credit txns with auto tag indicating savings."""
+    is_savings_txn = df.tag_auto.isin(helpers.savings) & ~df.debit
+    df['savings'] = is_savings_txn.astype('float32')
+    return df
 
 
 # @cleaner
