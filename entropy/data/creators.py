@@ -27,82 +27,79 @@ def balances(df):
     reported balance on the day of the last refresh or the nearest
     preceeding date.
     """
+
     def helper(g):
         last_refresh_balance = g.latest_balance.iloc[0]
         last_refresh_date = g.account_last_refreshed.iloc[0]
-        
-        daily_net_spend = g.set_index('date').resample('D').amount.sum()
+
+        daily_net_spend = g.set_index("date").resample("D").amount.sum()
         cum_balance = daily_net_spend.cumsum().mul(-1)
 
-        # get cum_balance on last refreshed date or nearest preceeding date 
-        idx = cum_balance.index.get_loc(last_refresh_date, method='ffill')
+        # get cum_balance on last refreshed date or nearest preceeding date
+        idx = cum_balance.index.get_loc(last_refresh_date, method="ffill")
         last_refresh_cum_balance = cum_balance[idx]
 
         starting_balance = last_refresh_balance - last_refresh_cum_balance
         balance = cum_balance + starting_balance
-        return balance.rename('balance')
+        return balance.rename("balance")
 
-    balance = df.groupby('account_id').apply(helper).reset_index()
-    return df.merge(balance, how='left', validate='m:1')
+    balance = df.groupby("account_id").apply(helper).reset_index()
+    return df.merge(balance, how="left", validate="m:1")
 
 
 @creator
 def income(df):
     """Returns yearly income for each user.
 
-    To account for years where we don't observe users for the 
+    To account for years where we don't observe users for the
     full 12 months, we scale yearly income to represent a full
     12 months.
     """
-    mask = df.tag_group.str.match('income', na=False)
-    yearly_income_payments = (df.loc[mask]
-                              .set_index('date')
-                              .groupby('user_id')
-                              .resample('Y'))
+    mask = df.tag_group.str.match("income", na=False)
+    yearly_income_payments = (
+        df.loc[mask].set_index("date").groupby("user_id").resample("Y")
+    )
     yearly_payments_total = yearly_income_payments.amount.sum().mul(-1)
     yearly_unique_months = yearly_income_payments.ym.nunique()
     yearly_income = yearly_payments_total / yearly_unique_months * 12
-    
-    yearly_income = (yearly_income
-                     .rename('income')
-                     .reset_index()
-                     .assign(y=lambda df: df.date.dt.year)
-                     .drop(columns='date'))
-    df['y'] = df.date.dt.year
-    keys = ['user_id', 'y']
-    merged = df.merge(yearly_income, how='left', on=keys, validate='m:1')
-    return merged.drop(columns='y')
+
+    yearly_income = (
+        yearly_income.rename("income")
+        .reset_index()
+        .assign(y=lambda df: df.date.dt.year)
+        .drop(columns="date")
+    )
+    df["y"] = df.date.dt.year
+    keys = ["user_id", "y"]
+    merged = df.merge(yearly_income, how="left", on=keys, validate="m:1")
+    return merged.drop(columns="y")
 
 
 @creator
-def entropy(df):
-    """Return Shannon Entropy.
+def entrop_scores(df):
+    """Adds Shannon Entropy scores based on selected columns.
 
     Calculated at user-month level, based on `tag` and optionally
     additional columns.
     """
-    def calc_entropy(g, column, num_cats):
+
+    def calc_entropy(g, column, unique_vals):
         total_txns = len(g)
-        txns_by_cat = g.groupby(c).size()
-        prop_by_cat = (txns_by_cat + 1) / (total_txns + num_cats)
+        txns_by_cat = g.groupby(column).size()
+        prop_by_cat = (txns_by_cat + 1) / (total_txns + unique_vals)
         return entropy(prop_by_cat, base=2)
 
-    
-    g = df[df.debit].groupby(['user_id', 'ym'])
-    cols = ['tag']
-
-    for c in cols:
-        col_name = '_'.join(['entropy', c])
-        num_cats = df[c].nunique()
-
-        scores = (g.apply(calc_entropy, num_cats)
-                  .rename(col_name)
-                  .reset_index())
-        df = df.merge(scores, validate='m:1') 
+    columns = ["tag"]
+    for column in columns:
+        col_name = "_".join(["entropy", column])
+        unique_vals = df[column].nunique()
+        scores = (
+            df[df.debit]
+            .groupby(["user_id", "ym"])
+            .apply(calc_entropy, column, unique_vals)
+            .rename(col_name)
+            .reset_index()
+        )
+        df = df.merge(scores, validate="m:1")
 
     return df
-
-
-
-
-

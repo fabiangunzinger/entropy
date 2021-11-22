@@ -17,8 +17,8 @@ from .selection_table import selection_table, write_selection_table
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument('input_path')
-    parser.add_argument('output_path')
+    parser.add_argument("input_path")
+    parser.add_argument("output_path")
     return parser.parse_args(argv)
 
 
@@ -63,13 +63,13 @@ def write_data(df, path, **kwargs):
 
 
 def get_sample_name(path):
-    sample_name_pattern = '[X\d]+'
+    sample_name_pattern = "[X\d]+"
     filename = os.path.basename(path)
     return re.search(sample_name_pattern, filename).group()
 
 
 def get_table_path(sample_name):
-    table_name = f'sample_selection_{sample_name}.tex'
+    table_name = f"sample_selection_{sample_name}.tex"
     return os.path.join(config.TABDIR, table_name)
 
 
@@ -77,26 +77,25 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
     args = parse_args(argv)
-     
+
     sample_name = get_sample_name(args.input_path)
-    print('Making sample:', sample_name)
+    print("Making sample:", sample_name)
 
-    df = (read_data(args.input_path)
-          # .pipe(clean_data)
-          # .pipe(select_sample)
-          # .pipe(create_vars)
-          # .pipe(validate_data)
-          # .pipe(write_data, args.output_path, verbose=True))
-          )
+    df = (
+        read_data(args.input_path)
+        .pipe(clean_data)
+        .pipe(select_sample)
+        .pipe(create_vars)
+        .pipe(validate_data)
+        .pipe(write_data, args.output_path, verbose=True)
+    )
 
-    print(df.head())
-    # table = selection_table(sample_counts)
-    # tbl_path = get_table_path(sample_name)
-    # write_selection_table(table, tbl_path)
-    # with pd.option_context('max_colwidth', 25):
-    #     print(table)
+    table = selection_table(sample_counts)
+    tbl_path = get_table_path(sample_name)
+    write_selection_table(table, tbl_path)
+    with pd.option_context('max_colwidth', 25):
+        print(table)
 
 
 if __name__ == "__main__":
     main()
-
