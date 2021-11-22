@@ -5,7 +5,7 @@ import sys
 
 import pandas as pd
 
-from .. import config
+from entropy import config
 from ..helpers import aws
 from ..helpers.helpers import timer
 from .cleaners import cleaner_funcs
@@ -73,18 +73,23 @@ def get_table_path(sample_name):
     return os.path.join(config.TABDIR, table_name)
 
 
-def main(input_path, output_path):
-    sample_name = get_sample_name(input_path)
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv[1:]
+    args = parse_args(argv)
+     
+    sample_name = get_sample_name(args.input_path)
     print('Making sample:', sample_name)
 
-    df = (read_data(input_path)
-          .pipe(clean_data)
+    df = (read_data(args.input_path)
+          # .pipe(clean_data)
           # .pipe(select_sample)
           # .pipe(create_vars)
           # .pipe(validate_data)
-          # .pipe(write_data, output_path, verbose=True))
+          # .pipe(write_data, args.output_path, verbose=True))
           )
 
+    print(df.head())
     # table = selection_table(sample_counts)
     # tbl_path = get_table_path(sample_name)
     # write_selection_table(table, tbl_path)
@@ -93,7 +98,5 @@ def main(input_path, output_path):
 
 
 if __name__ == "__main__":
-    args = parse_args(sys.argv[1:])
-    print(args)
-    main(args.input_path, args.output_path)
+    main()
 
