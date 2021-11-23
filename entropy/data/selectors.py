@@ -178,7 +178,7 @@ def valid_account_last_refreshed_date(df):
     for which we observe an account.
     """
     def helper(g):
-        return g.account_last_refreshed[0] >= g.date.min()
+        return g.account_last_refreshed.iloc[0] >= g.date.min()
     return df.groupby('account_id').filter(helper)
 
 
