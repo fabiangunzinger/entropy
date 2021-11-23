@@ -37,8 +37,6 @@ def balances(df):
 
         # get cum_balance on last refreshed date or nearest preceeding date
         idx = cum_balance.index.get_loc(last_refresh_date, method="ffill")
-        print(cum_balance)
-        return idx
         last_refresh_cum_balance = cum_balance[idx]
 
         starting_balance = last_refresh_balance - last_refresh_cum_balance
