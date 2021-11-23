@@ -37,14 +37,17 @@ def balances(df):
 
         # get cum_balance on last refreshed date or nearest preceeding date
         idx = cum_balance.index.get_loc(last_refresh_date, method="ffill")
+        print(cum_balance)
+        return idx
         last_refresh_cum_balance = cum_balance[idx]
 
         starting_balance = last_refresh_balance - last_refresh_cum_balance
         balance = cum_balance + starting_balance
         return balance.rename("balance")
 
-    balances = df.set_index('date').groupby("account_id").apply(helper).reset_index()
-    return df.merge(balances, how="left", validate="m:1")
+    balance = df.set_index('date').groupby("account_id").apply(helper).reset_index()
+    return balance
+    return df.merge(balance, how="left", validate="m:1")
 
 
 @creator

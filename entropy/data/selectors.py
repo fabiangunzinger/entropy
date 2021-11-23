@@ -171,6 +171,19 @@ def current_and_savings_account_balances(df):
 
 @selector
 @counter
+def valid_account_last_refreshed_date(df):
+    """Last account refresh within observed period
+
+    There are cases where last account refresh date is before the first date
+    for which we observe an account.
+    """
+    def helper(g):
+        return g.account_last_refreshed[0] >= g.date.min()
+    return df.groupby('account_id').filter(helper)
+
+
+@selector
+@counter
 def working_age(df, lower=18, upper=64):
     """Working-age"""
     age = 2021 - df.user_yob
