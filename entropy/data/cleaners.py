@@ -315,6 +315,7 @@ def drop_type2_dups(df):
     potential_dups = _potential_type2_dups(df)
     g = potential_dups.groupby("group")
     group_dup_indices = g.apply(_type2_dups_indices)
+    print(group_dup_indices)
     dup_indices = group_dup_indices.sum()
     return df.drop(dup_indices)
 
