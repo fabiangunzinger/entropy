@@ -6,7 +6,7 @@ SHELL = /bin/sh
 RAWDIR := s3://3di-data-mdb/raw
 CLEANDIR := ~/tmp
 CLEANDIR := s3://3di-project-entropy
-SAMPLES := 000 777 X77
+SAMPLES := 000 777 X77 XX7
 # TESTSAMPLE := 000
 TESTSAMPLE := 000
 
