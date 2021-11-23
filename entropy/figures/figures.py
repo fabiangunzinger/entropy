@@ -30,6 +30,11 @@ def _set_size(fig):
     fig.tight_layout()
 
 
+def _set_axis_labels(ax, xlabel, ylabel):
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+
+
 def _save_fig(fig, name):
     DPI = 1200
     fp = os.path.join(config.FIGDIR, name)
@@ -37,14 +42,32 @@ def _save_fig(fig, name):
     print(f"{name} written.")
 
 
-def income_distr(df):
+def income_distr(df, write=True):
     """Plots histogram of annual incomes."""
-    incomes = df.groupby(["user_id", df.date.dt.year]).income.first()
-    fig = sns.displot(incomes, aspect=2)
-    _save_fig(fig, "income_distr.png")
+    from matplotlib.ticker import StrMethodFormatter
+
+    def make_data(df):
+        return df.groupby(["user_id", df.date.dt.year]).income.first()
+
+    def draw_plot(df):
+        fix, ax = plt.subplots()
+        ax = sns.histplot(df)
+        return fix, ax
+
+    def set_xtick_labels(ax):
+        ax.xaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
+
+    data = make_data(df)
+    fig, ax = draw_plot(data)
+    _set_style()
+    _set_size(fig)
+    _set_axis_labels(ax, "Yearly income (£)", "Number of users")
+    set_xtick_labels(ax)
+    if write:
+        _save_fig(fig, "income_distr.png")
 
 
-def balances_by_account_type(df, write=True):
+def balances_by_account_type(df, write=True, **kwargs):
     def make_data(df, account_type, freq="w", agg="median", start=None, end=None):
         """Returns user balances at specified freq by account type."""
         return (
@@ -75,13 +98,9 @@ def balances_by_account_type(df, write=True):
         ax.legend(title=df.columns.name)
         return fig, ax
 
-    def set_labels(ax):
-        ax.set_xlabel("Year")
-        ax.set_ylabel("Median account balance (£)")
-
-    data = make_data(df, account_type=["current", "savings"], start="2015")
+    data = make_data(df, account_type=["current", "savings"], **kwargs)
     fig, ax = draw_plot(data)
-    set_labels(ax)
+    _set_axis_labels(ax, "Year", "Median account balance (£)")
     _set_size(fig)
     if write:
         _save_fig(fig, "balances_by_account_type.png")
@@ -104,17 +123,15 @@ def monthly_txns_by_account_type(df, write=True):
         ax = sns.boxenplot(data=df, x="num_txns", y="account_type")
         return fig, ax
 
-    def set_labels(ax):
+    def set_ytick_labels(ax):
         # capitalise first letter of and add 'account' suffix to ytick labels
         to_label = lambda x: " ".join([x[0].upper() + x[1:], "accounts"])
         ytick_labels = [to_label(i.get_text()) for i in ax.get_yticklabels()]
         ax.set_yticklabels(ytick_labels)
 
-        ax.set_xlabel("Number of transactions per month")
-        ax.set_ylabel("")
-
     fig, ax = make_plot(make_data(df))
-    set_labels(ax)
+    set_ytick_labels(ax)
+    _set_axis_labels(ax, xlabel="Number of transactions per month", ylabel="")
     _set_size(fig)
     if write:
         _save_fig(fig, "monthly_txns_by_account_type.png")

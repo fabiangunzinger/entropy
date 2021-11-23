@@ -30,10 +30,10 @@ def balances(df):
 
     def helper(g):
         last_refresh_balance = g.latest_balance.iloc[0]
-        last_refresh_date = g.account_last_refreshed.iloc[0]
+        last_refresh_date = g.account_last_refreshed.iloc[0].normalize()
 
-        daily_net_spend = g.set_index("date").resample("D").amount.sum()
-        cum_balance = daily_net_spend.cumsum().mul(-1)
+        daily_net_spend = g.resample("D").amount.sum().mul(-1)
+        cum_balance = daily_net_spend.cumsum()
 
         # get cum_balance on last refreshed date or nearest preceeding date
         idx = cum_balance.index.get_loc(last_refresh_date, method="ffill")
@@ -43,8 +43,8 @@ def balances(df):
         balance = cum_balance + starting_balance
         return balance.rename("balance")
 
-    balance = df.groupby("account_id").apply(helper).reset_index()
-    return df.merge(balance, how="left", validate="m:1")
+    balances = df.set_index('date').groupby("account_id").apply(helper).reset_index()
+    return df.merge(balances, how="left", validate="m:1")
 
 
 @creator
