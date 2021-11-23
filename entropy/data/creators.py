@@ -44,7 +44,6 @@ def balances(df):
         return balance.rename("balance")
 
     balance = df.set_index('date').groupby("account_id").apply(helper).reset_index()
-    return balance
     return df.merge(balance, how="left", validate="m:1")
 
 
