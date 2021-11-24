@@ -148,6 +148,27 @@ def user_region_distr(df, write=True):
         _save_fig(fig, 'user_region_distr.png')
 
 
+@paper_figure
+def user_gender_distr(df, write=True):
+    """Plots distribution of user gender."""
+    def make_data(df):
+        labels = {0: 'Male', 1: 'Female'}
+        return df.groupby('user_id').user_female.first().map(labels).value_counts()
+
+    def make_plot(data):
+        fig, ax = plt.subplots()
+        data.plot(kind='bar', rot=0)
+        return fig, ax
+    
+    data = make_data(df)
+    fig, ax = make_plot(data)
+    _set_style()
+    _set_size(fig)
+    _set_axis_labels(ax, xlabel='', ylabel='Number of users')
+    if write:
+        _save_fig(fig, 'user_gender_distr.png')
+
+
 def balances_by_account_type(df, write=True, **kwargs):
     def make_data(df, account_type, freq="w", agg="median", start=None, end=None):
         """Returns user balances at specified freq by account type."""
