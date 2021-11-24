@@ -101,7 +101,7 @@ def user_income_hist(df, write=True):
     _set_axis_labels(ax, "Yearly income (£)", "Number of users")
     set_xtick_labels(ax)
     if write:
-        _save_fig(fig, "income_distr.png")
+        _save_fig(fig, "user_income_hist.png")
 
 
 def balances_by_account_type(df, write=True, **kwargs):
