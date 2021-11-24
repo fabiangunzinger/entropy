@@ -2,15 +2,16 @@
 Create all figures.
 
 Approach:
-1. Load main dataset
+1. Load main dataset and produce all figures from it.
 2. One function per figure, which produces data used in figure and figure
 itself.
 3. Use styling helpers across functions whenever possible.
 
 """
-
+import argparse
 import functools
 import os
+import sys
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -19,6 +20,20 @@ import pandas as pd
 import seaborn as sns
 
 from entropy import config
+from entropy.helpers import aws
+
+
+paper_figures = []
+
+def paper_figure(func):
+    paper_figures.append(func)
+    return func
+
+
+def parse_args(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filepath")
+    return parser.parse_args(argv)
 
 
 def _set_style():
@@ -36,14 +51,36 @@ def _set_axis_labels(ax, xlabel, ylabel):
 
 
 def _save_fig(fig, name):
-    DPI = 1200
+    dpi = 300
     fp = os.path.join(config.FIGDIR, name)
-    fig.savefig(fp, dpi=DPI)
+    fig.savefig(fp, dpi=dpi)
     print(f"{name} written.")
 
 
-def income_distr(df, write=True):
-    """Plots histogram of annual incomes."""
+@paper_figure
+def user_age_hist(df, write=True):
+    """Plots histogram of user ages."""
+    def make_data(df):
+        return 2021 - df.groupby('user_id').user_yob.first()
+
+    def make_plot(data):
+        fig, ax = plt.subplots()
+        bins = np.linspace(20, 65, 46)
+        sns.histplot(data, bins=bins - 0.5)
+        return fig, ax
+    
+    data = make_data(df)
+    fig, ax = make_plot(data)
+    _set_style()
+    _set_size(fig)
+    _set_axis_labels(ax, xlabel='Age', ylabel='Number of users')
+    if write:
+        _save_fig(fig, 'user_age_hist.png')
+
+
+@paper_figure
+def user_income_hist(df, write=True):
+    """Plots histogram of annual user incomes."""
     from matplotlib.ticker import StrMethodFormatter
 
     def make_data(df):
@@ -64,7 +101,7 @@ def income_distr(df, write=True):
     _set_axis_labels(ax, "Yearly income (£)", "Number of users")
     set_xtick_labels(ax)
     if write:
-        _save_fig(fig, "income_distr.png")
+        _save_fig(fig, "user_income_hist.png")
 
 
 def balances_by_account_type(df, write=True, **kwargs):
@@ -106,7 +143,9 @@ def balances_by_account_type(df, write=True, **kwargs):
         _save_fig(fig, "balances_by_account_type.png")
 
 
-def monthly_txns_by_account_type(df, write=True):
+@paper_figure
+def num_txns_by_account_type(df, write=True):
+    """Plots boxenplot with number of monthly transactions by account type."""
     def make_data(df):
         return (
             df.loc[df.account_type.ne("other")]
@@ -124,7 +163,7 @@ def monthly_txns_by_account_type(df, write=True):
         return fig, ax
 
     def set_ytick_labels(ax):
-        # capitalise first letter of and add 'account' suffix to ytick labels
+        # capitalise first letter of, and add 'account' suffix to, ytick labels
         to_label = lambda x: " ".join([x[0].upper() + x[1:], "accounts"])
         ytick_labels = [to_label(i.get_text()) for i in ax.get_yticklabels()]
         ax.set_yticklabels(ytick_labels)
@@ -134,11 +173,13 @@ def monthly_txns_by_account_type(df, write=True):
     _set_axis_labels(ax, xlabel="Number of transactions per month", ylabel="")
     _set_size(fig)
     if write:
-        _save_fig(fig, "monthly_txns_by_account_type.png")
+        _save_fig(fig, "num_txns_by_account_type.png")
 
 
-def txns_distrs(df, write=True):
-    """Plots distibutions of txns, spending categories, and entropy."""
+@paper_figure
+def txns_categories_entropy_hists(df, write=True):
+    """Plots histogram of number of user-month txns and spending categories,
+    and user-month entropy."""
 
     def make_txns_hist(g):
         data = g.id.count()
@@ -170,15 +211,18 @@ def txns_distrs(df, write=True):
     make_entropy_hist(g)
     set_size(fig)
     if write:
-        _save_fig(fig, "entropy_distr.png")
+        _save_fig(fig, "txns_categories_entropy_hists.png")
+
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv[1:]
+    args = parse_args(argv)
+    df = aws.read_parquet(args.filepath)
+    for figure in paper_figures:
+        figure(df)
 
 
 if __name__ == "__main__":
+    main()
 
-    df = pd.read_parquet("~/tmp/entropy/entropy_X77.parquet")
-
-    _set_style()
-    # income_distr(df)
-    # balances_by_account_type(df)
-    # monthly_txns_by_account_type(df)
-    txns_distrs(df)
