@@ -53,7 +53,7 @@ def counter(func):
 @selector
 @counter
 def add_raw_count(df):
-    """Raw sample.
+    """Raw sample
     Add count of raw dataset to selection table"""
     return df
 

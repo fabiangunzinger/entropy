@@ -84,7 +84,8 @@ def user_income_hist(df, write=True):
     from matplotlib.ticker import StrMethodFormatter
 
     def make_data(df):
-        return df.groupby(["user_id", df.date.dt.year]).income.first()
+        incomes = df.groupby(["user_id", df.date.dt.year]).income.first()
+        return incomes[incomes.between(0, 150_000)]
 
     def draw_plot(df):
         fix, ax = plt.subplots()
@@ -147,8 +148,9 @@ def balances_by_account_type(df, write=True, **kwargs):
 def num_txns_by_account_type(df, write=True):
     """Plots boxenplot with number of monthly transactions by account type."""
     def make_data(df):
+        mask = df.account_type.isin(['current', 'credit card', 'savings'])
         return (
-            df.loc[df.account_type.ne("other")]
+            df.loc[mask]
             .set_index("date")
             .groupby(["account_type", "account_id"], observed=True)
             .resample("M")
@@ -159,7 +161,8 @@ def num_txns_by_account_type(df, write=True):
 
     def make_plot(df):
         fig, ax = plt.subplots()
-        ax = sns.boxenplot(data=df, x="num_txns", y="account_type")
+        order = ['current', 'credit card', 'savings']
+        ax = sns.boxenplot(data=df, x="num_txns", y="account_type", order=order)
         return fig, ax
 
     def set_ytick_labels(ax):
