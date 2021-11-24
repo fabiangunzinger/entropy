@@ -18,9 +18,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import seaborn as sns
+import s3fs
 
 from entropy import config
 from entropy.helpers import aws
+from entropy.helpers import helpers
 
 
 paper_figures = []
@@ -103,6 +105,47 @@ def user_income_hist(df, write=True):
     set_xtick_labels(ax)
     if write:
         _save_fig(fig, "user_income_hist.png")
+
+
+@paper_figure
+def user_region_distr(df, write=True):
+    """Plots histogram of user region."""
+
+    def _get_regions_lookup_table():
+        """Returns region lookup table."""
+        fs = s3fs.S3FileSystem(profile=config.AWS_PROFILE)
+        filename = 'region_lookup_table.parquet'
+        filepath = os.path.join(config.AWS_BUCKET, filename)
+        if fs.exists(filepath):
+            return aws.read_parquet(filepath)
+        else:
+            return helpers.make_region_lookup_table()
+        
+    def make_data(df):
+        region = _get_regions_lookup_table()
+        user_pcsector = (df.groupby('user_id')
+                     .user_postcode.first()
+                     .astype('object')
+                     .str.replace(' ', '')
+                     .str.upper()
+                     .rename('pcsector')
+                     .reset_index()
+                    )
+        df = user_pcsector.merge(region, how='left', on='pcsector', validate='m:1')
+        return df.region.value_counts(ascending=True)
+
+    def make_plot(data):
+        fig, ax = plt.subplots()
+        data.plot(kind='barh')
+        return fig, ax
+    
+    data = make_data(df)
+    fig, ax = make_plot(data)
+    _set_style()
+    _set_size(fig)
+    _set_axis_labels(ax, xlabel='Number of users', ylabel='')
+    if write:
+        _save_fig(fig, 'user_region_distr.png')
 
 
 def balances_by_account_type(df, write=True, **kwargs):
