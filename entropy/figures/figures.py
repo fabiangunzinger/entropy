@@ -22,6 +22,7 @@ import s3fs
 
 from entropy import config
 from entropy.helpers import aws
+import entropy.helpers.data as ha
 from entropy.helpers import helpers
 
 
@@ -249,7 +250,7 @@ def num_txns_by_account_type(df, write=True):
 
 
 @paper_figure
-def txns_categories_entropy_hists(df, write=True):
+def txns_breakdowns_and_entropy(df, write=True):
     """Plots histogram of number of user-month txns and spending categories,
     and user-month entropy."""
 
@@ -259,35 +260,39 @@ def txns_categories_entropy_hists(df, write=True):
     def make_figure(data):
         histplot = functools.partial(sns.histplot, stat="percent")
         ylabel = "User-months (%)"
-        user_month_data = data.set_index("date").groupby("user_id").resample("M")
+        user_month_data = data.set_index("date").groupby("user_id").resample("m")
 
         fig, ax = plt.subplots(2, 2)
 
-        # txns per user-month
+        axis = ax[0, 0]
         d = user_month_data.id.count()
-        histplot(data=d, bins=20, ax=ax[0, 0])
-        _set_axis_labels(ax[0, 0], "Transactions", ylabel)
+        d = ha.trim(d, pct=1)
+        median = d.median()
+        histplot(data=d, bins=30, ax=axis)
+        axis.axvline(median, color="green")
+        axis.text(median + 5, 8, f"Median: {median:.0f}")
+        _set_axis_labels(axis, "Transactions", ylabel)
 
-        # txns per category
+        axis = ax[0, 1]
         (
-            data.tag.value_counts(ascending=True, normalize=True)
+            data.tag.str.replace("_", " ")
+            .str.title()
+            .value_counts(ascending=True, normalize=True)
             .mul(100)[-9:]
-            .plot(kind="barh", ax=ax[0, 1])
+            .plot(kind="barh", ax=axis)
         )
-        _set_axis_labels(ax[0, 1], "Transactions (%)", "Spending categories")
+        _set_axis_labels(axis, "Transactions (%)", "Spending categories")
 
-        # distinct spending categories per user-month
         axis = ax[1, 0]
         d = user_month_data.tag.nunique()
         bins = np.arange(9 + 1) + 0.5
         histplot(data=d, bins=bins, ax=axis)
-        _set_axis_labels(axis, "Spending categories", ylabel)
+        _set_axis_labels(axis, "Number of spending categories", ylabel)
 
-        # entropy
         axis = ax[1, 1]
         d = user_month_data.entropy_tag.first()
-        histplot(data=d, bins=20, ax=axis)
-        _set_axis_labels(axis, 'Entropy', ylabel)
+        histplot(data=d, bins=40, ax=axis)
+        _set_axis_labels(axis, "Entropy", ylabel)
 
         return fig, ax
 
@@ -295,8 +300,8 @@ def txns_categories_entropy_hists(df, write=True):
     fig, ax = make_figure(data)
     _set_style()
     _set_size(fig)
-    # if write:
-    #     _save_fig(fig, "txns_categories_entropy_hists.png")
+    if write:
+        _save_fig(fig, "txns_breakdowns_and_entropy.png")
 
 
 def main(argv=None):
