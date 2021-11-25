@@ -5,7 +5,6 @@ Functions that create additional variables.
 
 import numpy as np
 from scipy.stats import entropy
-from entropy.data import helpers
 
 
 creator_funcs = []

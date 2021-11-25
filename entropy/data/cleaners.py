@@ -2,7 +2,8 @@ import itertools
 import re
 import string
 import numpy as np
-from entropy.data import helpers
+
+import entropy.data.txn_classifications as tc
 
 
 cleaner_funcs = []
@@ -161,9 +162,9 @@ def _apply_grouping(grouping, df, col_name):
 def add_tag(df):
     """Creates custom transaction tags for spends, income, and transfers."""
     df["tag"] = np.nan
-    _apply_grouping(helpers.lloyds_spend, df, "tag")
-    _apply_grouping(helpers.hacioglu_income, df, "tag")
-    _apply_grouping(helpers.custom_transfers, df, "tag")
+    _apply_grouping(tc.lloyds_spend, df, "tag")
+    _apply_grouping(tc.hacioglu_income, df, "tag")
+    _apply_grouping(tc.custom_transfers, df, "tag")
     df["tag"] = df.tag.astype("category")
     return df
 
@@ -214,7 +215,7 @@ def tag_corrections(df):
 def add_tag_group(df):
     """Groups transactions into income, spend, and transfers."""
     df["tag_group"] = np.nan
-    _apply_grouping(helpers.tag_groups, df, "tag_group")
+    _apply_grouping(tc.tag_groups, df, "tag_group")
     df["tag_group"] = df.tag_group.astype("category")
     return df
 
@@ -335,7 +336,7 @@ def order_and_sort(df):
 @cleaner
 def tag_savings(df):
     """Tags all credit txns with auto tag indicating savings."""
-    is_savings_txn = df.tag_auto.isin(helpers.savings) & ~df.debit
+    is_savings_txn = df.tag_auto.isin(tc.savings) & ~df.debit
     df["savings"] = is_savings_txn.astype("float32")
     return df
 

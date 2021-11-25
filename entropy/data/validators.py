@@ -3,7 +3,7 @@ Functions to validate integrity of final dataset.
 
 """
 
-import entropy.data.helpers as hr
+import entropy.data.txn_classifications as tc
 
 validator_funcs = []
 
@@ -17,7 +17,7 @@ def validator(func):
 @validator
 def tag(df):
     # each txn is either one of defined tag groups or None
-    expected = set(hr.tag_groups.keys())
+    expected = set(tc.tag_groups.keys())
     expected = expected.add(None)
     df.tag_group.unique == expected
 
