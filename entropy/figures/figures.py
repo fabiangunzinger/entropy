@@ -27,6 +27,7 @@ from entropy.helpers import helpers
 
 paper_figures = []
 
+
 def paper_figure(func):
     paper_figures.append(func)
     return func
@@ -62,22 +63,23 @@ def _save_fig(fig, name):
 @paper_figure
 def user_age_hist(df, write=True):
     """Plots histogram of user ages."""
-    def make_data(df):
-        return 2021 - df.groupby('user_id').user_yob.first()
 
-    def make_plot(data):
+    def make_data(df):
+        return 2021 - df.groupby("user_id").user_yob.first()
+
+    def make_figure(data):
         fig, ax = plt.subplots()
         bins = np.linspace(20, 65, 46)
         sns.histplot(data, bins=bins - 0.5)
         return fig, ax
-    
+
     data = make_data(df)
-    fig, ax = make_plot(data)
+    fig, ax = make_figure(data)
     _set_style()
     _set_size(fig)
-    _set_axis_labels(ax, xlabel='Age', ylabel='Number of users')
+    _set_axis_labels(ax, xlabel="Age", ylabel="Number of users")
     if write:
-        _save_fig(fig, 'user_age_hist.png')
+        _save_fig(fig, "user_age_hist.png")
 
 
 @paper_figure
@@ -114,59 +116,61 @@ def user_region_distr(df, write=True):
     def _get_regions_lookup_table():
         """Returns region lookup table."""
         fs = s3fs.S3FileSystem(profile=config.AWS_PROFILE)
-        filename = 'region_lookup_table.parquet'
+        filename = "region_lookup_table.parquet"
         filepath = os.path.join(config.AWS_BUCKET, filename)
         if fs.exists(filepath):
             return aws.read_parquet(filepath)
         else:
             return helpers.make_region_lookup_table()
-        
+
     def make_data(df):
         region = _get_regions_lookup_table()
-        user_pcsector = (df.groupby('user_id')
-                     .user_postcode.first()
-                     .astype('object')
-                     .str.replace(' ', '')
-                     .str.upper()
-                     .rename('pcsector')
-                     .reset_index()
-                    )
-        df = user_pcsector.merge(region, how='left', on='pcsector', validate='m:1')
+        user_pcsector = (
+            df.groupby("user_id")
+            .user_postcode.first()
+            .astype("object")
+            .str.replace(" ", "")
+            .str.upper()
+            .rename("pcsector")
+            .reset_index()
+        )
+        df = user_pcsector.merge(region, how="left", on="pcsector", validate="m:1")
         return df.region.value_counts(ascending=True)
 
-    def make_plot(data):
+    def make_figure(data):
         fig, ax = plt.subplots()
-        data.plot(kind='barh')
+        data.plot(kind="barh")
         return fig, ax
-    
+
     data = make_data(df)
-    fig, ax = make_plot(data)
+    fig, ax = make_figure(data)
     _set_style()
     _set_size(fig)
-    _set_axis_labels(ax, xlabel='Number of users', ylabel='')
+    _set_axis_labels(ax, xlabel="Number of users", ylabel="")
     if write:
-        _save_fig(fig, 'user_region_distr.png')
+        _save_fig(fig, "user_region_distr.png")
 
 
 @paper_figure
 def user_gender_distr(df, write=True):
     """Plots distribution of user gender."""
-    def make_data(df):
-        labels = {0: 'Male', 1: 'Female'}
-        return df.groupby('user_id').user_female.first().map(labels).value_counts()
 
-    def make_plot(data):
+    def make_data(df):
+        labels = {0: "Male", 1: "Female"}
+        return df.groupby("user_id").user_female.first().map(labels).value_counts()
+
+    def make_figure(data):
         fig, ax = plt.subplots()
-        data.plot(kind='bar', rot=0)
+        data.plot(kind="bar", rot=0)
         return fig, ax
-    
+
     data = make_data(df)
-    fig, ax = make_plot(data)
+    fig, ax = make_figure(data)
     _set_style()
     _set_size(fig)
-    _set_axis_labels(ax, xlabel='', ylabel='Number of users')
+    _set_axis_labels(ax, xlabel="", ylabel="Number of users")
     if write:
-        _save_fig(fig, 'user_gender_distr.png')
+        _save_fig(fig, "user_gender_distr.png")
 
 
 def balances_by_account_type(df, write=True, **kwargs):
@@ -211,8 +215,9 @@ def balances_by_account_type(df, write=True, **kwargs):
 @paper_figure
 def num_txns_by_account_type(df, write=True):
     """Plots boxenplot with number of monthly transactions by account type."""
+
     def make_data(df):
-        mask = df.account_type.isin(['current', 'credit card', 'savings'])
+        mask = df.account_type.isin(["current", "credit card", "savings"])
         return (
             df.loc[mask]
             .set_index("date")
@@ -223,9 +228,9 @@ def num_txns_by_account_type(df, write=True):
             .reset_index()
         )
 
-    def make_plot(df):
+    def make_figure(df):
         fig, ax = plt.subplots()
-        order = ['current', 'credit card', 'savings']
+        order = ["current", "credit card", "savings"]
         ax = sns.boxenplot(data=df, x="num_txns", y="account_type", order=order)
         return fig, ax
 
@@ -235,7 +240,7 @@ def num_txns_by_account_type(df, write=True):
         ytick_labels = [to_label(i.get_text()) for i in ax.get_yticklabels()]
         ax.set_yticklabels(ytick_labels)
 
-    fig, ax = make_plot(make_data(df))
+    fig, ax = make_figure(make_data(df))
     set_ytick_labels(ax)
     _set_axis_labels(ax, xlabel="Number of transactions per month", ylabel="")
     _set_size(fig)
@@ -248,38 +253,50 @@ def txns_categories_entropy_hists(df, write=True):
     """Plots histogram of number of user-month txns and spending categories,
     and user-month entropy."""
 
-    def make_txns_hist(g):
-        data = g.id.count()
-        histplot(data=data, bins=20, ax=ax[0])
-        ax[0].set(xlabel="Transactions", ylabel=ylabel)
+    def make_data(df):
+        return df[df.tag_group.eq("spend")]
 
-    def make_spend_cat_hist(g):
-        data = g.tag.nunique()
-        bins = np.arange(df.tag.nunique() + 1) - 0.5
-        histplot(data=data, bins=bins, ax=ax[1])
-        ax[1].set(xlabel="Spending categories", ylabel=ylabel)
+    def make_figure(data):
+        histplot = functools.partial(sns.histplot, stat="percent")
+        ylabel = "User-months (%)"
+        user_month_data = data.set_index("date").groupby("user_id").resample("M")
 
-    def make_entropy_hist(g):
-        data = g.entropy_tag.first()
-        histplot(data=data, bins=20, ax=ax[2])
-        _set_axis_labels(ax[2], 'Entropy', ylabel)
-        # ax[2].set(xlabel="Entropy", ylabel=ylabel)
+        fig, ax = plt.subplots(2, 2)
 
-    def set_size(fig):
-        fig.set_size_inches(8, 2.5)
-        fig.tight_layout()
+        # txns per user-month
+        d = user_month_data.id.count()
+        histplot(data=d, bins=20, ax=ax[0, 0])
+        _set_axis_labels(ax[0, 0], "Transactions", ylabel)
 
-    g = df.set_index("date").groupby("user_id").resample("M")
-    histplot = functools.partial(sns.histplot, stat="percent")
-    ylabel = "User-months (%)"
+        # txns per category
+        (
+            data.tag.value_counts(ascending=True, normalize=True)
+            .mul(100)[-9:]
+            .plot(kind="barh", ax=ax[0, 1])
+        )
+        _set_axis_labels(ax[0, 1], "Transactions (%)", "Spending categories")
 
-    fig, ax = plt.subplots(1, 3)
-    make_txns_hist(g)
-    make_spend_cat_hist(g)
-    make_entropy_hist(g)
-    set_size(fig)
-    if write:
-        _save_fig(fig, "txns_categories_entropy_hists.png")
+        # distinct spending categories per user-month
+        axis = ax[1, 0]
+        d = user_month_data.tag.nunique()
+        bins = np.arange(9 + 1) + 0.5
+        histplot(data=d, bins=bins, ax=axis)
+        _set_axis_labels(axis, "Spending categories", ylabel)
+
+        # entropy
+        axis = ax[1, 1]
+        d = user_month_data.entropy_tag.first()
+        histplot(data=d, bins=20, ax=axis)
+        _set_axis_labels(axis, 'Entropy', ylabel)
+
+        return fig, ax
+
+    data = make_data(df)
+    fig, ax = make_figure(data)
+    _set_style()
+    _set_size(fig)
+    # if write:
+    #     _save_fig(fig, "txns_categories_entropy_hists.png")
 
 
 def main(argv=None):
@@ -293,4 +310,3 @@ def main(argv=None):
 
 if __name__ == "__main__":
     main()
-
