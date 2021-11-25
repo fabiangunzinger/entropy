@@ -262,7 +262,8 @@ def txns_categories_entropy_hists(df, write=True):
     def make_entropy_hist(g):
         data = g.entropy_tag.first()
         histplot(data=data, bins=20, ax=ax[2])
-        ax[2].set(xlabel="Entropy", ylabel=ylabel)
+        _set_axis_labels(ax[2], 'Entropy', ylabel)
+        # ax[2].set(xlabel="Entropy", ylabel=ylabel)
 
     def set_size(fig):
         fig.set_size_inches(8, 2.5)

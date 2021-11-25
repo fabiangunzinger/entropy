@@ -237,7 +237,6 @@ custom_transfers = {
     ],
 
     'transfers': [
-        'car fund',
         'credit card repayment',
         'credit card',
         'current account',
