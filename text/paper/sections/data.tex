@@ -81,7 +81,7 @@ our purpose here, since our ability to infer behaviour traits from transaction
 data is not dependent on having a representative sample of people.
 
 
-\begin{figure}[h]\center \newcommand\width{.9\textwidth} \caption{Monthly
+\begin{figure}[H]\center \newcommand\width{.9\textwidth} \caption{Monthly
         transactions by account type}    \label{fig:monthly_txns}
         \includegraphics[width=\width]{\figdir/num_txns_by_account_type.png}
         \fignote{\width}{The two innermost boxes in the
@@ -121,43 +121,51 @@ each month as observations:
 \label{sub:independent_variable}
 
 Spending entropy:
+
 \begin{itemize}
+
     \item We calculate spending entropy using the Shannon entropy
         \textit{H}\citep{shannon1948mathematical}, defined as
+
         \begin{equation}
-            H = -\sum{p_i}log_2(p_i),
+
+            H = -\sum{p_i}log(p_i),
+
         \end{equation}
-        where $p_i$ is the probability that an
-        individual makes a purchase in spending category $i$. The measure can
-        broadly be interpreted as the degree to which an individual's spending
-        pattern is predictable, whith a higher score indicating less
-        predictability.
+
+    where $p_i$ is the probability that an individual makes a purchase in
+    spending category $i$, and $log$ is the base 2 logarithm. The measure can
+    broadly be interpreted as the degree to which an individual's spending
+    pattern is predictable, whith a higher score indicating less
+    predictability.
 
     \item To calculate individual entropy scores, we group spending into 9
-        spending categories (SC), based on the classification used
-        by Lloyds Banking Group as discussed in \citet{muggleton2020evidence}.
+        spending categories (SC), based on the classification used by Lloyds
+        Banking Group as discussed in \citet{muggleton2020evidence}.
 
     \item Also following that paper, when calculating $p_i$ we use additive
         smoothing and add one to the numerator and $N_{SC}$ to the denominator
         to avoid taking logs of zero counts in cases where an individual makes
         no purchases in a given spending category. $p_i$ is thus calculated as
+
         \begin{equation}
+
             p_i = \frac{\text{Count of purchases in $SC_i$} + 1}{\text{Count of
             all purchases} + 9}
+
         \end{equation}
 
-    \item The right-hand panel in Figure~\ref{fig:entropy_dist} shows the
-        distribution of the resulting entropy scores.
 \end{itemize}
 
-\begin{figure}[ht]\center
-    \newcommand\width{\textwidth}
-    \caption{Transactions distributions}    
+\begin{figure}[ht]
+
+    \center \newcommand\width{\textwidth} \caption{Transactions distributions}
     \label{fig:entropy_dist}
     \includegraphics[width=\width]{\figdir/txns_breakdowns_and_entropy.png}
     \fignote{\width}{From top-left to bottom-right: distribution of spending
     transactions per user-month, breakdown of spending transactions into
 spending categories; breakdown of number of spending categories spent on in
 user-month; distribution of user-month entropy scores.}
+
 \end{figure}
 
