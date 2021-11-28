@@ -79,7 +79,7 @@ def current_account(df):
 @selector
 @counter
 def min_spend(df, min_txns=10, min_spend=300):
-    """At least 5 monthly debits totalling GBP200
+    """At least 5 monthly debits totalling \pounds200
     Drops first and last month for each user due to possible incomplete data.
     """
     data = df[["user_id", "ym", "amount"]]
@@ -121,7 +121,7 @@ def income_pmts(df, income_months_ratio=2 / 3):
 @selector
 @counter
 def income_amount(df, lower=5_000, upper=200_000):
-    """Yearly incomes between 5k and 200k
+    """Yearly income between 5k and 200k
 
     Yearly income calculated on rolling basis from
     first month of data.
@@ -195,8 +195,8 @@ def valid_account_last_refreshed_date(df):
     return df.groupby("account_id").filter(helper)
 
 
-@selector
-@counter
+# @selector
+# @counter
 def working_age(df, lower=18, upper=64):
     """Working-age"""
     age = 2021 - df.user_yob
