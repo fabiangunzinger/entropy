@@ -40,12 +40,14 @@ def parse_args(argv):
     return parser.parse_args(argv)
 
 
-def _set_style():
-    plt.style.use(["seaborn-colorblind", "seaborn-whitegrid"])
+def _set_style(style=None):
+    if style is None:
+        style = ["seaborn-colorblind", "seaborn-whitegrid"]
+    plt.style.use(style)
 
 
-def _set_size(fig):
-    fig.set_size_inches(8, 5)
+def _set_size(fig, w=8, h=5):
+    fig.set_size_inches(w, h)
     fig.tight_layout()
 
 
@@ -54,8 +56,7 @@ def _set_axis_labels(ax, xlabel, ylabel):
     ax.set_ylabel(ylabel)
 
 
-def _save_fig(fig, name):
-    dpi = 300
+def _save_fig(fig, name, dpi=300):
     fp = os.path.join(config.FIGDIR, name)
     fig.savefig(fp, dpi=dpi)
     print(f"{name} written.")
