@@ -4,9 +4,6 @@ from IPython.display import display
 import entropy.helpers.aws as ha
 import entropy.helpers.helpers as hh
 
-def test():
-    print('ho')
-
 
 def inspect(df, nrows=2):
     print('({:,}, {})'.format(*df.shape))
