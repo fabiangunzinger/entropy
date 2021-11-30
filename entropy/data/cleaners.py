@@ -164,7 +164,7 @@ def add_tag(df):
     df["tag"] = np.nan
     _apply_grouping(tc.spend_subgroups, df, "tag")
     _apply_grouping(tc.income_subgroups, df, "tag")
-    _apply_grouping(tc.transfer_subgroups, df, "tag")
+    _apply_grouping(tc.transfers_subgroups, df, "tag")
     df["tag"] = df.tag.astype("category")
     return df
 
