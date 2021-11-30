@@ -196,12 +196,12 @@ def tag_corrections(df):
 
     # reclassify 'pension or investments' as income if txn is a credit
     # while most txns in this category are contributions, these are payouts
-    try:
-        df["tag"] = df.tag.cat.add_categories("income")
-    except ValueError:
-        pass
     mask = df.tag_auto.eq("pension or investments") & ~df.debit
-    df.loc[mask, "tag"] = "income"
+    try:
+        df.loc[mask, "tag"] = "income"
+    except ValueError:
+        df["tag"] = df.tag.cat.add_categories("income")
+        df.loc[mask, "tag"] = "income"
 
     # reclassify 'interest income' as finance spend if txn is a debit
     # these are mostly overdraft fees

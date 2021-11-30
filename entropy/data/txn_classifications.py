@@ -225,7 +225,7 @@ tag_groups = {
 }
 
 
-transfers_subgroup = {
+transfers_subgroups = {
     'savings': [
         'general savings',
         'investment - other',
