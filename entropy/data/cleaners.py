@@ -162,9 +162,9 @@ def _apply_grouping(grouping, df, col_name):
 def add_tag(df):
     """Creates custom transaction tags for spends, income, and transfers."""
     df["tag"] = np.nan
-    _apply_grouping(tc.lloyds_spend, df, "tag")
-    _apply_grouping(tc.hacioglu_income, df, "tag")
-    _apply_grouping(tc.custom_transfers, df, "tag")
+    _apply_grouping(tc.spend_subgroups, df, "tag")
+    _apply_grouping(tc.income_subgroups, df, "tag")
+    _apply_grouping(tc.transfer_subgroups, df, "tag")
     df["tag"] = df.tag.astype("category")
     return df
 

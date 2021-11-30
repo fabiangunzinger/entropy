@@ -225,7 +225,7 @@ tag_groups = {
 }
 
 
-custom_transfers = {
+transfer_subgroup = {
     'savings': [
         'general savings',
         'investment - other',
@@ -246,7 +246,7 @@ custom_transfers = {
 }
 
 
-lloyds_spend = {
+spend_subgroups = {
     # Spend grouping into 9 categories based on Lloyds Banking Group,
     # as discussed in muggleton2020evidence.
     # Changes made: merged 'miscellaneous' category with 'other'
@@ -454,7 +454,7 @@ lloyds_spend = {
 }
 
 
-hacioglu_income = {
+income_subgroups = {
     # income categorisation following haciouglu2020distributional
     # adding winnings and bursary to other income, and removing 
     # 'pension or investments' from pensions because these txns
