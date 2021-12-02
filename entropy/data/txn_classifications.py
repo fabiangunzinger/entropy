@@ -231,6 +231,7 @@ transfers_subgroups = {
         'investment - other',
         'investments or shares',
         'isa',
+        'pension or investments',
         'saving (general)',
         'savings (general)',
         'savings',
@@ -498,19 +499,5 @@ income_subgroups = {
         # 'bursary',
     ],
 }
-
-
-savings = [
-    # all MDB auto tags pertaining to savings transactions
-    # 'pension or investments' only savings if debit
-    'general savings',
-    'investment - other',
-    'investments or shares',
-    'isa',
-    'pension or investments',
-    'saving (general)',
-    'savings (general)',
-    'savings',
-]
 
 

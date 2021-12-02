@@ -194,15 +194,6 @@ def tag_corrections(df):
     mask = df.desc.str.contains("bbp") & df.tag.isna()
     df.loc[mask, "tag"] = "other_spend"
 
-    # reclassify 'pension or investments' as income if txn is a credit
-    # while most txns in this category are contributions, these are payouts
-    mask = df.tag_auto.eq("pension or investments") & ~df.debit
-    try:
-        df.loc[mask, "tag"] = "income"
-    except ValueError:
-        df["tag"] = df.tag.cat.add_categories("income")
-        df.loc[mask, "tag"] = "income"
-
     # reclassify 'interest income' as finance spend if txn is a debit
     # these are mostly overdraft fees
     mask = df.tag_auto.eq("interest income") & df.debit
