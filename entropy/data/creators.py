@@ -79,10 +79,10 @@ def income(df):
 def entropy_spend_tag_counts(df):
     """Adds Shannon Entropy scores based on tag counts of spend txns."""
 
-    def calc_entropy(g, unique_vals):
-        total_txns = len(g)
-        txns_by_cat = g.groupby("tag").size()
-        prop_by_cat = (txns_by_cat + 1) / (total_txns + unique_vals)
+    def calc_entropy(g, num_unique_tags):
+        num_total_txns = len(g)
+        num_txns_by_cat = g.groupby("tag").size()
+        prop_by_cat = (num_txns_by_cat + 1) / (num_total_txns + num_unique_tags)
         return entropy(prop_by_cat, base=2)
 
     spend = df[df.tag_group.eq("spend")].copy()
