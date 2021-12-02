@@ -324,14 +324,6 @@ def order_and_sort(df):
     return df[order].sort_values(["user_id", "date"])
 
 
-@cleaner
-def tag_savings(df):
-    """Tags all credit txns with auto tag indicating savings."""
-    is_savings_txn = df.tag_auto.isin(tc.savings) & ~df.debit
-    df["savings"] = is_savings_txn.astype("float32")
-    return df
-
-
 #@cleaner
 def correct_tag_up(df):
     """Ensures user precedence tag is defined as in data dictionary.
