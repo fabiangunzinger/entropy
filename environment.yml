@@ -1,0 +1,18 @@
+name: entropy
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - s3fs
+  - pyarrow
+  - jupyterlab
+  - pandas
+  - seaborn
+  - scipy
+  - python=3.9
+  - scikit-learn
+  - linearmodels
+  - jupyterlab_code_formatter
+  - black
+  - isort
+prefix: /Users/fgu/miniconda3/envs/entropy
