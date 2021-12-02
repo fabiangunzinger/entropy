@@ -4,6 +4,7 @@ Functions that create additional variables.
 """
 
 import numpy as np
+import pandas as pd
 from scipy.stats import entropy
 
 
@@ -42,7 +43,7 @@ def balances(df):
         balance = cum_balance + starting_balance
         return balance.rename("balance")
 
-    balance = df.set_index('date').groupby("account_id").apply(helper).reset_index()
+    balance = df.set_index("date").groupby("account_id").apply(helper).reset_index()
     return df.merge(balance, how="left", validate="m:1")
 
 
@@ -75,30 +76,22 @@ def income(df):
 
 
 @creator
-def entrop_scores(df):
-    """Adds Shannon Entropy scores based on selected columns.
+def entropy_spend_tag_counts(df):
+    """Adds Shannon Entropy scores based on tag counts of spend txns."""
 
-    Calculated at user-month level, based on `tag` and optionally
-    additional columns.
-    """
-
-    def calc_entropy(g, column, unique_vals):
+    def calc_entropy(g, unique_vals):
         total_txns = len(g)
-        txns_by_cat = g.groupby(column).size()
+        txns_by_cat = g.groupby("tag").size()
         prop_by_cat = (txns_by_cat + 1) / (total_txns + unique_vals)
         return entropy(prop_by_cat, base=2)
 
-    columns = ["tag"]
-    for column in columns:
-        col_name = "_".join(["entropy", column])
-        unique_vals = df[column].nunique()
-        scores = (
-            df[df.debit]
-            .groupby(["user_id", "ym"])
-            .apply(calc_entropy, column, unique_vals)
-            .rename(col_name)
-            .reset_index()
-        )
-        df = df.merge(scores, validate="m:1")
-
-    return df
+    spend = df[df.tag_group.eq("spend")].copy()
+    spend["tag"] = spend.tag.cat.remove_unused_categories()
+    num_unique_tags = spend.tag.nunique()
+    entropy_scores = (
+        spend.groupby(["user_id", "ym"])
+        .apply(calc_entropy, num_unique_tags)
+        .rename("entropy_sptac")
+        .reset_index()
+    )
+    return df.merge(entropy_scores, on=["user_id", "ym"], validate="m:1")
