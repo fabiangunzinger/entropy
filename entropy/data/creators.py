@@ -1,8 +1,3 @@
-"""
-Functions that create additional variables.
-
-"""
-
 import numpy as np
 import pandas as pd
 from scipy.stats import entropy
@@ -19,7 +14,7 @@ def creator(func):
 
 @creator
 def balances(df):
-    """Calculates running account balances.
+    """Adds running account balances.
 
     Daily account balance is calculated as the sum of the cumulative
     balance and the starting balance, where the starting balance is
@@ -49,7 +44,7 @@ def balances(df):
 
 @creator
 def income(df):
-    """Returns yearly income for each user.
+    """Adds yearly income for each user.
 
     To account for years where we don't observe users for the
     full 12 months, we scale yearly income to represent a full
@@ -95,3 +90,4 @@ def entropy_spend_tag_counts(df):
         .reset_index()
     )
     return df.merge(entropy_scores, on=["user_id", "ym"], validate="m:1")
+
