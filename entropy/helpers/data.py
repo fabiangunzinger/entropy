@@ -22,13 +22,13 @@ def inspect(df, nrows=2):
 
 
 @hh.timer
-def read_data(sample):
+def read_sample(sample):
     fp = f"s3://3di-project-entropy/entropy_{sample}.parquet"
     return ha.read_parquet(fp)
 
 
-def load_samples(samples):
-    return (read_data(sample) for sample in samples)
+def read_samples(samples):
+    return (read_sample(sample) for sample in samples)
 
 
 def trim(series, pct=1):
