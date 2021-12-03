@@ -17,7 +17,7 @@ FuncWithKwargs = collections.namedtuple("FuncWithKwargs", ["func", "kwargs"])
 
 
 def selector(func=None, **kwargs):
-    """Add function to list of selector functions"""
+    """Add function to list of selector functions."""
 
     def wrapper(func):
         selector_funcs.append(FuncWithKwargs(func, kwargs))
@@ -29,8 +29,7 @@ def selector(func=None, **kwargs):
 def counter(func):
     """Count sample after applying function.
 
-    First line of func docstring is used for
-    description in selection table.
+    First line of func docstring is used for description in selection table.
     """
 
     @functools.wraps(func)
@@ -40,7 +39,7 @@ def counter(func):
         sample_counts.update(
             {
                 description + "@users": df.user_id.nunique(),
-                description + "@accs": df.account_id.nunique(),
+                description + "@accounts": df.account_id.nunique(),
                 description + "@txns": df.id.nunique(),
                 description + "@value": df.amount.abs().sum() / 1e6,
             }
@@ -54,7 +53,7 @@ def counter(func):
 @counter
 def add_raw_count(df):
     """Raw sample
-    Add count of raw dataset to selection table"""
+    Add count of raw dataset to selection table."""
     return df
 
 
@@ -72,35 +71,22 @@ def min_number_of_months(df, min_months=6):
 def current_account(df):
     """At least one current account"""
     mask = df.account_type.eq("current")
-    users = df[mask].user_id.unique()
+    users = df.user_id.loc[mask].unique()
     return df[df.user_id.isin(users)]
 
 
 @selector
 @counter
-def min_spend(df, min_txns=10, min_spend=300):
-    """At least 5 monthly debits totalling \pounds200
-    Drops first and last month for each user due to possible incomplete data.
+def current_and_savings_account_balances(df):
+    """Current and savings account balances available
+
+    Keep only users for whom `latest_balance` is available for all
+    current and savings accounts so we can calculate the running
+    balance for all these accounts.
     """
-    data = df[["user_id", "ym", "amount"]]
-    data = data[df.debit]
-
-    # drop first and last month for each user
-    g = data.groupby("user_id")
-    first_month = g.ym.transform(min)
-    last_month = g.ym.transform(max)
-    data = data[(data.ym > first_month) & (data.ym < last_month)]
-
-    # calculate monthly min spend and txns per user
-    g = data.groupby(["user_id", "ym"]).amount
-    spend = g.sum()
-    txns = g.size()
-    user_min_spend = spend.groupby("user_id").min()
-    user_min_txns = txns.groupby("user_id").min()
-
-    mask = (user_min_txns >= min_txns) & (user_min_spend >= min_spend)
-    users = mask[mask].index
-    return df[df.user_id.isin(users)]
+    mask = df.account_type.isin(["current", "savings"]) & df.latest_balance.isna()
+    users_to_drop = df[mask].user_id.unique()
+    return df[~df.user_id.isin(users_to_drop)]
 
 
 @selector
@@ -144,6 +130,33 @@ def income_amount(df, lower=5_000, upper=200_000):
 
 @selector
 @counter
+def min_spend(df, min_txns=10, min_spend=300):
+    """At least 5 monthly debits totalling \pounds200
+    Drops first and last month for each user due to possible incomplete data.
+    """
+    data = df[["user_id", "ym", "amount"]]
+    data = data[df.debit]
+
+    # drop first and last month for each user
+    g = data.groupby("user_id")
+    first_month = g.ym.transform(min)
+    last_month = g.ym.transform(max)
+    data = data[(data.ym > first_month) & (data.ym < last_month)]
+
+    # calculate monthly min spend and txns per user
+    g = data.groupby(["user_id", "ym"]).amount
+    spend = g.sum()
+    txns = g.size()
+    user_min_spend = spend.groupby("user_id").min()
+    user_min_txns = txns.groupby("user_id").min()
+
+    mask = (user_min_txns >= min_txns) & (user_min_spend >= min_spend)
+    users = mask[mask].index
+    return df[df.user_id.isin(users)]
+
+
+@selector
+@counter
 def max_accounts(df, max_accounts=10):
     """No more than 10 active accounts in any year"""
     year = pd.Grouper(freq="Y", key="date")
@@ -163,20 +176,6 @@ def max_debits(df, max_debits=100_000):
     usr_max = debits.groupby(["user_id", month]).amount.sum().groupby("user_id").max()
     users = usr_max[usr_max <= max_debits].index
     return df[df.user_id.isin(users)]
-
-
-@selector
-@counter
-def current_and_savings_account_balances(df):
-    """Current and savings account balances available
-
-    Keep only users for whom `latest_balance` is available
-    for all current and savings accounts so we can calculate
-    the running balance for all these accounts.
-    """
-    mask = df.account_type.isin(["current", "savings"]) & df.latest_balance.isna()
-    users_to_drop = df[mask].user_id.unique()
-    return df[~df.user_id.isin(users_to_drop)]
 
 
 @selector

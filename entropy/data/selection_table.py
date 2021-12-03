@@ -13,7 +13,7 @@ def selection_table(dict):
           .rename_axis(columns=None)
           .reset_index())
 
-    ints = ['users', 'accs', 'txns']
+    ints = ['users', 'accounts', 'txns']
     df[ints] = df[ints].applymap('{:,.0f}'.format)
     floats = ['value']
     df[floats] = df[floats].applymap('{:,.1f}'.format)
