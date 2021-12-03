@@ -81,7 +81,7 @@ our purpose here, since our ability to infer behaviour traits from transaction
 data is not dependent on having a representative sample of people.
 
 
-\begin{figure}[H]\center \newcommand\width{.9\textwidth} \caption{Monthly
+\begin{figure}[!h]\center \newcommand\width{.9\textwidth} \caption{Monthly
         transactions by account type}    \label{fig:monthly_txns}
         \includegraphics[width=\width]{\figdir/num_txns_by_account_type.png}
         \fignote{\width}{The two innermost boxes in the
@@ -128,9 +128,7 @@ Spending entropy:
         \textit{H}\citep{shannon1948mathematical}, defined as
 
         \begin{equation}
-
             H = -\sum{p_i}log(p_i),
-
         \end{equation}
 
     where $p_i$ is the probability that an individual makes a purchase in
@@ -149,10 +147,8 @@ Spending entropy:
         no purchases in a given spending category. $p_i$ is thus calculated as
 
         \begin{equation}
-
             p_i = \frac{\text{Count of purchases in $SC_i$} + 1}{\text{Count of
             all purchases} + 9}
-
         \end{equation}
 
 \end{itemize}
