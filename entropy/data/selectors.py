@@ -66,66 +66,13 @@ def min_number_of_months(df, min_months=6):
     return df[df.user_id.isin(users)]
 
 
-@selector
-@counter
-def current_account(df):
-    """At least one current account"""
-    mask = df.account_type.eq("current")
-    users = df.user_id.loc[mask].unique()
-    return df[df.user_id.isin(users)]
+def no_missing_months(df):
+    """No missing months
 
-
-@selector
-@counter
-def current_and_savings_account_balances(df):
-    """Current and savings account balances available
-
-    Keep only users for whom `latest_balance` is available for all
-    current and savings accounts so we can calculate the running
-    balance for all these accounts.
-    """
-    mask = df.account_type.isin(["current", "savings"]) & df.latest_balance.isna()
-    users_to_drop = df[mask].user_id.unique()
-    return df[~df.user_id.isin(users_to_drop)]
-
-
-@selector
-@counter
-def income_pmts(df, income_months_ratio=2 / 3):
-    """Income payments in 2/3 of all observed months"""
-
-    def helper(g):
-        tot_months = g.ym.nunique()
-        inc_months = g[g.tag_group.str.match("income", na=False)].ym.nunique()
-        return (inc_months / tot_months) >= income_months_ratio
-
-    data = df[["user_id", "date", "tag_group", "ym"]]
-    usrs = data.groupby("user_id").filter(helper).user_id.unique()
-    return df[df.user_id.isin(usrs)]
-
-
-@selector
-@counter
-def income_amount(df, lower=5_000, upper=200_000):
-    """Yearly income between 5k and 200k
-
-    Yearly income calculated on rolling basis from
-    first month of data.
+    Requires that we observe all observed months in sequence without any gaps.
     """
 
-    def helper(g):
-        first_month = g.date.min().strftime("%b")
-        yearly_freq = "AS-" + first_month.upper()
-        year = pd.Grouper(freq=yearly_freq, key="date")
-        yearly_inc = (
-            g[g.tag_group.str.match("income", na=False)]
-            .groupby(year)
-            .amount.sum()
-            .mul(-1)
-        )
-        return yearly_inc.between(lower, upper).all()
 
-    return df.groupby("user_id").filter(helper)
 
 
 @selector
@@ -153,6 +100,86 @@ def min_spend(df, min_txns=10, min_spend=300):
     mask = (user_min_txns >= min_txns) & (user_min_spend >= min_spend)
     users = mask[mask].index
     return df[df.user_id.isin(users)]
+
+
+def min_number_of_consecutive_months(df, min_months=6):
+    dfs.groupby("user_id").resample("m", on="date").id.count().groupby("user_id").agg(
+    [("num_months", "count"), ("num_txns_min", "min")]
+)
+
+
+
+@selector
+@counter
+def current_account(df):
+    """At least one current account"""
+    mask = df.account_type.eq("current")
+    users = df.user_id.loc[mask].unique()
+    return df[df.user_id.isin(users)]
+
+
+@selector
+@counter
+def current_and_savings_account_balances(df):
+    """Current and savings account balances available
+
+    Keep only users for whom `latest_balance` is available for all
+    current and savings accounts so we can calculate the running
+    balance for all these accounts.
+    """
+    mask = df.account_type.isin(["current", "savings"]) & df.latest_balance.isna()
+    users_to_drop = df[mask].user_id.unique()
+    return df[~df.user_id.isin(users_to_drop)]
+
+
+@selector
+@counter
+def income_pmts(df, income_months_ratio=2/3):
+    """Income payments in 2/3 of all observed months"""
+
+    def helper(g):
+        tot_months = g.ym.nunique()
+        inc_months = g[g.tag_group.eq("income")].ym.nunique()
+        return (inc_months / tot_months) >= income_months_ratio
+
+    data = df[["user_id", "date", "tag_group", "ym"]]
+    usrs = data.groupby("user_id").filter(helper).user_id.unique()
+    return df[df.user_id.isin(usrs)]
+
+
+@selector
+# @counter
+def income_amount(df, lower=5_000, upper=200_000):
+    """Yearly income between 5k and 200k
+
+    Yearly income calculated on rolling basis from
+    first month of data.
+    """
+
+    def helper(g):
+        first_month = g.date.min().strftime("%b")
+        yearly_freq = "AS-" + first_month.upper()
+        year = pd.Grouper(freq=yearly_freq, key="date")
+        # yearly_inc = (
+        #     g[g.tag_group.eq("income")]
+        #     .groupby(year)
+        #     .amount.sum()
+        #     .mul(-1)
+        # )
+
+        yearly_inc = (
+            g[g.tag_group.eq("income")]
+            .groupby(year)
+            .agg({'amount': 'sum', 'ym': 'nunique'})
+            # .amount.sum()
+            # .mul(-1)
+        )
+        return yearly_inc
+        return yearly_inc[:-1]
+        return yearly_inc.between(lower, upper).all()
+
+    return df.groupby("user_id").apply(helper)
+    # return df.groupby("user_id").filter(helper)
 
 
 @selector
