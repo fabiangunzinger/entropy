@@ -10,6 +10,8 @@ SAMPLES := 000 777 X77 XX7
 # TESTSAMPLE := 000
 TESTSAMPLE := 000
 FIGDATA := ~/tmp/entropy/entropy_XX7.parquet
+FIGDATA := s3://3di-project-entropy/entropy_777.parquet
+FIGDATA := s3://3di-project-entropy/entropy_XX7.parquet
 
 
 .PHONY: pptest
@@ -32,6 +34,9 @@ $(SAMPLES):
 		$(RAWDIR)/mdb_$@.parquet\
 		$(CLEANDIR)/entropy_$@.parquet
 
-.PHONY: figures
+.PHONY: figures fig_user_age_hist
 figures:
-	@python -m entropy.figures.figures $(FIGDATA)
+
+fig_user_age_hist:
+	@python -m entropy.figures.user_age_hist $(FIGDATA)
+

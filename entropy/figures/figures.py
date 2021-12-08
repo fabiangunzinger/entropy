@@ -1,13 +1,3 @@
-"""
-Create all figures.
-
-Approach:
-1. Load main dataset and produce all figures from it.
-2. One function per figure, which produces data used in figure and figure
-itself.
-3. Use styling helpers across functions whenever possible.
-
-"""
 import argparse
 import functools
 import os
@@ -24,67 +14,9 @@ from entropy import config
 from entropy.helpers import aws
 import entropy.helpers.data as ha
 from entropy.helpers import helpers
+import entropy.figures.helpers as fh
 
 
-paper_figures = []
-
-
-def paper_figure(func):
-    paper_figures.append(func)
-    return func
-
-
-def parse_args(argv):
-    parser = argparse.ArgumentParser()
-    parser.add_argument("filepath")
-    return parser.parse_args(argv)
-
-
-def _set_style(style=None):
-    if style is None:
-        style = ["seaborn-colorblind", "seaborn-whitegrid"]
-    plt.style.use(style)
-
-
-def _set_size(fig, w=8, h=5):
-    fig.set_size_inches(w, h)
-    fig.tight_layout()
-
-
-def _set_axis_labels(ax, xlabel, ylabel):
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-
-
-def _save_fig(fig, name, dpi=300):
-    fp = os.path.join(config.FIGDIR, name)
-    fig.savefig(fp, dpi=dpi)
-    print(f"{name} written.")
-
-
-@paper_figure
-def user_age_hist(df, write=True):
-    """Plots histogram of user ages."""
-
-    def make_data(df):
-        return 2021 - df.groupby("user_id").user_yob.first()
-
-    def make_figure(data):
-        fig, ax = plt.subplots()
-        bins = np.linspace(20, 65, 46)
-        sns.histplot(data, bins=bins - 0.5)
-        return fig, ax
-
-    data = make_data(df)
-    fig, ax = make_figure(data)
-    _set_style()
-    _set_size(fig)
-    _set_axis_labels(ax, xlabel="Age", ylabel="Number of users")
-    if write:
-        _save_fig(fig, "user_age_hist.png")
-
-
-@paper_figure
 def user_income_hist(df, write=True):
     """Plots histogram of annual user incomes."""
     from matplotlib.ticker import StrMethodFormatter
@@ -103,15 +35,14 @@ def user_income_hist(df, write=True):
 
     data = make_data(df)
     fig, ax = draw_plot(data)
-    _set_style()
-    _set_size(fig)
-    _set_axis_labels(ax, "Yearly income (£)", "Number of users")
+    fh.set_style()
+    fh.set_size(fig)
+    fh.set_axis_labels(ax, "Yearly income (£)", "Number of users")
     set_xtick_labels(ax)
     if write:
-        _save_fig(fig, "user_income_hist.png")
+        fh.save_fig(fig, "user_income_hist.png")
 
 
-@paper_figure
 def user_region_distr(df, write=True):
     """Plots histogram of user region."""
 
@@ -146,14 +77,13 @@ def user_region_distr(df, write=True):
 
     data = make_data(df)
     fig, ax = make_figure(data)
-    _set_style()
-    _set_size(fig)
-    _set_axis_labels(ax, xlabel="Number of users", ylabel="")
+    fh.set_style()
+    fh.set_size(fig)
+    fh.set_axis_labels(ax, xlabel="Number of users", ylabel="")
     if write:
-        _save_fig(fig, "user_region_distr.png")
+        fh.save_fig(fig, "user_region_distr.png")
 
 
-@paper_figure
 def user_gender_distr(df, write=True):
     """Plots distribution of user gender."""
 
@@ -168,11 +98,11 @@ def user_gender_distr(df, write=True):
 
     data = make_data(df)
     fig, ax = make_figure(data)
-    _set_style()
-    _set_size(fig)
-    _set_axis_labels(ax, xlabel="", ylabel="Number of users")
+    fh.set_style()
+    fh.set_size(fig)
+    fh.set_axis_labels(ax, xlabel="", ylabel="Number of users")
     if write:
-        _save_fig(fig, "user_gender_distr.png")
+        fh.save_fig(fig, "user_gender_distr.png")
 
 
 def balances_by_account_type(df, write=True, **kwargs):
@@ -208,13 +138,12 @@ def balances_by_account_type(df, write=True, **kwargs):
 
     data = make_data(df, account_type=["current", "savings"], **kwargs)
     fig, ax = draw_plot(data)
-    _set_axis_labels(ax, "Year", "Median account balance (£)")
-    _set_size(fig)
+    fh.set_axis_labels(ax, "Year", "Median account balance (£)")
+    fh.set_size(fig)
     if write:
-        _save_fig(fig, "balances_by_account_type.png")
+        fh.save_fig(fig, "balances_by_account_type.png")
 
 
-@paper_figure
 def num_txns_by_account_type(df, write=True):
     """Plots boxenplot with number of monthly transactions by account type."""
 
@@ -244,13 +173,12 @@ def num_txns_by_account_type(df, write=True):
 
     fig, ax = make_figure(make_data(df))
     set_ytick_labels(ax)
-    _set_axis_labels(ax, xlabel="Number of transactions per month", ylabel="")
-    _set_size(fig)
+    fh.set_axis_labels(ax, xlabel="Number of transactions per month", ylabel="")
+    fh.set_size(fig)
     if write:
-        _save_fig(fig, "num_txns_by_account_type.png")
+        fh.save_fig(fig, "num_txns_by_account_type.png")
 
 
-@paper_figure
 def txns_breakdowns_and_entropy(df, write=True):
     """Plots histogram of number of user-month txns and spending categories,
     and user-month entropy."""
@@ -272,7 +200,7 @@ def txns_breakdowns_and_entropy(df, write=True):
         histplot(data=d, bins=30, ax=axis)
         axis.axvline(median, color="green")
         axis.text(median + 5, 8, f"Median: {median:.0f}")
-        _set_axis_labels(axis, "Transactions", ylabel)
+        fh.set_axis_labels(axis, "Transactions", ylabel)
 
         axis = ax[0, 1]
         (
@@ -282,29 +210,30 @@ def txns_breakdowns_and_entropy(df, write=True):
             .mul(100)[-9:]
             .plot(kind="barh", ax=axis)
         )
-        _set_axis_labels(axis, "Transactions (%)", "Spending categories")
+        fh.set_axis_labels(axis, "Transactions (%)", "Spending categories")
 
         axis = ax[1, 0]
         d = user_month_data.tag.nunique()
         bins = np.arange(9 + 1) + 0.5
         histplot(data=d, bins=bins, ax=axis)
-        _set_axis_labels(axis, "Number of spending categories", ylabel)
+        fh.set_axis_labels(axis, "Number of spending categories", ylabel)
 
         axis = ax[1, 1]
         d = user_month_data.entropy_sptac.first()
         histplot(data=d, bins=40, ax=axis)
-        _set_axis_labels(axis, "Entropy", ylabel)
+        fh.set_axis_labels(axis, "Entropy", ylabel)
 
         return fig, ax
 
     data = make_data(df)
     fig, ax = make_figure(data)
-    _set_style()
-    _set_size(fig)
+    fh.set_style()
+    fh.set_size(fig)
     if write:
-        _save_fig(fig, "txns_breakdowns_and_entropy.png")
+        fh.save_fig(fig, "txns_breakdowns_and_entropy.png")
 
 
+if __name__ == "__main__":
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
@@ -312,7 +241,4 @@ def main(argv=None):
     df = aws.read_parquet(args.filepath)
     for figure in paper_figures:
         figure(df)
-
-
-if __name__ == "__main__":
     main()
