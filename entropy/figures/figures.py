@@ -291,7 +291,7 @@ def txns_breakdowns_and_entropy(df, write=True):
         _set_axis_labels(axis, "Number of spending categories", ylabel)
 
         axis = ax[1, 1]
-        d = user_month_data.entropy_tag.first()
+        d = user_month_data.entropy_sptac.first()
         histplot(data=d, bins=40, ax=axis)
         _set_axis_labels(axis, "Entropy", ylabel)
 

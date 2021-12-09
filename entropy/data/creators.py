@@ -44,30 +44,28 @@ def balances(df):
 
 @creator
 def income(df):
-    """Adds yearly income for each user.
-
-    To account for years where we don't observe users for the
-    full 12 months, we scale yearly income to represent a full
-    12 months.
     """
-    mask = df.tag_group.str.match("income", na=False)
-    yearly_income_payments = (
-        df.loc[mask].set_index("date").groupby("user_id").resample("Y")
-    )
-    yearly_payments_total = yearly_income_payments.amount.sum().mul(-1)
-    yearly_unique_months = yearly_income_payments.ym.nunique()
-    yearly_income = yearly_payments_total / yearly_unique_months * 12
+    Adds yearly income for each user.
 
-    yearly_income = (
-        yearly_income.rename("income")
-        .reset_index()
-        .assign(y=lambda df: df.date.dt.year)
-        .drop(columns="date")
+    Calculated yearly incomes are scaled to 12-month incomes to account for
+    user-years with incomplete data and multiplied by -1 to get positive
+    numbers (credits are negative in dataset).
+    """
+    year = df.date.dt.year.rename("year")
+    yearly_incomes = (
+        df.loc[df.tag_group.eq("income")]
+        .groupby(["user_id", year])
+        .agg({"amount": "sum", "ym": "nunique"})
+        .rename(columns={"amount": "income", "ym": "observed_months"})
+        .assign(income=lambda df: df.income / df.observed_months * -12)
+        .drop(columns="observed_months")
     )
-    df["y"] = df.date.dt.year
-    keys = ["user_id", "y"]
-    merged = df.merge(yearly_income, how="left", on=keys, validate="m:1")
-    return merged.drop(columns="y")
+    return df.merge(
+        yearly_incomes,
+        left_on=["user_id", year],
+        right_on=["user_id", "year"],
+        validate="m:1",
+    ).drop(columns="year")
 
 
 @creator
@@ -90,4 +88,3 @@ def entropy_spend_tag_counts(df):
         .reset_index()
     )
     return df.merge(entropy_scores, on=["user_id", "ym"], validate="m:1")
-

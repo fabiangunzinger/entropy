@@ -17,7 +17,7 @@ FuncWithKwargs = collections.namedtuple("FuncWithKwargs", ["func", "kwargs"])
 
 
 def selector(func=None, **kwargs):
-    """Add function to list of selector functions"""
+    """Add function to list of selector functions."""
 
     def wrapper(func):
         selector_funcs.append(FuncWithKwargs(func, kwargs))
@@ -29,8 +29,7 @@ def selector(func=None, **kwargs):
 def counter(func):
     """Count sample after applying function.
 
-    First line of func docstring is used for
-    description in selection table.
+    First line of func docstring is used for description in selection table.
     """
 
     @functools.wraps(func)
@@ -40,7 +39,7 @@ def counter(func):
         sample_counts.update(
             {
                 description + "@users": df.user_id.nunique(),
-                description + "@accs": df.account_id.nunique(),
+                description + "@accounts": df.account_id.nunique(),
                 description + "@txns": df.id.nunique(),
                 description + "@value": df.amount.abs().sum() / 1e6,
             }
@@ -54,7 +53,7 @@ def counter(func):
 @counter
 def add_raw_count(df):
     """Raw sample
-    Add count of raw dataset to selection table"""
+    Add count of raw dataset to selection table."""
     return df
 
 
@@ -62,45 +61,81 @@ def add_raw_count(df):
 @counter
 def min_number_of_months(df, min_months=6):
     """At least 6 months of data"""
-    cond = df.groupby("user_id").ym.nunique() >= min_months
-    users = cond[cond].index
-    return df[df.user_id.isin(users)]
+    cond = df.groupby("user_id").ym.transform("nunique") >= min_months
+    return df.loc[cond]
+
+
+@selector
+@counter
+def no_missing_months(df):
+    """No missing months
+
+    Requires that there are no months between first and last observed month for
+    which we observe no transactions.
+    """
+
+    def month_range(date):
+        return (date.max().to_period("M") - date.min().to_period("m")).n + 1
+
+    g = df.groupby("user_id")
+    months_observed = g.ym.transform("nunique")
+    months_range = g.date.transform(month_range)
+    return df.loc[months_observed == months_range]
+
+
+@selector
+@counter
+def min_spend(df, min_txns=10, min_spend=200):
+    """At least 5 monthly debits totalling \pounds200
+
+    Drops first and last months for calculations because users will often have
+    incomplete data for these months.
+    """
+    data = df.loc[df.debit, ["user_id", "id", "ym", "amount"]]
+
+    g = data.groupby("user_id")
+    first_month = g.ym.transform(min)
+    last_month = g.ym.transform(max)
+    data = data[data.ym.between(first_month, last_month, inclusive="neither")]
+
+    g = data.groupby(["user_id", "ym"])
+    min_monthly_spend = g.amount.sum().groupby("user_id").min()
+    min_monthly_txns = g.size().groupby("user_id").min()
+    conds = min_monthly_spend.ge(min_spend) & min_monthly_txns.ge(min_txns)
+    users = conds[conds].index
+    return df.loc[df.user_id.isin(users)]
 
 
 @selector
 @counter
 def current_account(df):
     """At least one current account"""
-    mask = df.account_type.eq("current")
-    users = df[mask].user_id.unique()
-    return df[df.user_id.isin(users)]
+
+    def helper(s):
+        return s.eq("current").max()
+
+    has_current_account = df.groupby("user_id").account_type.transform(helper)
+    return df.loc[has_current_account]
 
 
 @selector
 @counter
-def min_spend(df, min_txns=10, min_spend=300):
-    """At least 5 monthly debits totalling \pounds200
-    Drops first and last month for each user due to possible incomplete data.
+def current_and_savings_account_balances(df):
+    """Current and savings account balances available
+
+    Retains only users form whom we can calculate running balances.
+    This requires a non-missing `latest_balance` and a valid
+    `account_last_refreshed` date. The latter is invalid if its before the
+    period during which we observe the user, which happens in a few cases
+    where the date is set to a dummy date like 1 Jan 1990.
     """
-    data = df[["user_id", "ym", "amount"]]
-    data = data[df.debit]
-
-    # drop first and last month for each user
-    g = data.groupby("user_id")
-    first_month = g.ym.transform(min)
-    last_month = g.ym.transform(max)
-    data = data[(data.ym > first_month) & (data.ym < last_month)]
-
-    # calculate monthly min spend and txns per user
-    g = data.groupby(["user_id", "ym"]).amount
-    spend = g.sum()
-    txns = g.size()
-    user_min_spend = spend.groupby("user_id").min()
-    user_min_txns = txns.groupby("user_id").min()
-
-    mask = (user_min_txns >= min_txns) & (user_min_spend >= min_spend)
-    users = mask[mask].index
-    return df[df.user_id.isin(users)]
+    current_or_savings_account = df.account_type.isin(["current", "savings"])
+    latest_balance_available = df.latest_balance.notna()
+    user_first_observed = df.groupby('user_id').date.transform('min')
+    valid_refresh_date = df.account_last_refreshed >= user_first_observed
+    return df.loc[
+        current_or_savings_account & latest_balance_available & valid_refresh_date
+    ]
 
 
 @selector
@@ -109,13 +144,11 @@ def income_pmts(df, income_months_ratio=2 / 3):
     """Income payments in 2/3 of all observed months"""
 
     def helper(g):
-        tot_months = g.ym.nunique()
-        inc_months = g[g.tag_group.str.match("income", na=False)].ym.nunique()
-        return (inc_months / tot_months) >= income_months_ratio
+        num_months_observed = g.ym.nunique()
+        num_months_with_income = g[g.tag_group.eq("income")].ym.nunique()
+        return (num_months_with_income / num_months_observed) >= income_months_ratio
 
-    data = df[["user_id", "date", "tag_group", "ym"]]
-    usrs = data.groupby("user_id").filter(helper).user_id.unique()
-    return df[df.user_id.isin(usrs)]
+    return df.groupby("user_id").filter(helper)
 
 
 @selector
@@ -126,20 +159,10 @@ def income_amount(df, lower=5_000, upper=200_000):
     Yearly income calculated on rolling basis from
     first month of data.
     """
-
-    def helper(g):
-        first_month = g.date.min().strftime("%b")
-        yearly_freq = "AS-" + first_month.upper()
-        year = pd.Grouper(freq=yearly_freq, key="date")
-        yearly_inc = (
-            g[g.tag_group.str.match("income", na=False)]
-            .groupby(year)
-            .amount.sum()
-            .mul(-1)
-        )
-        return yearly_inc.between(lower, upper).all()
-
-    return df.groupby("user_id").filter(helper)
+    g = df.groupby("user_id")
+    min_income = g.income.transform("min")
+    max_income = g.income.transform("max")
+    return df.loc[min_income.gt(lower) & max_income.lt(upper)]
 
 
 @selector
@@ -147,60 +170,24 @@ def income_amount(df, lower=5_000, upper=200_000):
 def max_accounts(df, max_accounts=10):
     """No more than 10 active accounts in any year"""
     year = pd.Grouper(freq="Y", key="date")
-    usr_max = (
-        df.groupby(["user_id", year]).account_id.nunique().groupby("user_id").max()
+    max_num_accounts_in_year = (
+        df.groupby(["user_id", year])
+        .account_id.transform("nunique")
+        .groupby(df.user_id)
+        .transform(max)
     )
-    users = usr_max[usr_max <= max_accounts].index
-    return df[df.user_id.isin(users)]
+    return df.loc[max_num_accounts_in_year <= max_accounts]
 
 
 @selector
 @counter
 def max_debits(df, max_debits=100_000):
     """Debits of no more than 100k in any month"""
-    month = pd.Grouper(freq="M", key="date")
-    debits = df[df.debit]
-    usr_max = debits.groupby(["user_id", month]).amount.sum().groupby("user_id").max()
-    users = usr_max[usr_max <= max_debits].index
+    user_monthly_spend_max = (
+        df[df.debit].groupby(["user_id", "ym"]).amount.sum().groupby("user_id").max()
+    )
+    users = user_monthly_spend_max[user_monthly_spend_max <= max_debits].index
     return df[df.user_id.isin(users)]
-
-
-@selector
-@counter
-def current_and_savings_account_balances(df):
-    """Current and savings account balances available
-
-    Keep only users for whom `latest_balance` is available
-    for all current and savings accounts so we can calculate
-    the running balance for all these accounts.
-    """
-    mask = df.account_type.isin(["current", "savings"]) & df.latest_balance.isna()
-    users_to_drop = df[mask].user_id.unique()
-    return df[~df.user_id.isin(users_to_drop)]
-
-
-@selector
-@counter
-def valid_account_last_refreshed_date(df):
-    """Last account refresh within observed period
-
-    There are cases where last account refresh date is before the first date
-    for which we observe an account, usually because it is set to a dummy date
-    like 1 Jan 1900 for some reason.
-    """
-
-    def helper(g):
-        return g.account_last_refreshed.iloc[0] >= g.date.min()
-
-    return df.groupby("account_id").filter(helper)
-
-
-# @selector
-# @counter
-def working_age(df, lower=18, upper=64):
-    """Working-age"""
-    age = 2021 - df.user_yob
-    return df[age.between(lower, upper)]
 
 
 @selector
