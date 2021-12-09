@@ -79,8 +79,8 @@ def main(argv=None):
     df = (
         read_data(args.input_path)
         .pipe(clean_data)
-        .pipe(select_sample)
         .pipe(create_vars)
+        .pipe(select_sample)
         .pipe(validate_data)
         .pipe(write_data, args.output_path, verbose=True)
     )
