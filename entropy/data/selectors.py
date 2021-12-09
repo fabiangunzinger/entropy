@@ -88,7 +88,8 @@ def no_missing_months(df):
 def min_spend(df, min_txns=10, min_spend=200):
     """At least 5 monthly debits totalling \pounds200
 
-    Drops first and last month for each user due to possible incomplete data.
+    Drops first and last months for calculations because users will often have
+    incomplete data for these months.
     """
     data = df.loc[df.debit, ["user_id", "id", "ym", "amount"]]
 
