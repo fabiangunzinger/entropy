@@ -145,39 +145,18 @@ def income_pmts(df, income_months_ratio=2 / 3):
     return df.groupby("user_id").filter(helper)
 
 
-# @selector
-# @counter
+@selector
+@counter
 def income_amount(df, lower=5_000, upper=200_000):
     """Yearly income between 5k and 200k
 
     Yearly income calculated on rolling basis from
     first month of data.
     """
-
-    def helper(g):
-        first_month = g.date.min().strftime("%b")
-        yearly_freq = "AS-" + first_month.upper()
-        year = pd.Grouper(freq=yearly_freq, key="date")
-        # yearly_inc = (
-        #     g[g.tag_group.eq("income")]
-        #     .groupby(year)
-        #     .amount.sum()
-        #     .mul(-1)
-        # )
-
-        yearly_inc = (
-            g[g.tag_group.eq("income")]
-            .groupby(year)
-            .agg({"amount": "sum", "ym": "nunique"})
-            # .amount.sum()
-            # .mul(-1)
-        )
-        return yearly_inc
-        return yearly_inc[:-1]
-        return yearly_inc.between(lower, upper).all()
-
-    return df.groupby("user_id").apply(helper)
-    # return df.groupby("user_id").filter(helper)
+    g = df.groupby('user_id')
+    min_income = g.income.transform('min')
+    max_income = g.income.transform('max')
+    return df.loc[min_income.gt(lower) & max_income.lt(upper)]
 
 
 @selector
