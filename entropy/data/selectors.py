@@ -164,11 +164,13 @@ def income_amount(df, lower=5_000, upper=200_000):
 def max_accounts(df, max_accounts=10):
     """No more than 10 active accounts in any year"""
     year = pd.Grouper(freq="Y", key="date")
-    usr_max = (
-        df.groupby(["user_id", year]).account_id.nunique().groupby("user_id").max()
+    max_num_accounts_in_year = (
+        df.groupby(["user_id", year])
+        .account_id.transform("nunique")
+        .groupby(df.user_id)
+        .transform(max)
     )
-    users = usr_max[usr_max <= max_accounts].index
-    return df[df.user_id.isin(users)]
+    return df.loc[max_num_accounts_in_year <= max_accounts]
 
 
 @selector
