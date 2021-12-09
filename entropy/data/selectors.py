@@ -123,13 +123,19 @@ def current_account(df):
 def current_and_savings_account_balances(df):
     """Current and savings account balances available
 
-    Keep only users for whom `latest_balance` is available for all
-    current and savings accounts so we can calculate the running
-    balance for all these accounts.
+    Retains only users form whom we can calculate running balances.
+    This requires a non-missing `latest_balance` and a valid
+    `account_last_refreshed` date. The latter is invalid if its before the
+    period during which we observe the user, which happens in a few cases
+    where the date is set to a dummy date like 1 Jan 1990.
     """
-    mask = df.account_type.isin(["current", "savings"]) & df.latest_balance.isna()
-    users_to_drop = df[mask].user_id.unique()
-    return df[~df.user_id.isin(users_to_drop)]
+    current_or_savings_account = df.account_type.isin(["current", "savings"])
+    latest_balance_available = df.latest_balance.notna()
+    user_first_observed = df.groupby('user_id').date.transform('min')
+    valid_refresh_date = df.account_last_refreshed >= user_first_observed
+    return df.loc[
+        current_or_savings_account & latest_balance_available & valid_refresh_date
+    ]
 
 
 @selector
@@ -145,39 +151,18 @@ def income_pmts(df, income_months_ratio=2 / 3):
     return df.groupby("user_id").filter(helper)
 
 
-# @selector
-# @counter
+@selector
+@counter
 def income_amount(df, lower=5_000, upper=200_000):
     """Yearly income between 5k and 200k
 
     Yearly income calculated on rolling basis from
     first month of data.
     """
-
-    def helper(g):
-        first_month = g.date.min().strftime("%b")
-        yearly_freq = "AS-" + first_month.upper()
-        year = pd.Grouper(freq=yearly_freq, key="date")
-        # yearly_inc = (
-        #     g[g.tag_group.eq("income")]
-        #     .groupby(year)
-        #     .amount.sum()
-        #     .mul(-1)
-        # )
-
-        yearly_inc = (
-            g[g.tag_group.eq("income")]
-            .groupby(year)
-            .agg({"amount": "sum", "ym": "nunique"})
-            # .amount.sum()
-            # .mul(-1)
-        )
-        return yearly_inc
-        return yearly_inc[:-1]
-        return yearly_inc.between(lower, upper).all()
-
-    return df.groupby("user_id").apply(helper)
-    # return df.groupby("user_id").filter(helper)
+    g = df.groupby("user_id")
+    min_income = g.income.transform("min")
+    max_income = g.income.transform("max")
+    return df.loc[min_income.gt(lower) & max_income.lt(upper)]
 
 
 @selector
@@ -185,46 +170,24 @@ def income_amount(df, lower=5_000, upper=200_000):
 def max_accounts(df, max_accounts=10):
     """No more than 10 active accounts in any year"""
     year = pd.Grouper(freq="Y", key="date")
-    usr_max = (
-        df.groupby(["user_id", year]).account_id.nunique().groupby("user_id").max()
+    max_num_accounts_in_year = (
+        df.groupby(["user_id", year])
+        .account_id.transform("nunique")
+        .groupby(df.user_id)
+        .transform(max)
     )
-    users = usr_max[usr_max <= max_accounts].index
-    return df[df.user_id.isin(users)]
+    return df.loc[max_num_accounts_in_year <= max_accounts]
 
 
 @selector
 @counter
 def max_debits(df, max_debits=100_000):
     """Debits of no more than 100k in any month"""
-    month = pd.Grouper(freq="M", key="date")
-    debits = df[df.debit]
-    usr_max = debits.groupby(["user_id", month]).amount.sum().groupby("user_id").max()
-    users = usr_max[usr_max <= max_debits].index
+    user_monthly_spend_max = (
+        df[df.debit].groupby(["user_id", "ym"]).amount.sum().groupby("user_id").max()
+    )
+    users = user_monthly_spend_max[user_monthly_spend_max <= max_debits].index
     return df[df.user_id.isin(users)]
-
-
-@selector
-@counter
-def valid_account_last_refreshed_date(df):
-    """Last account refresh within observed period
-
-    There are cases where last account refresh date is before the first date
-    for which we observe an account, usually because it is set to a dummy date
-    like 1 Jan 1900 for some reason.
-    """
-
-    def helper(g):
-        return g.account_last_refreshed.iloc[0] >= g.date.min()
-
-    return df.groupby("account_id").filter(helper)
-
-
-# @selector
-# @counter
-def working_age(df, lower=18, upper=64):
-    """Working-age"""
-    age = 2021 - df.user_yob
-    return df[age.between(lower, upper)]
 
 
 @selector
