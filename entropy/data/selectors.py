@@ -110,9 +110,12 @@ def min_spend(df, min_txns=10, min_spend=200):
 @counter
 def current_account(df):
     """At least one current account"""
-    mask = df.account_type.eq("current")
-    users = df.user_id.loc[mask].unique()
-    return df[df.user_id.isin(users)]
+
+    def helper(s):
+        return s.eq("current").max()
+
+    has_current_account = df.groupby("user_id").account_type.transform(helper)
+    return df.loc[has_current_account]
 
 
 @selector
@@ -135,13 +138,11 @@ def income_pmts(df, income_months_ratio=2 / 3):
     """Income payments in 2/3 of all observed months"""
 
     def helper(g):
-        tot_months = g.ym.nunique()
-        inc_months = g[g.tag_group.eq("income")].ym.nunique()
-        return (inc_months / tot_months) >= income_months_ratio
+        num_months_observed = g.ym.nunique()
+        num_months_with_income = g[g.tag_group.eq("income")].ym.nunique()
+        return (num_months_with_income / num_months_observed) >= income_months_ratio
 
-    data = df[["user_id", "date", "tag_group", "ym"]]
-    usrs = data.groupby("user_id").filter(helper).user_id.unique()
-    return df[df.user_id.isin(usrs)]
+    return df.groupby("user_id").filter(helper)
 
 
 # @selector
