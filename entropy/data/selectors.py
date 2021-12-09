@@ -61,52 +61,48 @@ def add_raw_count(df):
 @counter
 def min_number_of_months(df, min_months=6):
     """At least 6 months of data"""
-    cond = df.groupby("user_id").ym.nunique() >= min_months
-    users = cond[cond].index
-    return df[df.user_id.isin(users)]
-
-
-def no_missing_months(df):
-    """No missing months
-
-    Requires that we observe all observed months in sequence without any gaps.
-    """
-
-
+    cond = df.groupby("user_id").ym.transform("nunique") >= min_months
+    return df.loc[cond]
 
 
 @selector
 @counter
-def min_spend(df, min_txns=10, min_spend=300):
+def no_missing_months(df):
+    """No missing months
+
+    Requires that there are no months between first and last observed month for
+    which we observe no transactions.
+    """
+
+    def month_range(date):
+        return (date.max().to_period("M") - date.min().to_period("m")).n + 1
+
+    g = df.groupby("user_id")
+    months_observed = g.ym.transform("nunique")
+    months_range = g.date.transform(month_range)
+    return df.loc[months_observed == months_range]
+
+
+@selector
+@counter
+def min_spend(df, min_txns=10, min_spend=200):
     """At least 5 monthly debits totalling \pounds200
+
     Drops first and last month for each user due to possible incomplete data.
     """
-    data = df[["user_id", "ym", "amount"]]
-    data = data[df.debit]
+    data = df.loc[df.debit, ["user_id", "id", "ym", "amount"]]
 
-    # drop first and last month for each user
     g = data.groupby("user_id")
     first_month = g.ym.transform(min)
     last_month = g.ym.transform(max)
-    data = data[(data.ym > first_month) & (data.ym < last_month)]
+    data = data[data.ym.between(first_month, last_month, inclusive="neither")]
 
-    # calculate monthly min spend and txns per user
-    g = data.groupby(["user_id", "ym"]).amount
-    spend = g.sum()
-    txns = g.size()
-    user_min_spend = spend.groupby("user_id").min()
-    user_min_txns = txns.groupby("user_id").min()
-
-    mask = (user_min_txns >= min_txns) & (user_min_spend >= min_spend)
-    users = mask[mask].index
-    return df[df.user_id.isin(users)]
-
-
-def min_number_of_consecutive_months(df, min_months=6):
-    dfs.groupby("user_id").resample("m", on="date").id.count().groupby("user_id").agg(
-    [("num_months", "count"), ("num_txns_min", "min")]
-)
-
+    g = data.groupby(["user_id", "ym"])
+    min_monthly_spend = g.amount.sum().groupby("user_id").min()
+    min_monthly_txns = g.size().groupby("user_id").min()
+    conds = min_monthly_spend.ge(min_spend) & min_monthly_txns.ge(min_txns)
+    users = conds[conds].index
+    return df.loc[df.user_id.isin(users)]
 
 
 @selector
@@ -134,7 +130,7 @@ def current_and_savings_account_balances(df):
 
 @selector
 @counter
-def income_pmts(df, income_months_ratio=2/3):
+def income_pmts(df, income_months_ratio=2 / 3):
     """Income payments in 2/3 of all observed months"""
 
     def helper(g):
@@ -147,7 +143,7 @@ def income_pmts(df, income_months_ratio=2/3):
     return df[df.user_id.isin(usrs)]
 
 
-@selector
+# @selector
 # @counter
 def income_amount(df, lower=5_000, upper=200_000):
     """Yearly income between 5k and 200k
@@ -170,7 +166,7 @@ def income_amount(df, lower=5_000, upper=200_000):
         yearly_inc = (
             g[g.tag_group.eq("income")]
             .groupby(year)
-            .agg({'amount': 'sum', 'ym': 'nunique'})
+            .agg({"amount": "sum", "ym": "nunique"})
             # .amount.sum()
             # .mul(-1)
         )
