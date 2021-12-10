@@ -9,7 +9,7 @@ CLEANDIR := s3://3di-project-entropy
 SAMPLES := 000 777 X77 XX7
 # TESTSAMPLE := 000
 TESTSAMPLE := 000
-FIGDATA := ~/tmp/entropy/entropy_XX7.parquet
+FIGDATA := s3://3di-project-entropy/entropy_XX7.parquet
 
 
 .PHONY: pptest
@@ -35,3 +35,6 @@ $(SAMPLES):
 .PHONY: figures
 figures:
 	@python -m entropy.figures.figures $(FIGDATA)
+
+fig_monthly_savings:
+	@python -m entropy.figures.monthly_savings $(FIGDATA)
