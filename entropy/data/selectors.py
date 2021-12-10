@@ -1,10 +1,3 @@
-"""
-Functions that perform sample selection. First line of docstring is being used
-for description of procedure in sample selection table.
-
-"""
-
-
 import collections
 import functools
 import re
@@ -85,8 +78,28 @@ def no_missing_months(df):
 
 @selector
 @counter
+def account_balances_available(df):
+    """Account balances available
+
+    Retains only users form whom we can calculate running balances.
+    This requires a non-missing `latest_balance` and a valid
+    `account_last_refreshed` date. The latter is invalid if its before the
+    period during which we observe the user, which happens in a few cases
+    where the date is set to a dummy date like 1 Jan 1990.
+    """
+    current_or_savings_account = df.account_type.isin(["current", "savings"])
+    latest_balance_available = df.latest_balance.notna()
+    user_first_observed = df.groupby('user_id').date.transform('min')
+    valid_refresh_date = df.account_last_refreshed >= user_first_observed
+    return df.loc[
+        current_or_savings_account & latest_balance_available & valid_refresh_date
+    ]
+
+
+@selector
+@counter
 def min_spend(df, min_txns=10, min_spend=200):
-    """At least 5 monthly debits totalling \pounds200
+    """At least 5 debits totalling \pounds200 per month
 
     Drops first and last months for calculations because users will often have
     incomplete data for these months.
@@ -120,28 +133,8 @@ def current_account(df):
 
 @selector
 @counter
-def current_and_savings_account_balances(df):
-    """Current and savings account balances available
-
-    Retains only users form whom we can calculate running balances.
-    This requires a non-missing `latest_balance` and a valid
-    `account_last_refreshed` date. The latter is invalid if its before the
-    period during which we observe the user, which happens in a few cases
-    where the date is set to a dummy date like 1 Jan 1990.
-    """
-    current_or_savings_account = df.account_type.isin(["current", "savings"])
-    latest_balance_available = df.latest_balance.notna()
-    user_first_observed = df.groupby('user_id').date.transform('min')
-    valid_refresh_date = df.account_last_refreshed >= user_first_observed
-    return df.loc[
-        current_or_savings_account & latest_balance_available & valid_refresh_date
-    ]
-
-
-@selector
-@counter
 def income_pmts(df, income_months_ratio=2 / 3):
-    """Income payments in 2/3 of all observed months"""
+    """Income in 2/3 of all observed months"""
 
     def helper(g):
         num_months_observed = g.ym.nunique()
@@ -154,11 +147,7 @@ def income_pmts(df, income_months_ratio=2 / 3):
 @selector
 @counter
 def income_amount(df, lower=5_000, upper=200_000):
-    """Yearly income between 5k and 200k
-
-    Yearly income calculated on rolling basis from
-    first month of data.
-    """
+    """Yearly income between \pounds5k and \pounds200k"""
     g = df.groupby("user_id")
     min_income = g.income.transform("min")
     max_income = g.income.transform("max")
@@ -168,7 +157,7 @@ def income_amount(df, lower=5_000, upper=200_000):
 @selector
 @counter
 def max_accounts(df, max_accounts=10):
-    """No more than 10 active accounts in any year"""
+    """No more than 10 accounts in any year"""
     year = pd.Grouper(freq="Y", key="date")
     max_num_accounts_in_year = (
         df.groupby(["user_id", year])
@@ -182,7 +171,7 @@ def max_accounts(df, max_accounts=10):
 @selector
 @counter
 def max_debits(df, max_debits=100_000):
-    """Debits of no more than 100k in any month"""
+    """Debits of less than \pounds100k each month"""
     user_monthly_spend_max = (
         df[df.debit].groupby(["user_id", "ym"]).amount.sum().groupby("user_id").max()
     )
