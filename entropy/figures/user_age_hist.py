@@ -8,18 +8,19 @@ import entropy.helpers.aws as ha
 import entropy.figures.helpers as fh
 
 
+def make_data(df):
+    return 2021 - df.groupby("user_id").user_yob.first()
+
+
+def make_figure(data):
+    fig, ax = plt.subplots()
+    bins = np.linspace(20, 65, 46)
+    sns.histplot(data, bins=bins - 0.5)
+    return fig, ax
+
+
 def user_age_hist(df):
     """Plots histogram of user ages."""
-
-    def make_data(df):
-        return 2021 - df.groupby("user_id").user_yob.first()
-
-    def make_figure(data):
-        fig, ax = plt.subplots()
-        bins = np.linspace(20, 65, 46)
-        sns.histplot(data, bins=bins - 0.5)
-        return fig, ax
-
     data = make_data(df)
     fig, ax = make_figure(data)
     fh.set_style()
