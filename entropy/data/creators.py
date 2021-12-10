@@ -17,10 +17,9 @@ def balances(df):
     """Adds running account balances.
 
     Daily account balance is calculated as the sum of the cumulative
-    balance and the starting balance, where the starting balance is
-    the difference between the cumulative balance and the actually
-    reported balance on the day of the last refresh or the nearest
-    preceeding date.
+    balance and the offset, where the offset is the difference between
+    the cumulative balance and the actually reported balance on the day
+    of the last refresh or the nearest preceeding date.
     """
 
     def helper(g):
@@ -39,8 +38,8 @@ def balances(df):
         else:
             last_refresh_cum_balance = cum_balance[idx]
 
-        starting_balance = last_refresh_balance - last_refresh_cum_balance
-        balance = cum_balance + starting_balance
+        offset = last_refresh_balance - last_refresh_cum_balance
+        balance = cum_balance + offset
         return balance.rename("balance")
 
     balance = df.set_index("date").groupby("account_id").apply(helper).reset_index()
