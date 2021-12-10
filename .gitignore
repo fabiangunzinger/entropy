@@ -3,10 +3,6 @@
 
 *.tags
 
-# figures
-
-/output/figures
-
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,latex
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,latex
