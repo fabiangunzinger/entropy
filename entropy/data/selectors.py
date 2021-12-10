@@ -1,10 +1,3 @@
-"""
-Functions that perform sample selection. First line of docstring is being used
-for description of procedure in sample selection table.
-
-"""
-
-
 import collections
 import functools
 import re
@@ -154,11 +147,7 @@ def income_pmts(df, income_months_ratio=2 / 3):
 @selector
 @counter
 def income_amount(df, lower=5_000, upper=200_000):
-    """Yearly income between 5k and 200k
-
-    Yearly income calculated on rolling basis from
-    first month of data.
-    """
+    """Yearly income between 5k and 200k"""
     g = df.groupby("user_id")
     min_income = g.income.transform("min")
     max_income = g.income.transform("max")
