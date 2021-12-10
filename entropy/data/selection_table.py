@@ -25,6 +25,6 @@ def selection_table(dict):
 def write_selection_table(table, path):
     """Export sample selection table in Latex format."""
     with pd.option_context('max_colwidth', None):
-        with open(path, 'w+') as f:
+        with open(path, 'w') as f:
             f.write(table.to_latex(index=False, escape=False,
                                    column_format='lrrrr'))
