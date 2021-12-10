@@ -18,8 +18,8 @@ def set_style(style=None):
     plt.style.use(style)
 
 
-def set_size(fig, w=8, h=5):
-    fig.set_size_inches(w, h)
+def set_size(fig, width=8, height=5):
+    fig.set_size_inches(width, height)
     fig.tight_layout()
 
 

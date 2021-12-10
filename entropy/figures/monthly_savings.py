@@ -45,7 +45,7 @@ def get_xlabel(col):
         "credit": "Inflows",
         "net": "Net flows",
     }
-    return xlabels[col] + " % of monthly income"
+    return xlabels[col] + " (% of monthly income)"
 
 
 def make_figure(df):
@@ -61,7 +61,7 @@ def monthly_savings(df):
     data = make_data(df)
     fig, ax = make_figure(data)
     fh.set_style()
-    fh.set_size(fig)
+    fh.set_size(fig, height=3)
     return fig
 
 
