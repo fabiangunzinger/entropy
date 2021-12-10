@@ -78,6 +78,26 @@ def no_missing_months(df):
 
 @selector
 @counter
+def account_balances_available(df):
+    """Account balances available
+
+    Retains only users form whom we can calculate running balances.
+    This requires a non-missing `latest_balance` and a valid
+    `account_last_refreshed` date. The latter is invalid if its before the
+    period during which we observe the user, which happens in a few cases
+    where the date is set to a dummy date like 1 Jan 1990.
+    """
+    current_or_savings_account = df.account_type.isin(["current", "savings"])
+    latest_balance_available = df.latest_balance.notna()
+    user_first_observed = df.groupby('user_id').date.transform('min')
+    valid_refresh_date = df.account_last_refreshed >= user_first_observed
+    return df.loc[
+        current_or_savings_account & latest_balance_available & valid_refresh_date
+    ]
+
+
+@selector
+@counter
 def min_spend(df, min_txns=10, min_spend=200):
     """At least 5 debits totalling \pounds200 per month
 
@@ -109,26 +129,6 @@ def current_account(df):
 
     has_current_account = df.groupby("user_id").account_type.transform(helper)
     return df.loc[has_current_account]
-
-
-@selector
-@counter
-def current_and_savings_account_balances(df):
-    """Account balances available
-
-    Retains only users form whom we can calculate running balances.
-    This requires a non-missing `latest_balance` and a valid
-    `account_last_refreshed` date. The latter is invalid if its before the
-    period during which we observe the user, which happens in a few cases
-    where the date is set to a dummy date like 1 Jan 1990.
-    """
-    current_or_savings_account = df.account_type.isin(["current", "savings"])
-    latest_balance_available = df.latest_balance.notna()
-    user_first_observed = df.groupby('user_id').date.transform('min')
-    valid_refresh_date = df.account_last_refreshed >= user_first_observed
-    return df.loc[
-        current_or_savings_account & latest_balance_available & valid_refresh_date
-    ]
 
 
 @selector
