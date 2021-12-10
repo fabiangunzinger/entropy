@@ -29,10 +29,15 @@ def balances(df):
 
         daily_net_spend = g.resample("D").amount.sum().mul(-1)
         cum_balance = daily_net_spend.cumsum()
-
-        # get cum_balance on last refreshed date or nearest preceeding date
-        idx = cum_balance.index.get_loc(last_refresh_date, method="ffill")
-        last_refresh_cum_balance = cum_balance[idx]
+        try:
+            # get cum_balance on last refreshed date or nearest preceeding date
+            # fails if last refresh date is dummy date outside the period we
+            # observe a user.
+            idx = cum_balance.index.get_loc(last_refresh_date, method="ffill")
+        except KeyError:
+            last_refresh_cum_balance = np.nan
+        else:
+            last_refresh_cum_balance = cum_balance[idx]
 
         starting_balance = last_refresh_balance - last_refresh_cum_balance
         balance = cum_balance + starting_balance
