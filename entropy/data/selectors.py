@@ -79,7 +79,7 @@ def no_missing_months(df):
 @selector
 @counter
 def min_spend(df, min_txns=10, min_spend=200):
-    """At least 5 monthly debits totalling \pounds200
+    """At least 5 debits totalling \pounds200 per month
 
     Drops first and last months for calculations because users will often have
     incomplete data for these months.
@@ -114,7 +114,7 @@ def current_account(df):
 @selector
 @counter
 def current_and_savings_account_balances(df):
-    """Current and savings account balances available
+    """Account balances available
 
     Retains only users form whom we can calculate running balances.
     This requires a non-missing `latest_balance` and a valid
@@ -134,7 +134,7 @@ def current_and_savings_account_balances(df):
 @selector
 @counter
 def income_pmts(df, income_months_ratio=2 / 3):
-    """Income payments in 2/3 of all observed months"""
+    """Income in 2/3 of all observed months"""
 
     def helper(g):
         num_months_observed = g.ym.nunique()
@@ -147,7 +147,7 @@ def income_pmts(df, income_months_ratio=2 / 3):
 @selector
 @counter
 def income_amount(df, lower=5_000, upper=200_000):
-    """Yearly income between 5k and 200k"""
+    """Yearly income between \pounds5k and \pounds200k"""
     g = df.groupby("user_id")
     min_income = g.income.transform("min")
     max_income = g.income.transform("max")
@@ -157,7 +157,7 @@ def income_amount(df, lower=5_000, upper=200_000):
 @selector
 @counter
 def max_accounts(df, max_accounts=10):
-    """No more than 10 active accounts in any year"""
+    """No more than 10 accounts in any year"""
     year = pd.Grouper(freq="Y", key="date")
     max_num_accounts_in_year = (
         df.groupby(["user_id", year])
@@ -171,7 +171,7 @@ def max_accounts(df, max_accounts=10):
 @selector
 @counter
 def max_debits(df, max_debits=100_000):
-    """Debits of no more than 100k in any month"""
+    """Debits of less than \pounds100k each month"""
     user_monthly_spend_max = (
         df[df.debit].groupby(["user_id", "ym"]).amount.sum().groupby("user_id").max()
     )
