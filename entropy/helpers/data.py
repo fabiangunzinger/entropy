@@ -12,7 +12,7 @@ def txns_and_users(df1, df2):
     txns_ratio, users_ratio = txns1 / txns2, users1 / users2
     print(
         f"df1 has {txns1:,} txns across {users1} users",
-        f"({txns_ratio:.1%} and {users_ratio:.1%} of df2)."
+        f"({txns_ratio:.1%} and {users_ratio:.1%} of df2).",
     )
 
 
@@ -35,3 +35,25 @@ def trim(series, pct=1):
     """Replaces series values outside of specified percentile on both sides with nan."""
     lower, upper = np.nanpercentile(series, [pct, 100 - pct])
     return series.where(series.between(lower, upper), np.nan)
+
+
+def breakdown(df, group_var, group_var_value, component_var, metric="value", net=False):
+    """Calculates sorted breakdown of group_var_value by component_var.
+
+    Args:
+      metric:
+        "value" calculates amount spent on components, "counts" the number of
+        transactions per component.
+      net:
+        Boolean indicating whether, if metric is "value", net or gross amounts
+        are calculated. Defaults to False, which produces gross amounts.
+    """
+    return (
+        df[df[group_var].eq(group_var_value)]
+        .assign(amount=lambda df: df.amount if net else df.amount.abs())
+        .groupby(component_var)
+        .amount.agg("sum" if metric == "value" else "count")
+        .replace(0, np.nan)
+        .dropna()
+        .sort_values()
+    )
