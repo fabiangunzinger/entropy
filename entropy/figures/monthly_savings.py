@@ -49,24 +49,23 @@ def get_xlabel(col):
 
 
 def make_figure(df):
-    fig, ax = plt.subplots(1, 3, figsize=(14, 4))
+    fig, ax = plt.subplots(1, 3)
     ylabel = "User-months (%)"
     for i, col in enumerate(df.columns):
         sns.histplot(x=df[col], stat="percent", ax=ax[i])
         ax[i].set(xlabel=get_xlabel(col), ylabel=ylabel)
+    fh.set_style()
+    fh.set_size(fig, height=3)
     return fig, ax
 
 
-def monthly_savings(df):
+def main(df):
     data = make_data(df)
     fig, ax = make_figure(data)
-    fh.set_style()
-    fh.set_size(fig, height=3)
-    return fig
 
 
 if __name__ == "__main__":
     args = fh.parse_args(sys.argv[1:])
     df = ha.read_parquet(args.filepath)
-    fig = monthly_savings(df)
+    main(df)
     fh.save_fig(fig, "monthly_savings.png")
