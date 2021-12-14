@@ -34,10 +34,12 @@ each bank account (e.g. type of account, date added).
 \begin{figure}
     \caption{Demographic characteristics of Money Dashboard users}
     \label{fig:sumstats}
-    \includegraphics[width=0.49\textwidth]{\figdir/user_age_hist.png}
-    \includegraphics[width=0.49\textwidth]{\figdir/user_income_hist.png}
-    \includegraphics[width=0.49\textwidth]{\figdir/user_region_distr.png}
-    \includegraphics[width=0.49\textwidth]{\figdir/user_gender_distr.png}
+    \begin{center}
+        \includegraphics[width=0.49\textwidth]{\figdir/user_age_hist.png}
+        \includegraphics[width=0.49\textwidth]{\figdir/user_income_hist.png}
+        \includegraphics[width=0.49\textwidth]{\figdir/user_region_distr.png}
+        \includegraphics[width=0.49\textwidth]{\figdir/user_gender_distr.png}
+    \end{center}
 \end{figure}
 
 The main advantages of the data for the study of consumer financial behaviour
@@ -81,7 +83,7 @@ our purpose here, since our ability to infer behaviour traits from transaction
 data is not dependent on having a representative sample of people.
 
 
-\begin{figure}[!h]\center \newcommand\width{.9\textwidth} \caption{Monthly
+\begin{figure}[!ht]\center \newcommand\width{.9\textwidth} \caption{Monthly
         transactions by account type}    \label{fig:monthly_txns}
         \includegraphics[width=\width]{\figdir/num_txns_by_account_type.png}
         \fignote{\width}{The two innermost boxes in the
@@ -103,6 +105,10 @@ data is not dependent on having a representative sample of people.
 
 \subsection{Dependent variable}%
 \label{sub:dependent_variable}
+
+\begin{itemize}
+    \item Add notes on excluding non-standing orders from ipynb.
+\end{itemize}
 
 \begin{figure}[ht]
 
