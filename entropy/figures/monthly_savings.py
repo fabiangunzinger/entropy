@@ -67,10 +67,11 @@ def make_figure(df):
 def main(df):
     data = make_data(df)
     fig, ax = make_figure(data)
+    return fig
 
 
 if __name__ == "__main__":
     args = fh.parse_args(sys.argv[1:])
     df = ha.read_parquet(args.filepath)
-    main(df)
+    fig = main(df)
     fh.save_fig(fig, "monthly_savings.png")
