@@ -83,22 +83,25 @@ our purpose here, since our ability to infer behaviour traits from transaction
 data is not dependent on having a representative sample of people.
 
 
-\begin{figure}[!ht]\center \newcommand\width{.9\textwidth} \caption{Monthly
+\begin{figure}[!ht]
+    \center \newcommand\width{.9\textwidth} \caption{Monthly
         transactions by account type}    \label{fig:monthly_txns}
-        \includegraphics[width=\width]{\figdir/num_txns_by_account_type.png}
-        \fignote{\width}{The two innermost boxes in the
-            \href{https://vita.had.co.nz/papers/letter-value-plot.html}{letter-value
-            plots} are identical to those in a boxplot, with the center line
-            corresponding to the median and the left and right edges to the
-            first and third quartiles, respectively -- or half of the remaining
-            data on either side of the median.  Additional boxes on either side
-            extend that principle by corresponding to half of the remaining
-            data on that side. For instance, the second box to the right of the
-            median in the current accounts plot indicates that half of all
-            account-month observations to the right of the third quartile have
-            fewer than about 105 transactions. Boxes of the same height
-            correspond to the same level, individually drawn observations are
-        outliers.}
+        \begin{center}
+            \includegraphics[width=\width]{\figdir/num_txns_by_account_type.png}
+            \fignote{\width}{The two innermost boxes in the
+                \href{https://vita.had.co.nz/papers/letter-value-plot.html}{letter-value
+                plots} are identical to those in a boxplot, with the center line
+                corresponding to the median and the left and right edges to the
+                first and third quartiles, respectively -- or half of the remaining
+                data on either side of the median.  Additional boxes on either side
+                extend that principle by corresponding to half of the remaining
+                data on that side. For instance, the second box to the right of the
+                median in the current accounts plot indicates that half of all
+                account-month observations to the right of the third quartile have
+                fewer than about 105 transactions. Boxes of the same height
+                correspond to the same level, individually drawn observations are
+            outliers.}
+        \end{center}
 \end{figure}
 
 
