@@ -16,7 +16,7 @@ def read_csv(path, aws_profile=config.AWS_PROFILE, **kwargs):
     return pd.read_csv(path, **kwargs)
 
 
-def write_csv(df, path, aws_profile=config.AWS_PROFILE, verbose=False, **kwargs):
+def write_csv(df, path, aws_profile=config.AWS_PROFILE, verbose=True, **kwargs):
     """Writes csv to local directory or to AWS bucket."""
     if path.startswith("s3://"):
         options = dict(storage_options=dict(profile=aws_profile))
@@ -25,7 +25,6 @@ def write_csv(df, path, aws_profile=config.AWS_PROFILE, verbose=False, **kwargs)
         df.to_csv(path, index=False, **kwargs)
     if verbose:
         print(f"{path} (of shape {df.shape}) written.")
-    return df
 
 
 def read_parquet(path, aws_profile=config.AWS_PROFILE, **kwargs):
@@ -36,7 +35,7 @@ def read_parquet(path, aws_profile=config.AWS_PROFILE, **kwargs):
     return pd.read_parquet(path, **kwargs)
 
 
-def write_parquet(df, path, aws_profile=config.AWS_PROFILE, verbose=False, **kwargs):
+def write_parquet(df, path, aws_profile=config.AWS_PROFILE, verbose=True, **kwargs):
     """Writes parquet to local directory or to AWS bucket."""
     if path.startswith("s3://"):
         options = dict(storage_options=dict(profile=aws_profile))
@@ -45,7 +44,6 @@ def write_parquet(df, path, aws_profile=config.AWS_PROFILE, verbose=False, **kwa
         df.to_parquet(path, index=False, **kwargs)
     if verbose:
         print(f"{path} (of shape {df.shape}) written.")
-    return df
 
 
 def get_nspl(**kwargs):
