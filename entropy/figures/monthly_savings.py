@@ -4,24 +4,26 @@ import sys
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+import entropy.helpers.helpers as hh
 import entropy.helpers.aws as ha
 import entropy.helpers.data as hd
 import entropy.figures.helpers as fh
-
-
-def trim_column_values(df, **kwargs):
-    return df.apply(hd.trim, **kwargs)
 
 
 def make_data(df, trim_pct=5):
     """Aggregates df into inflows, outflows, and net, by user month, trims at
     specified percentile, and scales flows by user's monthly income.
     """
+
+    def trim_column_values(df, **kwargs):
+        return df.apply(hd.trim, **kwargs)
+
     df = df.copy()
-    mask = df.account_type.eq("savings") & ~df.tag_auto.str.contains(
-        "interest", na=False
-    )
+    is_not_interest_txn = ~df.tag_auto.str.contains("interest", na=False)
+    is_savings_account = df.account_type.eq("savings")
+    mask = is_not_interest_txn & is_savings_account
     df["debit"] = df.debit.replace({True: "sa_outflows", False: "sa_inflows"})
+
     return (
         df[mask]
         .groupby(["user_id", "ym", "income", "debit"])
@@ -55,7 +57,7 @@ def make_figure(df):
     ylabel = "User-months (%)"
     for i, col in enumerate(df.columns):
         sns.histplot(x=df[col], stat="percent", ax=ax[0, i])
-        ax[0, i].set(xlabel='', ylabel=ylabel)
+        ax[0, i].set(xlabel="", ylabel=ylabel)
         non_zero = df[col] != 0
         sns.histplot(x=df[col][non_zero], stat="percent", ax=ax[1, i])
         ax[1, i].set(xlabel=get_xlabel(col), ylabel=ylabel)
@@ -64,6 +66,7 @@ def make_figure(df):
     return fig, ax
 
 
+@hh.timer
 def main(df):
     data = make_data(df)
     fig, ax = make_figure(data)
