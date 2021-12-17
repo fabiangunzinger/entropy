@@ -31,10 +31,24 @@ def read_samples(samples):
     return (read_sample(sample) for sample in samples)
 
 
-def trim(series, pct=1):
-    """Replaces series values outside of specified percentile on both sides with nan."""
+def trim(series, pct=1, ends='both'):
+    """Replaces series values outside of specified percentile on both sides with nan.
+    
+    Arguments:
+        pct : Percentile of data to be removed from specified ends.
+            Default is 1.
+        ends: end(s) of distribution from which to trim values. One of
+            {'both', 'lower', 'upper'}. Defaults to 'both'.
+
+    """
     lower, upper = np.nanpercentile(series, [pct, 100 - pct])
-    return series.where(series.between(lower, upper), np.nan)
+    if ends == 'both':
+        cond = series.between(lower, upper)
+    elif ends == 'lower':
+        cond = series.gt(lower)
+    else:
+        cond = series.lt(upper)
+    return series.where(cond, np.nan)
 
 
 def breakdown(df, group_var, group_var_value, component_var, metric="value", net=False):
