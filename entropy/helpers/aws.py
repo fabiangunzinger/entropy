@@ -35,13 +35,13 @@ def read_parquet(path, aws_profile=config.AWS_PROFILE, **kwargs):
     return pd.read_parquet(path, **kwargs)
 
 
-def write_parquet(df, path, aws_profile=config.AWS_PROFILE, verbose=True, **kwargs):
+def write_parquet(df, path, aws_profile=config.AWS_PROFILE, index=False, verbose=True, **kwargs):
     """Writes parquet to local directory or to AWS bucket."""
     if path.startswith("s3://"):
         options = dict(storage_options=dict(profile=aws_profile))
-        df.to_parquet(path, index=False, **options, **kwargs)
+        df.to_parquet(path, index=index, **options, **kwargs)
     else:
-        df.to_parquet(path, index=False, **kwargs)
+        df.to_parquet(path, index=index, **kwargs)
     if verbose:
         print(f"{path} (of shape {df.shape}) written.")
 
