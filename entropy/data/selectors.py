@@ -81,13 +81,15 @@ def no_missing_months(df):
 def account_balances_available(df):
     """Account balances available
 
-    Retains only users for whom we can calculate running balances.
-    This requires a non-missing `latest_balance` and a valid
-    `account_last_refreshed` date. The latter is invalid if it is smaller
-    than the date of the first transaction we observe for the user, which
-    happens in a few cases where the date is set to a dummy date like 1 Jan 1990.
+    Retains only users for whom we can calculate running balances for all
+    current and savings accounts. This requires for each account a non-missing
+    'latest_balance' and a valid 'account_last_refreshed_date'. The latter
+    is invalid if it refers to a date prior to the first txn date, which is
+    non-sensical, but happens if MDB have imputed a dummy data such as 
+    1 Jan 1970.
     """
-    g = df.groupby("user_id")
+    data = df[df.account_type.isin(['current', 'savings'])]
+    g = data.groupby("user_id")
     latest_balances_available = g.latest_balance.min().notna()
     valid_last_refresh_dates = g.account_last_refreshed.min() >= g.date.min()
     cond = latest_balances_available & valid_last_refresh_dates
