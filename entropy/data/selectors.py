@@ -58,7 +58,7 @@ def min_number_of_months(df, min_months=6):
     return df.loc[cond]
 
 
-# @selector
+@selector
 @counter
 def no_missing_months(df):
     """No missing months
@@ -76,27 +76,26 @@ def no_missing_months(df):
     return df.loc[months_observed == months_range]
 
 
-# @selector
+@selector
 @counter
 def account_balances_available(df):
     """Account balances available
 
-    Retains only users form whom we can calculate running balances.
+    Retains only users for whom we can calculate running balances.
     This requires a non-missing `latest_balance` and a valid
-    `account_last_refreshed` date. The latter is invalid if its before the
-    period during which we observe the user, which happens in a few cases
-    where the date is set to a dummy date like 1 Jan 1990.
+    `account_last_refreshed` date. The latter is invalid if it is smaller
+    than the date of the first transaction we observe for the user, which
+    happens in a few cases where the date is set to a dummy date like 1 Jan 1990.
     """
-    current_or_savings_account = df.account_type.isin(["current", "savings"])
-    latest_balance_available = df.latest_balance.notna()
-    user_first_observed = df.groupby('user_id').date.transform('min')
-    valid_refresh_date = df.account_last_refreshed >= user_first_observed
-    return df.loc[
-        current_or_savings_account & latest_balance_available & valid_refresh_date
-    ]
+    g = df.groupby("user_id")
+    latest_balances_available = g.latest_balance.min().notna()
+    valid_last_refresh_dates = g.account_last_refreshed.min() >= g.date.min()
+    cond = latest_balances_available & valid_last_refresh_dates
+    users = cond[cond].index
+    return df[df.user_id.isin(users)]
 
 
-# @selector
+@selector
 @counter
 def min_spend(df, min_txns=10, min_spend=200):
     """At least 5 debits totalling \pounds200 per month
@@ -119,7 +118,7 @@ def min_spend(df, min_txns=10, min_spend=200):
     return df.loc[df.user_id.isin(users)]
 
 
-# @selector
+@selector
 @counter
 def current_account(df):
     """At least one current account"""
@@ -131,7 +130,7 @@ def current_account(df):
     return df.loc[has_current_account]
 
 
-# @selector
+@selector
 @counter
 def income_pmts(df, income_months_ratio=2 / 3):
     """Income in 2/3 of all observed months"""
@@ -144,7 +143,7 @@ def income_pmts(df, income_months_ratio=2 / 3):
     return df.groupby("user_id").filter(helper)
 
 
-# @selector
+@selector
 @counter
 def income_amount(df, lower=5_000, upper=200_000):
     """Yearly income between \pounds5k and \pounds200k"""
@@ -154,7 +153,7 @@ def income_amount(df, lower=5_000, upper=200_000):
     return df.loc[min_income.gt(lower) & max_income.lt(upper)]
 
 
-# @selector
+@selector
 @counter
 def max_accounts(df, max_accounts=10):
     """No more than 10 accounts in any year"""
@@ -168,7 +167,7 @@ def max_accounts(df, max_accounts=10):
     return df.loc[max_num_accounts_in_year <= max_accounts]
 
 
-# @selector
+@selector
 @counter
 def max_debits(df, max_debits=100_000):
     """Debits of less than \pounds100k each month"""
@@ -179,7 +178,7 @@ def max_debits(df, max_debits=100_000):
     return df[df.user_id.isin(users)]
 
 
-# @selector
+@selector
 @counter
 def add_final_count(df):
     """Final sample
