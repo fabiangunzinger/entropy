@@ -189,7 +189,7 @@ def tag_corrections(df):
     )
     df.loc[mask, "tag"] = "other_transfers"
 
-    # tag as other_spend if desc contains "bbp"
+    # tag untagged as other_spend if desc contains "bbp",
     # which is short for bill payment
     mask = df.desc.str.contains("bbp") & df.tag.isna()
     df.loc[mask, "tag"] = "other_spend"
