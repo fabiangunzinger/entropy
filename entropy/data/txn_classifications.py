@@ -1,6 +1,4 @@
 tag_groups = {
-    # tag_auto categorisation into main groups income, spend, and transfers.
-
     'income': [
         'benefits',
         'bond income',
@@ -19,7 +17,7 @@ tag_groups = {
         'pension',
         'rental income (room)',
         'rental income (whole property)',
-        'rental income'
+        'rental income',
         'salary (secondary)',
         'salary or wages (main)',
         'salary or wages (other)',
@@ -203,7 +201,7 @@ tag_groups = {
         'vet',
         'water',
         'web hosting',
-        'zoo/theme park'
+        'zoo/theme park',
     ],
 
     'transfers': [
@@ -237,12 +235,13 @@ transfers_subgroups = {
         'savings',
     ],
 
-    'transfers': [
+    'other_transfers': [
         'credit card repayment',
         'credit card',
         'current account',
         'paypal account',
         'transfers',
+        'unsecured loan funds',
     ],
 }
 
@@ -423,7 +422,7 @@ spend_subgroups = {
         'sports event',
         'take-away',
         'tradesmen fees',
-        'zoo/theme park'
+        'zoo/theme park',
     ],
     
     'travel': [
@@ -457,9 +456,9 @@ spend_subgroups = {
 
 income_subgroups = {
     # income categorisation following haciouglu2020distributional
-    # adding winnings and bursary to other income, and removing 
-    # 'pension or investments' from pensions because these txns
-    # are mostly contributions.
+    # but adding 'winnings' and 'bursary' to 'other income', and
+    # removing 'pension or investments' from 'pensions' because
+    # these txns are mostly contributions.
 
     'earnings': [
         'salary or wages (main)',
@@ -494,9 +493,8 @@ income_subgroups = {
         'interest income',
         'dividend',
         'student loan funds',
-        # 'unsecured loan funds',
         'winnings',
-        # 'bursary',
+        'bursary',
     ],
 }
 

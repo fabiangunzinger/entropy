@@ -17,20 +17,20 @@ def validator(func):
 @validator
 def tag_groups(df):
     """All occurring tag groups are valid."""
-    actual = set(df.tag_group.cat.categories)
-    expected = set(tc.tag_groups.keys())
-    assert actual <= expected
+    occurring = set(df.tag_group.cat.categories)
+    valid = set(tc.tag_groups.keys())
+    assert occurring <= valid
     return df
 
 
-# @validator
-# def spend_tag(df):
-#     """All occurring spend tags are valid."""
-#     spend_txns = df[df.tag_group.eq('spend')]
-#     actual = set(spend_txns.tag.cat.categories)
-#     expected = set(tc.spend_subgroups.keys())
-#     assert actual <= expected
-#     return df
+@validator
+def spend_tag(df):
+    """All occurring spend tags are valid."""
+    spend_txns = df[df.tag_group.eq('spend')]
+    occurring = set(spend_txns.tag.unique())
+    valid = set(tc.spend_subgroups.keys())
+    assert occurring <= valid
+    return df
 
 
 

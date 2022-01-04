@@ -177,7 +177,7 @@ def tag_corrections(df):
     unchanged but to ensure that correction will be taken
     into account in `add_tag_group()` below.
     """
-    # tag as transfer if desc clearly indicates as much
+    # tag untagged as transfer if desc clearly indicates as much
     tfr_strings = [" ft", " trf", "xfer", "transfer"]
     tfr_pattern = "|".join(tfr_strings)
     exclude_strings = ["fee", "interest", "rewards"]
@@ -187,7 +187,7 @@ def tag_corrections(df):
         & df.desc.str.contains(exclude_pattern).eq(False)
         & df.tag.isna()
     )
-    df.loc[mask, "tag"] = "transfers"
+    df.loc[mask, "tag"] = "other_transfers"
 
     # tag as other_spend if desc contains "bbp"
     # which is short for bill payment
