@@ -16,16 +16,20 @@ def validator(func):
 
 @validator
 def tag_groups(df):
-    # each txn is either one of defined tag groups or None
+    """All occurring tag groups are valid."""
+    actual = set(df.tag_group.unique())
     expected = set(tc.tag_groups.keys())
-    expected = expected.add(None)
-    df.tag_group.unique == expected
+    assert actual <= expected
     return df
 
+
 @validator
-def tag(df):
-    # there are 9 unique tags for spend txns
-    df[df.tag_group.eq('spend')].tag.nunique == 9
+def spend_tag(df):
+    """All occurring spend tags are valid."""
+    actual = set(df[df.tag_group.eq('spend')].tag.unique())
+    expected = set(tc.spend_subgroups.keys())
+    assert actual <= expected
     return df
+
 
 
