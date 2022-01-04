@@ -58,7 +58,7 @@ def min_number_of_months(df, min_months=6):
     return df.loc[cond]
 
 
-@selector
+# @selector
 @counter
 def no_missing_months(df):
     """No missing months
@@ -76,7 +76,7 @@ def no_missing_months(df):
     return df.loc[months_observed == months_range]
 
 
-@selector
+# @selector
 @counter
 def account_balances_available(df):
     """Account balances available
@@ -96,7 +96,7 @@ def account_balances_available(df):
     ]
 
 
-@selector
+# @selector
 @counter
 def min_spend(df, min_txns=10, min_spend=200):
     """At least 5 debits totalling \pounds200 per month
@@ -119,7 +119,7 @@ def min_spend(df, min_txns=10, min_spend=200):
     return df.loc[df.user_id.isin(users)]
 
 
-@selector
+# @selector
 @counter
 def current_account(df):
     """At least one current account"""
@@ -131,7 +131,7 @@ def current_account(df):
     return df.loc[has_current_account]
 
 
-@selector
+# @selector
 @counter
 def income_pmts(df, income_months_ratio=2 / 3):
     """Income in 2/3 of all observed months"""
@@ -144,7 +144,7 @@ def income_pmts(df, income_months_ratio=2 / 3):
     return df.groupby("user_id").filter(helper)
 
 
-@selector
+# @selector
 @counter
 def income_amount(df, lower=5_000, upper=200_000):
     """Yearly income between \pounds5k and \pounds200k"""
@@ -154,7 +154,7 @@ def income_amount(df, lower=5_000, upper=200_000):
     return df.loc[min_income.gt(lower) & max_income.lt(upper)]
 
 
-@selector
+# @selector
 @counter
 def max_accounts(df, max_accounts=10):
     """No more than 10 accounts in any year"""
@@ -168,7 +168,7 @@ def max_accounts(df, max_accounts=10):
     return df.loc[max_num_accounts_in_year <= max_accounts]
 
 
-@selector
+# @selector
 @counter
 def max_debits(df, max_debits=100_000):
     """Debits of less than \pounds100k each month"""
@@ -179,7 +179,7 @@ def max_debits(df, max_debits=100_000):
     return df[df.user_id.isin(users)]
 
 
-@selector
+# @selector
 @counter
 def add_final_count(df):
     """Final sample
