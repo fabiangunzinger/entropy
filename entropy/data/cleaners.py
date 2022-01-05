@@ -49,15 +49,6 @@ def rename_cols(df):
 
 
 @cleaner
-def drop_last_month(df):
-    """Drops last month.
-    Might have missing data. For first month, Jan 2012, we have complete data.
-    """
-    ym = df.date.dt.to_period("M")
-    return df[ym < ym.max()]
-
-
-@cleaner
 def drop_unneeded_vars(df):
     vars = ["user_lsoa", "user_msoa"]
     return df.drop(columns=vars)
@@ -70,6 +61,29 @@ def clean_headers(df):
         df.columns.str.lower().str.replace(r"[\s\.]", "_", regex=True).str.strip()
     )
     return df
+
+
+@cleaner
+def add_year_month_variable(df):
+    """Creates year-month date as helper variable."""
+    y = df.date.dt.year * 100
+    m = df.date.dt.month
+    df["ym"] = y + m
+    return df
+
+
+@cleaner
+def drop_first_and_last_month(df):
+    """Drops first and last month for each user.
+
+    These months have incomplete data for users who joined and left MDB during
+    the month, which would bias monthly entropy scores downwards (if we only
+    observe a single txn, entropy would be 0).
+    """
+    g = df.groupby("user_id")
+    first_month = g.ym.transform(min)
+    last_month = g.ym.transform(max)
+    return df[df.ym.between(first_month, last_month, inclusive="neither")]
 
 
 @cleaner
@@ -212,15 +226,6 @@ def add_tag_group(df):
 
 
 @cleaner
-def add_year_month_variable(df):
-    """Creates year-month date as helper variable."""
-    y = df.date.dt.year * 100
-    m = df.date.dt.month
-    df["ym"] = y + m
-    return df
-
-
-@cleaner
 def clean_description(df):
     """Cleans up txnd description for better duplicate detection.
 
@@ -322,47 +327,5 @@ def order_and_sort(df):
     order = first + sorted(user) + sorted(account) + sorted(txn)
 
     return df[order].sort_values(["user_id", "date"])
-
-
-#@cleaner
-def correct_tag_up(df):
-    """Ensures user precedence tag is defined as in data dictionary.
-
-    tag_up is defined as equalling tag_manual if tag_manual not missing else
-    tag_auto. This definition is violated in two ways in the data: sometimes
-    tag_up is missing while one of the other two tags isn't, sometimes tag_up is
-    not missing but both other tags are. In the latter case, we leave tag_up
-    unchanged.
-    """
-    correct_up_value = (
-        df.tag_manual.astype("object").fillna(df.tag_auto).astype("category")
-    )
-
-    df["tag_up"] = (
-        df.tag_up.astype("object")
-        .where(df.tag_up.notna(), correct_up_value)
-        .astype("category")
-    )
-    return df
-
-
-# @cleaner
-def order_salaries(df):
-    """Orders salary category variable."""
-    ordered_value = [
-        "< 10k",
-        "10k to 20k",
-        "20k to 30k",
-        "30k to 40k",
-        "40k to 50k",
-        "50k to 60k",
-        "60k to 70k",
-        "70k to 80k",
-        "> 80k",
-    ]
-    df["user_salary_range"] = df.user_salary_range.cat.set_categories(
-        ordered_value, ordered=True
-    )
-    return df
 
 
