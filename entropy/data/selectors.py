@@ -102,16 +102,12 @@ def account_balances_available(df):
 def min_spend(df, min_txns=10, min_spend=200):
     """At least 5 debits totalling \pounds200 per month
 
-    Drops first and last months for calculations because users will often have
-    incomplete data for these months.
+    A minimal test to ensure that we observe a user's full financial life.
+
+    Doesn't account for missing data in first and last months since these
+    months were removed for all users during cleaning.
     """
     data = df.loc[df.debit, ["user_id", "id", "ym", "amount"]]
-
-    g = data.groupby("user_id")
-    first_month = g.ym.transform(min)
-    last_month = g.ym.transform(max)
-    data = data[data.ym.between(first_month, last_month, inclusive="neither")]
-
     g = data.groupby(["user_id", "ym"])
     min_monthly_spend = g.amount.sum().groupby("user_id").min()
     min_monthly_txns = g.size().groupby("user_id").min()

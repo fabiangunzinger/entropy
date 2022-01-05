@@ -49,15 +49,6 @@ def rename_cols(df):
 
 
 @cleaner
-def drop_last_month(df):
-    """Drops last month.
-    Might have missing data. For first month, Jan 2012, we have complete data.
-    """
-    ym = df.date.dt.to_period("M")
-    return df[ym < ym.max()]
-
-
-@cleaner
 def drop_unneeded_vars(df):
     vars = ["user_lsoa", "user_msoa"]
     return df.drop(columns=vars)
@@ -70,6 +61,29 @@ def clean_headers(df):
         df.columns.str.lower().str.replace(r"[\s\.]", "_", regex=True).str.strip()
     )
     return df
+
+
+@cleaner
+def add_year_month_variable(df):
+    """Creates year-month date as helper variable."""
+    y = df.date.dt.year * 100
+    m = df.date.dt.month
+    df["ym"] = y + m
+    return df
+
+
+@cleaner
+def drop_first_and_last_month(df):
+    """Drops first and last month for each user.
+
+    These months have incomplete data for users who joined and left MDB during
+    the month, which would bias monthly entropy scores downwards (if we only
+    observe a single txn, entropy would be 0).
+    """
+    g = df.groupby("user_id")
+    first_month = g.ym.transform(min)
+    last_month = g.ym.transform(max)
+    return df[df.ym.between(first_month, last_month, inclusive="neither")]
 
 
 @cleaner
@@ -208,15 +222,6 @@ def add_tag_group(df):
     df["tag_group"] = np.nan
     _apply_grouping(tc.tag_groups, df, "tag_group")
     df["tag_group"] = df.tag_group.astype("category")
-    return df
-
-
-@cleaner
-def add_year_month_variable(df):
-    """Creates year-month date as helper variable."""
-    y = df.date.dt.year * 100
-    m = df.date.dt.month
-    df["ym"] = y + m
     return df
 
 
