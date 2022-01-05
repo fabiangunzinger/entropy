@@ -20,7 +20,6 @@ def tag_groups(df):
     occurring = set(df.tag_group.cat.categories)
     valid = set(tc.tag_groups.keys())
     assert occurring <= valid
-    return df
 
 
 @validator
@@ -30,7 +29,18 @@ def spend_tag(df):
     occurring = set(spend_txns.tag.unique())
     valid = set(tc.spend_subgroups.keys())
     assert occurring <= valid
-    return df
+
+
+@validator
+def no_gaps_and_min_obs(df):
+    """Checks that user has no missing months and at least 5 txns per month.
+
+    Test for no missing months happens for free because resample fills in
+    missing months.
+    """
+    g = df.set_index('date').groupby('user_id')
+    user_month_obs = g.resample('m').id.count()
+    assert user_month_obs.min() >= 5
 
 
 

@@ -46,8 +46,9 @@ def create_vars(df):
 
 
 def validate_data(df):
-    for func in validator_funcs:
-        df = func(df)
+    if not df.empty:
+        for func in validator_funcs:
+            func(df)
     return df
 
 
