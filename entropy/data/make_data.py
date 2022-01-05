@@ -49,6 +49,7 @@ def validate_data(df):
     if not df.empty:
         for func in validator_funcs:
             func(df)
+    print('All validation tests passed.')
     return df
 
 
@@ -82,9 +83,9 @@ def main(argv=None):
         .pipe(clean_data)
         .pipe(create_vars)
         .pipe(select_sample)
-        .pipe(validate_data)
     )
     write_data(df, args.output_path)
+    validate_data(df)
 
     table = selection_table(sample_counts)
     tbl_path = get_table_path(sample_name)
