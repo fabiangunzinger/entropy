@@ -49,7 +49,7 @@ def validate_data(df):
     if not df.empty:
         for func in validator_funcs:
             func(df)
-    print('All validation tests passed.')
+    print('All validation checks passed.')
     return df
 
 
