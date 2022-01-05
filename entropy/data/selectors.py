@@ -99,19 +99,25 @@ def account_balances_available(df):
 
 @selector
 @counter
-def min_spend(df, min_txns=10, min_spend=200):
-    """At least 5 debits totalling \pounds200 per month
+def min_spend(df, min_debits=10, min_spend=200):
+    """At least 10 debits totalling \pounds200 per month
 
     A minimal test to ensure that we observe a user's full financial life.
 
     Doesn't account for missing data in first and last months since these
     months were removed for all users during cleaning.
     """
-    data = df.loc[df.debit, ["user_id", "id", "ym", "amount"]]
-    g = data.groupby(["user_id", "ym"])
-    min_monthly_spend = g.amount.sum().groupby("user_id").min()
-    min_monthly_txns = g.size().groupby("user_id").min()
-    conds = min_monthly_spend.ge(min_spend) & min_monthly_txns.ge(min_txns)
+    d = df.loc[:, ["user_id", "ym", "debit"]]
+    min_monthly_debits = (
+        d.groupby(["user_id", "ym"]).debit.sum().groupby("user_id").min()
+    )
+
+    d = df.loc[df.debit, ["user_id", "ym", "amount"]]
+    min_monthly_spend = (
+        d.groupby(["user_id", "ym"]).amount.sum().groupby("user_id").min()
+    )
+
+    conds = min_monthly_spend.ge(min_spend) & min_monthly_debits.ge(min_debits)
     users = conds[conds].index
     return df.loc[df.user_id.isin(users)]
 
@@ -182,3 +188,5 @@ def add_final_count(df):
     """Final sample
     Add count of final dataset to selection table."""
     return df
+
+
