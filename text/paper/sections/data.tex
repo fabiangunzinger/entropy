@@ -6,8 +6,19 @@
 \subsection{Preprocessing}%
 \label{sub:preprocessing}
 
-Duplicate transactions
+The MDB data is noisy. We perform a number of preprocessign steps to deal with
+that.
 
+\begin{itemize}
+    \item Duplicates handling.
+    \item We trim all variables at the 1-percent level on the upper end of the
+        distribution for variables that take non-negative values only and on
+        both ends of the distribution for all other variables. We trim
+        (replace outliers with missing values) rather than winsorise (replace
+        outliers with the cutoff percentile value) because we believe that
+        outliers result from errors in the data rather than represent genuine
+        information.
+\end{itemize}
 
 \subsection{Sample selection}%
 \label{sub:sample_selection}
