@@ -73,6 +73,14 @@ def income(df):
 
 
 @creator
+def age(df):
+    """Adds age for each user."""
+    df['user_age'] = 2021 - df.user_yob
+    df.drop('user_yob', axis=1)
+    return df
+
+
+@creator
 def entropy_spend_tag_counts(df):
     """Adds Shannon Entropy scores based on tag counts of spend txns."""
 
