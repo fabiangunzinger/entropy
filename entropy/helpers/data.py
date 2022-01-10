@@ -76,5 +76,5 @@ def breakdown(df, group_var, group_var_value, component_var, metric="value", net
 def colname_subset(df, pattern):
     """Returns names of all columns that contain pattern."""
     columns = df.columns
-    return columns[columns.str.contains(pattern)]
+    return list(columns[columns.str.contains(pattern)])
 
