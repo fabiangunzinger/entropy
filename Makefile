@@ -23,7 +23,6 @@ $(SAMPLES):
 		$(CLEANDIR)/entropy_$@.parquet
 
 
-
 .PHONY: analysis, analysis_data, figures
 
 analysis: analysis_data
@@ -38,3 +37,9 @@ figures:
 fig_monthly_savings:
 	@echo 'Producing monthly savings figure...'
 	@python -m entropy.figures.monthly_savings $(FIGDATA)
+
+.PHONY: figures fig_user_age_hist
+
+fig_user_age_hist:
+	@python -m entropy.figures.user_age_hist $(FIGDATA)
+
