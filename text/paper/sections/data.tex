@@ -3,8 +3,43 @@
 \section{Data}%
 \label{sec:data}
 
-\subsection{Preprocessing}%
-\label{sub:preprocessing}
+
+\subsection{Dataset description}
+\label{sub:dataset_description}
+Data is provided by Money Dashboard (MDB), a UK-based
+financial management app that allows its users to add accounts from all
+their banks to obtain an integrated view of their finances. Our
+dataset contains information on more than 500 million transactions made between
+2012 and June 2020 by more than 250,000 users. For each transaction, we can see
+the amount, date, and description of the transaction, as well as transaction
+\textit{tags}, classifications added by MDB that indicate the type of the
+transaction (e.g.  `groceries', `insurance'). We also have basic information
+ on each user (e.g. year of birth, postcode sector) as well information about
+each bank account (e.g. type of account, date added).
+
+The main advantages of the data for the study of consumer financial behaviour
+are its high (transaction-level) frequency, that it is automatically
+collected and updated and thus less prone to errors and unaffected by biases
+that bedevil survey measures, and that it offers a view of consumers' entire
+financial life across all their accounts, rather than just a view of their
+accounts held at a single bank (provided they added all their accounts to MDB).
+
+The main limitation is the non-representativeness of the sample relative to the
+population as a whole. Financial management apps are known to be used
+disproportionally by men, younger people, and people of higher socioeconomic
+status \citep{carlin2019generational,mas2014money}. Also, as pointed out in
+\citet{gelman2014harnessing}, a willingness to share financial information with
+a third party might not only select on demographic characteristics, but also
+for an increased need for financial management, or, one could argue, for a
+higher degree of financial sophistication. However, while
+non-representativeness could partially be addressed by re-weighting the sample,
+as was done in \citet{bhourquin2020effects}, it is not of much consequence for
+our purpose here, since our ability to infer behaviour traits from transaction
+data is not dependent on having a representative sample of people.
+
+
+\subsection{Preprocessing and sample selection}%
+\label{sub:preprocessing_and_sample_selection}
 
 The MDB data is noisy. We perform a number of preprocessign steps to deal with
 that.
@@ -20,29 +55,26 @@ that.
         information.
 \end{itemize}
 
-\subsection{Sample selection}%
-\label{sub:sample_selection}
 
-\begin{table}[ht]
+\begin{table}[H]
 \caption{Sample selection}\label{tab:selection}
 \input{\tabdir/sample_selection_XX7.tex}
 \end{table}
 
 
-\subsection{Dataset description}
-\label{sub:dataset_description}
-Data is provided by Money Dashboard (MDB), a UK-based
-financial management app that allows its users to add accounts from all
-their banks to obtain an integrated view of their finances. Our
-dataset contains information on more than 500 million transactions made between
-2012 and June 2020 by more than 250,000 users. For each transaction, we can see
-the amount, date, and description of the transaction, as well as transaction
-\textit{tags}, classifications added by MDB that indicate the type of the
-transaction (e.g.  `groceries', `insurance'). We also have basic information
- on each user (e.g. year of birth, postcode sector) as well information about
-each bank account (e.g. type of account, date added).
+\subsection{Summary statistics}%
+\label{sub:summary_statistics}
 
-\begin{figure}
+The four panels in Figure~\ref{fig:sumstats} provide an overview of
+demographic characteristics of our sample. It makes clear that Money Dashboard
+users are not a representative sample of the UK population: they are
+predominantly males in their thirties who live in London or the South East and
+are relatively well off (the income distribution is shifted to the right
+relative to the UK as a whole).\footnote{To calculate incomes, we broadly
+    follow \citet{hacioglu2020distributional} in defining total income as the
+sum of earnings, pension income, benefits, and other income.} 
+
+\begin{figure}[H]
     \caption{Demographic characteristics of Money Dashboard users}
     \label{fig:sumstats}
     \begin{center}
@@ -53,48 +85,7 @@ each bank account (e.g. type of account, date added).
     \end{center}
 \end{figure}
 
-The main advantages of the data for the study of consumer financial behaviour
-are its high (transaction-level) frequency, that it is automatically
-collected and updated and thus less prone to errors and unaffected by biases
-that bedevil survey measures, and that it offers a view of consumers' entire
-financial life across all their accounts, rather than just a view of their
-accounts held at a single bank (provided they added all their accounts to MDB).
-
-The main limitation is the non-representativeness of the sample relative to the
-population as a whole. Financial management apps are known to be used
-disproportionally by men, younger people, and people of higher socioeconomic
-status \citep{carlin2019generational,mas2014money}, a fact that is reflected in
-our data. The four panels in Figure~\ref{fig:sumstats} provide an overview of
-demographic characteristics of our sample. It makes clear that Money Dashboard
-users are not a representative sample of the UK population: they are
-predominantly males in their thirties who live in London or the South East and
-are relatively well off (the income distribution is shifted to the right
-relative to the UK as a whole).\footnote{To calculate incomes, we broadly follow
-    \citet{hacioglu2020distributional} in defining total income as the sum of
-    earnings, pension income, benefits, and other income.
-    % We define these four
-    % categories using the following tags: income: \textit{Salary or Wages
-    % (Main)}, \textit{Salary or Wages (Other)}, and \textit{Salary (secondary)}
-    % Pension income: \textit{Pension - other}, \textit{Pension}, \textit{Work
-    % pension}, \textit{State pension}, \textit{Pension or Investments}: Benefits:
-    % \textit{Benefits}, \textit{Family benefits}, \textit{Job seekers benefits},
-    % \textit{Other benefits}, \textit{Incapacity benefits}: Other income:
-    % \textit{Income}, \textit{Irregular Income or Gifts}, \textit{Miscellaneous
-    % income - other}, \textit{Interest income}, \textit{Rental Income},
-% \textit{Investment income - other}, \textit{Rental income (whole property)},
-% \textit{Loan or Credit Income}, \textit{Bond income}, \textit{Dividend}.
-} Also,
-as pointed out in \citet{gelman2014harnessing}, a willingness to share financial
-information with a third party might not only select on demographic
-characteristics, but also for an increased need for financial management, or,
-one could argue, for a higher degree of financial sophistication. However, while
-non-representativeness could partially be addressed by re-weighting the sample,
-as was done in \citet{bhourquin2020effects}, it is not of much consequence for
-our purpose here, since our ability to infer behaviour traits from transaction
-data is not dependent on having a representative sample of people.
-
-
-\begin{figure}[!ht]
+\begin{figure}[H]
     \center \newcommand\width{.9\textwidth} \caption{Monthly
         transactions by account type}    \label{fig:monthly_txns}
         \begin{center}
@@ -115,23 +106,42 @@ data is not dependent on having a representative sample of people.
         \end{center}
 \end{figure}
 
-
-\begin{table}[ht]
+\begin{table}[H]
 \caption{Summary statistics}\label{tab:sumstats}
 \input{\tabdir/sumstats.tex}
 \end{table}
 
 
-
 \subsection{Dependent variable}%
 \label{sub:dependent_variable}
 
+There is no single variable that captures an indiviual's monthly savings.
+Instead, we capture savings by looking at account balances and
+flows into savings accounts. Specifically, we focus on the following 
+measures, each defined at the user-month level.
+
 \begin{itemize}
-    \item Add notes on excluding non-standing orders from ipynb.
+    \item Mean balance across all savings accounts
+
+    \item Mean balance across all savings and current accounts
+
+    \item Total inflows into savings accounts
+
+    \item Net inflows (inflows minuts outflows) into savings accounts
 \end{itemize}
 
-\begin{figure}[ht]
+\edit{todo: decide whether to scale inflows by monthly income}
+ 
+We calculate savings account inflows as the sum of all credits that are not
+identified as interest payments into a user's savings accounts. We would expect
+that it is particularly non-standing-order transactions into savings accounts
+that are related to entropy, and it might thus be reasonable to exclude
+standing orders. However, while we cannot perfectly identify standing orders,
+they seem to account only for a small proportion of all savings account
+transfers and are thus unlikely to affect our results. Because of that, we do
+not exclude them.
 
+\begin{figure}[H]
     \center \newcommand\width{\textwidth} \caption{Monthly flows in and out of savings
     accounts}
     \label{fig:monthly_savings}
@@ -141,28 +151,7 @@ data is not dependent on having a representative sample of people.
 of a users's savings accounts. Zero net flows represent
 months where inflows are either perfectly balanced by outflows or where there
 were no flows at all.}
-
 \end{figure}
-
-Types of savings:
-
-\begin{itemize}
-    \item Current account balances
-    \item Savigns account balances
-    \item ISA
-\end{itemize}
-
-Types of balances, from \citet{becker2017does}, who treats balance at end of
-each month as observations:
-
-\begin{itemize}
-    \item Current account balance
-    \item Debit balance (savings and current account balance)
-    \item Pure savings (savings account balance only)
-    \item Credit balance (loans and negative current account)
-    \item Pure credit (loans only)
-    \item Wealth held (debit - credit balance)
-\end{itemize}
 
 
 \subsection{Independent variable}%
@@ -201,7 +190,7 @@ Spending entropy:
 
 \end{itemize}
 
-\begin{figure}[ht]
+\begin{figure}[H]
     \center \newcommand\width{\textwidth} \caption{Transactions distributions}
     \label{fig:entropy_dist}
     \includegraphics[width=\width]{\figdir/txns_breakdowns_and_entropy.png}
