@@ -21,6 +21,10 @@ def inspect(df, nrows=2):
     display(df.head(nrows))
 
 
+def read_analysis_data(sample='XX7'):
+    fp = f's3://3di-project-entropy/analysis_data_{sample}.parquet'
+    return ha.read_parquet(fp)
+
 @hh.timer
 def read_sample(sample):
     fp = f"s3://3di-project-entropy/entropy_{sample}.parquet"
