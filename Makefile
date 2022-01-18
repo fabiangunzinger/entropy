@@ -29,6 +29,7 @@ $(SAMPLES):
 analysis: analysis_data
 
 analysis_data:
+	@echo 'Producing analysis data...'
 	@python -m entropy.analysis.make_analysis_data
 
 figures:

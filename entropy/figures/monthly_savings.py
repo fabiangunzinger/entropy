@@ -68,8 +68,8 @@ def make_figure(df):
 
 @hh.timer
 def main(df):
-    data = make_data(df)
-    fig, ax = make_figure(data)
+    # data = make_data(df)
+    fig, ax = make_figure(df)
     return fig
 
 

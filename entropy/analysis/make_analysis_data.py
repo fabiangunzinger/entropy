@@ -148,6 +148,5 @@ if __name__ == '__main__':
     fp_txn= f's3://3di-project-entropy/entropy_{SAMPLE}.parquet'
     fp_analysis = f"s3://3di-project-entropy/analysis_data_{SAMPLE}.parquet"
     txn_data = ha.read_parquet(fp_txn)
-    print(txn_data.info())
     analysis_data = main(txn_data)
     ha.write_parquet(analysis_data, fp_analysis, index=True)
