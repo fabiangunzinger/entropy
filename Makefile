@@ -13,9 +13,8 @@ test:
 	python -m pytest
 
 
-.PHONY: all
-all: $(SAMPLES)
-
+.PHONY: mdb_data
+mdb_data: $(SAMPLES)
 
 $(SAMPLES):
 	@python -m entropy.data.make_data\
