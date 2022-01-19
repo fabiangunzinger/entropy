@@ -114,6 +114,7 @@ def tag_monthly_spend(df):
 @column_adder
 def constant_vars(df):
     """Add variables that are constant at the user-month level."""
+    df = df.copy()
     df["age"] = df.date.dt.year - df.user_yob
     df["log_income"] = np.log(df.income)
     cols = [

@@ -23,13 +23,21 @@ $(SAMPLES):
 		$(CLEANDIR)/entropy_$@.parquet
 
 
-.PHONY: analysis, analysis_data, figures
+.PHONY: analysis analysis_data figures
 
-analysis: analysis_data
+analysis: analysis_data sumstats_table
 
 analysis_data:
-	@echo 'Producing analysis data...'
+	@printf '\nProducing analysis data...\n'
 	@python -m entropy.analysis.make_analysis_data
+
+sumstats_table:
+	@printf '\nProducing sumstats table...\n'
+	@python -m entropy.analysis.sumstats_table
+
+
+
+
 
 figures:
 	@python -m entropy.figures.figures $(FIGDATA)
