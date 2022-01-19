@@ -81,8 +81,8 @@ def income(df):
 @creator
 def age(df):
     """Adds age for each user."""
-    df['user_age'] = 2021 - df.user_yob
-    df.drop('user_yob', axis=1)
+    df["user_age"] = 2021 - df.user_yob
+    df.drop("user_yob", axis=1)
     return df
 
 
@@ -141,7 +141,7 @@ def _make_region_lookup_table(**kwargs):
     pcsector = _get_pcsector(**kwargs)
     df = pcsector.merge(region, how="inner", on="region_code", validate="m:1")
     df["region_code"] = df.region_code.astype("category")
-    df = df[['pcsector', 'region']]
+    df = df[["pcsector", "region"]]
     filename = "region_lookup_table.parquet"
     filepath = os.path.join(config.AWS_BUCKET, filename)
     ha.write_parquet(df, filepath)
@@ -159,19 +159,7 @@ def _get_regions_lookup_table():
         return _make_region_lookup_table()
 
 
+@creator
 def region_name(df):
-    pass
-
-def make_data(df):
-    region = _get_regions_lookup_table()
-    user_pcsector = (
-        df.groupby("user_id")
-        .user_postcode.first()
-        .astype("object")
-        .str.replace(" ", "")
-        .str.upper()
-        .rename("pcsector")
-        .reset_index()
-    )
-    df = user_pcsector.merge(region, how="left", on="pcsector", validate="m:1")
-    return df.region.value_counts(ascending=True)
+    regions = _get_regions_lookup_table().rename(columns={"pcsector": "user_postcode"})
+    return df.merge(regions, how="left", on="user_postcode", validate="m:1")
