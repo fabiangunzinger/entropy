@@ -119,11 +119,9 @@ def constant_vars(df):
     df["log_income"] = np.log(df.income)
     cols = [
         "entropy_sptac",
-        "income",
         "log_income",
         "user_female",
         "age",
-        "region",
     ]
     return df.groupby(idx_cols)[cols].first()
 
@@ -145,11 +143,11 @@ def main(df):
     return data
 
 
-if __name__ == "__main__":
-
-    SAMPLE = "XX7"
-    fp_txn = f"s3://3di-project-entropy/entropy_{SAMPLE}.parquet"
-    fp_analysis = f"s3://3di-project-entropy/analysis_data.parquet"
+if __name__ == '__main__':
+    
+    SAMPLE = 'XX7'
+    fp_txn= f's3://3di-project-entropy/entropy_{SAMPLE}.parquet'
+    fp_analysis = f"s3://3di-project-entropy/analysis_data_{SAMPLE}.parquet"
     txn_data = ha.read_parquet(fp_txn)
     analysis_data = main(txn_data)
     ha.write_parquet(analysis_data, fp_analysis, index=True)
