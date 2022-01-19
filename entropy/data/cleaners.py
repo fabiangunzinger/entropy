@@ -237,6 +237,7 @@ def clean_description(df):
     'o2', and '14jan' remain unchanged).
     """
     kwargs = dict(repl=" ", regex=True)
+    df['desco'] = df.desc
     df["desc"] = (
         df.desc.str.replace(r"-\s(\w\s)?.{2,3}$", **kwargs)
         .str.replace(fr"[{string.punctuation}]", **kwargs)
