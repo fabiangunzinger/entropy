@@ -132,9 +132,8 @@ def income(df):
 def demographics(df):
     """Add demographic variable."""
     df["age"] = df.date.dt.year - df.user_yob
-    cols = ['user_female', 'age', 'region']
+    cols = ["user_female", "age", "region"]
     return df.groupby(idx_cols)[cols].first()
-
 
 
 def main(df):
@@ -143,7 +142,7 @@ def main(df):
 
 if __name__ == "__main__":
 
-    SAMPLE = "777"
+    SAMPLE = "XX7"
     fp_txn = f"s3://3di-project-entropy/entropy_{SAMPLE}.parquet"
     fp_analysis = f"s3://3di-project-entropy/analysis_data.parquet"
     txn_data = ha.read_parquet(fp_txn)
