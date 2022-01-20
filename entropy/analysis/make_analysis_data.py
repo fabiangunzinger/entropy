@@ -20,10 +20,6 @@ def column_adder(func):
     return func
 
 
-def trim_columns_upper(df, pct=0, ends="upper"):
-    return df.apply(lambda x: hd.trim(x, pct=pct))
-
-
 @column_adder
 def obs_count(df):
     return df.groupby(idx_cols).id.count().rename("obs")
@@ -49,9 +45,10 @@ def account_balances(df):
         .groupby(["user_id", "account_type"])
         .balance.resample("m")
         .mean()
-        # reformat
+        # reformat and trim
         .unstack(level="account_type")
         .rename(columns={"current": "balance_ca", "savings": "balance_sa"})
+        .apply(hd.trim, pct=1, how="both")
     )
 
 
@@ -83,6 +80,7 @@ def savings_accounts_flows(df):
             sa_scaled_net_inflows=lambda df: df.sa_net_inflows / (df.income / 12),
         )
         .drop(columns="income")
+        .apply(hd.trim, pct=1, how="both")
     )
 
 
@@ -96,6 +94,7 @@ def total_monthly_spend(df):
         .amount.sum()
         .apply(np.log)
         .rename("total_monthly_spend")
+        .pipe(hd.trim, pct=1, how="both")
     )
 
 
@@ -106,48 +105,47 @@ def tag_monthly_spend(df):
     df["tag"] = df.tag.cat.rename_categories(lambda x: "tag_spend_" + x)
     mask = df.tag_group.eq("spend")
     group_cols = idx_cols + ["tag"]
-    df = df[mask].groupby(group_cols, observed=True).amount.sum().unstack().fillna(0)
+    df = (
+        df[mask]
+        .groupby(group_cols, observed=True)
+        .amount.sum()
+        .unstack()
+        .fillna(0)
+        .apply(hd.trim, pct=1, how="both")
+    )
     row_totals = df.sum(1)
     return df.div(row_totals, axis=0)
 
 
 @column_adder
-def constant_vars(df):
-    """Add variables that are constant at the user-month level."""
-    df = df.copy()
-    df["age"] = df.date.dt.year - df.user_yob
+def income(df):
+    """Add income variables."""
     df["log_income"] = np.log(df.income)
-    cols = [
-        "entropy_sptac",
-        "log_income",
-        "user_female",
-        "age",
-    ]
+    return (
+        df.groupby(idx_cols)[["income", "log_income"]]
+        .first()
+        .apply(hd.trim, pct=1, how="upper")
+    )
+
+
+@column_adder
+def demographics(df):
+    """Add demographic variable."""
+    df["age"] = df.date.dt.year - df.user_yob
+    cols = ['user_female', 'age', 'region']
     return df.groupby(idx_cols)[cols].first()
 
 
-def trim_columns(df, col_names, **kwargs):
-    """Returns df with trimmed values for selected columns."""
-    df = df.copy()
-    df[col_names] = df[col_names].apply(hd.trim, **kwargs)
-    return df
-
 
 def main(df):
-    data = pd.concat((func(df) for func in column_makers), axis=1)
-
-    colnames_trim_upper = hd.colname_subset(data, "sa_(?:scaled_)?(?:inflows|outflows)")
-    colnames_trim_both = hd.colname_subset(data, "balance|sa_scaled|entropy|spend")
-    data = trim_columns(data, colnames_trim_upper, how="upper", pct=1)
-    data = trim_columns(data, colnames_trim_both, how="both", pct=1)
-    return data
+    return pd.concat((func(df) for func in column_makers), axis=1)
 
 
-if __name__ == '__main__':
-    
-    SAMPLE = 'XX7'
-    fp_txn= f's3://3di-project-entropy/entropy_{SAMPLE}.parquet'
-    fp_analysis = f"s3://3di-project-entropy/analysis_data_{SAMPLE}.parquet"
+if __name__ == "__main__":
+
+    SAMPLE = "777"
+    fp_txn = f"s3://3di-project-entropy/entropy_{SAMPLE}.parquet"
+    fp_analysis = f"s3://3di-project-entropy/analysis_data.parquet"
     txn_data = ha.read_parquet(fp_txn)
     analysis_data = main(txn_data)
     ha.write_parquet(analysis_data, fp_analysis, index=True)
