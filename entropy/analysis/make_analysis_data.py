@@ -1,6 +1,7 @@
 """
 Create dataset used for analysis.
 """
+import collections
 
 import numpy as np
 import pandas as pd
@@ -12,7 +13,10 @@ import entropy.helpers.aws as ha
 month = pd.Grouper(key="date", freq="m")
 idx_cols = ["user_id", month]
 
+Item = collections.namedtuple('Item', ('func', 'kwargs'))
+
 column_makers = []
+control_variables = []
 
 
 def column_adder(func):
@@ -141,10 +145,11 @@ def txn_counts(df):
     """Calculates number of txns per user-month per account type."""
     group_cols = idx_cols + ["account_type"]
     return (
-        df.groupby(group_cols)
+        df.groupby(group_cols, observed=True)
         .size()
         .unstack()[["current", "savings"]]
         .rename(columns=lambda x: "txn_count_" + x[0] + "a")
+        .apply(hd.trim, pct=1, how='upper')
     )
 
 
@@ -154,9 +159,11 @@ def main(df):
 
 if __name__ == "__main__":
 
-    SAMPLE = "XX7"
-    fp_txn = f"s3://3di-project-entropy/entropy_{SAMPLE}.parquet"
-    fp_analysis = f"s3://3di-project-entropy/analysis_data.parquet"
-    txn_data = ha.read_parquet(fp_txn)
-    analysis_data = main(txn_data)
-    ha.write_parquet(analysis_data, fp_analysis, index=True)
+    print(column_makers)
+
+#     SAMPLE = "777"
+#     fp_txn = f"s3://3di-project-entropy/entropy_{SAMPLE}.parquet"
+#     fp_analysis = f"s3://3di-project-entropy/analysis_data.parquet"
+#     txn_data = ha.read_parquet(fp_txn)
+#     analysis_data = main(txn_data)
+#     ha.write_parquet(analysis_data, fp_analysis, index=True)

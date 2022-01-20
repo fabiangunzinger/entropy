@@ -1,4 +1,5 @@
 import argparse
+import collections
 import functools
 import os
 import sys
@@ -15,94 +16,90 @@ import entropy.helpers.aws as ha
 import entropy.helpers.data as hd
 import entropy.figures.helpers as fh
 
+Figure = collections.namedtuple('Figure', ('func', 'filename'))
+
+figure_funcs = []
+
+# def figure(func, **kwargs):
+#     def wrapper(func):
+#         figure_funcs.append(Figure(func, kwargs)
+
+    # figure_funcs.append(func)
+    # return func
+    
+
+def parse_args(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--fig", type=str, help="Function name of figure to create.")
+    return parser.parse_args(argv)
 
 
-def user_income_hist(df, write=True):
-    """Plots histogram of annual user incomes."""
-    from matplotlib.ticker import StrMethodFormatter
+@figure('sample_description.png')
+def sample_description(df, write=True):
+    """Creates a 2x2 figure with basic user demographic info."""
+    figname = "sample_description.png"
+    colour = "blue"
+    g = df.groupby("user_id")
+    fig, ax = plt.subplots(2, 2)
 
-    def make_data(df):
-        incomes = df.groupby(["user_id", df.date.dt.year]).income.first()
-        return incomes[incomes.between(0, 150_000)]
+    data = g.age.first()
+    bins = np.linspace(20, 65, 46) - 0.5
+    sns.histplot(data, bins=bins, color=colour, ax=ax[0, 0])
+    fh.set_axis_labels(ax[0, 0], "Age", "Number of users")
 
-    def draw_plot(df):
-        fix, ax = plt.subplots()
-        ax = sns.histplot(df)
-        return fix, ax
+    data = g.income.last()
+    sns.histplot(data, color=colour, ax=ax[0, 1])
+    ax[0, 1].xaxis.set_major_formatter(mpl.ticker.StrMethodFormatter("{x:,.0f}"))
+    fh.set_axis_labels(ax[0, 1], "Income (£)", "Number of users")
 
-    def set_xtick_labels(ax):
-        ax.xaxis.set_major_formatter(StrMethodFormatter("{x:,.0f}"))
+    data = df.groupby("user_id").region.first().value_counts(ascending=True)
+    data.plot(kind="barh", color=colour, ax=ax[1, 0])
+    fh.set_axis_labels(ax[1, 0], "Number of users", "")
 
-    data = make_data(df)
-    fig, ax = draw_plot(data)
+    gender_names = {1: "Female", 0: "Male"}
+    data = g.user_female.first().map(gender_names).value_counts()
+    data.plot(kind="bar", color=colour, rot=0, ax=ax[1, 1])
+    fh.set_axis_labels(ax[0, 1], "", "Number of users")
+
     fh.set_style()
     fh.set_size(fig)
-    fh.set_axis_labels(ax, "Yearly income (£)", "Number of users")
-    set_xtick_labels(ax)
     if write:
-        fh.save_fig(fig, "user_income_hist.png")
+        fh.save_fig(fig, figname)
 
 
-def user_region_distr(df, write=True):
-    """Plots histogram of user region."""
-
-    def _get_regions_lookup_table():
-        """Returns region lookup table."""
-        fs = s3fs.S3FileSystem(profile=config.AWS_PROFILE)
-        filename = "region_lookup_table.parquet"
-        filepath = os.path.join(config.AWS_BUCKET, filename)
-        if fs.exists(filepath):
-            return aws.read_parquet(filepath)
-        else:
-            return helpers.make_region_lookup_table()
+def num_txns_by_account_type(df, write=True):
+    """Plots boxenplot with number of monthly transactions by account type."""
 
     def make_data(df):
-        region = _get_regions_lookup_table()
-        user_pcsector = (
-            df.groupby("user_id")
-            .user_postcode.first()
-            .astype("object")
-            .str.replace(" ", "")
-            .str.upper()
-            .rename("pcsector")
+        mask = df.account_type.isin(["current", "credit card", "savings"])
+        return (
+            df.loc[mask]
+            .set_index("date")
+            .groupby(["account_type", "account_id"], observed=True)
+            .resample("M")
+            .id.count()
+            .rename("num_txns")
             .reset_index()
         )
-        df = user_pcsector.merge(region, how="left", on="pcsector", validate="m:1")
-        return df.region.value_counts(ascending=True)
 
-    def make_figure(data):
+    def make_figure(df):
         fig, ax = plt.subplots()
-        data.plot(kind="barh")
+        order = ["current", "credit card", "savings"]
+        ax = sns.boxenplot(data=df, x="num_txns", y="account_type", order=order)
         return fig, ax
 
-    data = make_data(df)
-    fig, ax = make_figure(data)
-    fh.set_style()
+    def set_ytick_labels(ax):
+        # capitalise first letter of, and add 'account' suffix to, ytick labels
+        to_label = lambda x: " ".join([x[0].upper() + x[1:], "accounts"])
+        ytick_labels = [to_label(i.get_text()) for i in ax.get_yticklabels()]
+        ax.set_yticklabels(ytick_labels)
+
+    fig, ax = make_figure(make_data(df))
+    set_ytick_labels(ax)
+    fh.set_axis_labels(ax, xlabel="Number of transactions per month", ylabel="")
     fh.set_size(fig)
-    fh.set_axis_labels(ax, xlabel="Number of users", ylabel="")
     if write:
-        fh.save_fig(fig, "user_region_distr.png")
-
-
-def user_gender_distr(df, write=True):
-    """Plots distribution of user gender."""
-
-    def make_data(df):
-        labels = {0: "Male", 1: "Female"}
-        return df.groupby("user_id").user_female.first().map(labels).value_counts()
-
-    def make_figure(data):
-        fig, ax = plt.subplots()
-        data.plot(kind="bar", rot=0)
-        return fig, ax
-
-    data = make_data(df)
-    fig, ax = make_figure(data)
-    fh.set_style()
-    fh.set_size(fig)
-    fh.set_axis_labels(ax, xlabel="", ylabel="Number of users")
-    if write:
-        fh.save_fig(fig, "user_gender_distr.png")
+        fh.save_fig(fig, "num_txns_by_account_type.png")
 
 
 def balances_by_account_type(df, write=True, **kwargs):
@@ -142,41 +139,6 @@ def balances_by_account_type(df, write=True, **kwargs):
     fh.set_size(fig)
     if write:
         fh.save_fig(fig, "balances_by_account_type.png")
-
-
-def num_txns_by_account_type(df, write=True):
-    """Plots boxenplot with number of monthly transactions by account type."""
-
-    def make_data(df):
-        mask = df.account_type.isin(["current", "credit card", "savings"])
-        return (
-            df.loc[mask]
-            .set_index("date")
-            .groupby(["account_type", "account_id"], observed=True)
-            .resample("M")
-            .id.count()
-            .rename("num_txns")
-            .reset_index()
-        )
-
-    def make_figure(df):
-        fig, ax = plt.subplots()
-        order = ["current", "credit card", "savings"]
-        ax = sns.boxenplot(data=df, x="num_txns", y="account_type", order=order)
-        return fig, ax
-
-    def set_ytick_labels(ax):
-        # capitalise first letter of, and add 'account' suffix to, ytick labels
-        to_label = lambda x: " ".join([x[0].upper() + x[1:], "accounts"])
-        ytick_labels = [to_label(i.get_text()) for i in ax.get_yticklabels()]
-        ax.set_yticklabels(ytick_labels)
-
-    fig, ax = make_figure(make_data(df))
-    set_ytick_labels(ax)
-    fh.set_axis_labels(ax, xlabel="Number of transactions per month", ylabel="")
-    fh.set_size(fig)
-    if write:
-        fh.save_fig(fig, "num_txns_by_account_type.png")
 
 
 def txns_breakdowns_and_entropy(df, write=True):
@@ -235,8 +197,8 @@ def txns_breakdowns_and_entropy(df, write=True):
 
 def monthly_savings(df):
     """Plots histograms of savings account flows."""
-    pct_histplot = functools.partial(sns.histplot, stat='percent')
-    columns = ['sa_scaled_inflows', 'sa_scaled_outflows', 'sa_scaled_net_inflows']
+    pct_histplot = functools.partial(sns.histplot, stat="percent")
+    columns = ["sa_scaled_inflows", "sa_scaled_outflows", "sa_scaled_net_inflows"]
     xlabels = {
         "sa_scaled_outflows": "Outflows (% of monthly income)",
         "sa_scaled_inflows": "Inflows (% of monthly income)",
@@ -246,7 +208,7 @@ def monthly_savings(df):
 
     fig, ax = plt.subplots(2, 3)
     for i, col in enumerate(columns):
-        data = df[col].pipe(hd.trim, pct=1, how='both')
+        data = df[col].pipe(hd.trim, pct=1, how="both")
         pct_histplot(x=data, ax=ax[0, i])
         ax[0, i].set(xlabel="", ylabel=ylabel)
         data = data[data != 0]
@@ -255,6 +217,14 @@ def monthly_savings(df):
     fh.set_style()
     fh.set_size(fig, height=3)
     return fig, ax
+
+
+def main(argv=None):
+    if argv is None:
+        argv = sys.argv[1:]
+    args = parse_args(argv)
+
+
 
 
 # if __name__ == "__main__":
