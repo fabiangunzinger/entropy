@@ -2,8 +2,7 @@ SHELL = /bin/sh
 
 RAWDIR := s3://3di-data-mdb/raw
 CLEANDIR := s3://3di-project-entropy
-SAMPLES := 000 777 XX7
-TESTSAMPLE := 000
+SAMPLES := 777 XX7
 FIGDATA := s3://3di-project-entropy/entropy_XX7.parquet
 
 
