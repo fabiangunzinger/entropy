@@ -119,7 +119,7 @@ def tag_monthly_spend(df):
 
 @column_adder
 def income(df):
-    """Add income variables."""
+    """Adds income variables."""
     df["log_income"] = np.log(df.income)
     return (
         df.groupby(idx_cols)[["income", "log_income"]]
@@ -130,10 +130,22 @@ def income(df):
 
 @column_adder
 def demographics(df):
-    """Add demographic variable."""
+    """Adds demographic variable."""
     df["age"] = df.date.dt.year - df.user_yob
     cols = ["user_female", "age", "region"]
     return df.groupby(idx_cols)[cols].first()
+
+
+@column_adder
+def txn_counts(df):
+    """Calculates number of txns per user-month per account type."""
+    group_cols = idx_cols + ["account_type"]
+    return (
+        df.groupby(group_cols)
+        .size()
+        .unstack()[["current", "savings"]]
+        .rename(columns=lambda x: "txn_count_" + x[0] + "a")
+    )
 
 
 def main(df):
