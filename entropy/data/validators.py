@@ -43,4 +43,23 @@ def no_gaps_and_min_obs(df):
     assert user_month_obs.min() >= 5
 
 
+@validator
+def val_current_and_savings_account(df):
+    min_accounts = df.groupby(["user_id"]).account_type.value_counts().unstack().min()
+    assert min_accounts['current'] > 0
+    assert min_accounts['savings'] > 0
+
+
+@validator
+def val_min_number_of_months(df, min_months):
+    assert df.groupby('user_id').ym.nunique().min() >= min_months
+
+
+@validator
+def val_account_balances_available(df):
+    g = df[df.account_type.isin(['current', 'savings'])].groupby(["user_id", "account_id"])
+    assert g.latest_balance.min().groupby('user_id').min().notna().all()
+    assert g.account_last_refreshed.min().groupby('user_id').min().gt('1-1-2012').all()
+
+
 

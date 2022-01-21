@@ -25,7 +25,9 @@ def balances(df):
     Daily account balance is calculated as the sum of the cumulative
     balance and the offset, where the offset is the difference between
     the cumulative balance and the actually reported balance on the day
-    of the last refresh or the nearest preceeding date.
+    of the last refresh or the nearest preceeding date. Returns nan if either
+    latest balance isn't available or last refresh data predates the period for
+    which we observe a user.
     """
 
     def helper(g):

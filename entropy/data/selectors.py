@@ -1,8 +1,15 @@
+"""
+Functions to select users for analysis data.
+
+First line in docstring is used in selection table.
+"""
+
 import collections
 import functools
 import re
 import pandas as pd
 
+import entropy.helpers.helpers as hh
 
 selector_funcs = []
 sample_counts = collections.Counter()
@@ -19,24 +26,35 @@ def selector(func=None, **kwargs):
     return wrapper(func) if func else wrapper
 
 
+# def counter(func):
+#     """Count sample after applying function.
+
+#     First line of func docstring is used for description in selection table.
+#     """
+
+#     @functools.wraps(func)
+#     def wrapper(*args, **kwargs):
+#         df = func(*args, **kwargs)
+#         description = func.__doc__.splitlines()[0]
+#         sample_counts.update(
+#             {
+#                 description + "@users": df.user_id.nunique(),
+#                 description + "@accounts": df.account_id.nunique(),
+#                 description + "@txns": df.id.nunique(),
+#                 description + "@value": df.amount.abs().sum() / 1e6,
+#             }
+#         )
+#         return df
+
+#     return wrapper
+
+
+# for dev
 def counter(func):
-    """Count sample after applying function.
-
-    First line of func docstring is used for description in selection table.
-    """
-
-    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         df = func(*args, **kwargs)
-        description = func.__doc__.splitlines()[0]
-        sample_counts.update(
-            {
-                description + "@users": df.user_id.nunique(),
-                description + "@accounts": df.account_id.nunique(),
-                description + "@txns": df.id.nunique(),
-                description + "@value": df.amount.abs().sum() / 1e6,
-            }
-        )
+        print(func.__name__)
+        print(df.user_id.nunique())
         return df
 
     return wrapper
@@ -48,6 +66,16 @@ def add_raw_count(df):
     """Raw sample
     Add count of raw dataset to selection table."""
     return df
+
+
+@selector
+@counter
+def current_and_savings_account(df):
+    """At least one current and one savings account"""
+    s = df.groupby(["user_id", "account_type"]).size().unstack()
+    cond = s.savings.gt(0) & s.current.gt(0)
+    users = cond[cond].index
+    return df[df.user_id.isin(users)]
 
 
 @selector
@@ -81,23 +109,36 @@ def no_missing_months(df):
 def account_balances_available(df):
     """Account balances available
 
-    Retains only users for whom we can calculate running balances for all
-    current and savings accounts. This requires for each account a non-missing
-    'latest_balance' and a valid 'account_last_refreshed_date'. The latter
-    is invalid if it refers to a date prior to the first txn date, which is
-    non-sensical, but happens if MDB have imputed a dummy data such as 
-    1 Jan 1970.
-    """
-    data = df[df.account_type.isin(['current', 'savings'])]
-    g = data.groupby("user_id")
-    latest_balances_available = g.latest_balance.min().notna()
-    valid_last_refresh_dates = g.account_last_refreshed.min() >= g.date.min()
-    cond = latest_balances_available & valid_last_refresh_dates
+    Retains only users for whom we can calculate the balance for all their
+    savings and current accounts."""
+    cond = (
+        df.balance.isna()
+        .groupby([df.user_id, df.account_type])
+        .sum()
+        .unstack()[["savings", "current"]]
+        .sum(1)
+        .eq(0)
+    )
     users = cond[cond].index
     return df[df.user_id.isin(users)]
 
 
 @selector
+@counter
+def min_monthly_grocery_transactions(df, min_txns=4):
+    cond = (
+        (df.tag_auto.eq("food, groceries, household") & df.debit)
+        .groupby([df.user_id, df.ym])
+        .sum()
+        .groupby("user_id")
+        .min()
+        .ge(4)
+    )
+    users = cond[cond].index
+    return df[df.user_id.isin(users)]
+
+
+# @selector
 @counter
 def min_spend(df, min_debits=10, min_spend=200):
     """At least 10 debits totalling \pounds200 per month
@@ -122,7 +163,7 @@ def min_spend(df, min_debits=10, min_spend=200):
     return df.loc[df.user_id.isin(users)]
 
 
-@selector
+# @selector
 @counter
 def current_account(df):
     """At least one current account"""
@@ -136,7 +177,7 @@ def current_account(df):
 
 @selector
 @counter
-def income_pmts(df, income_months_ratio=2 / 3):
+def income_pmts(df, income_months_ratio=2/3):
     """Income in 2/3 of all observed months"""
 
     def helper(g):
@@ -149,8 +190,8 @@ def income_pmts(df, income_months_ratio=2 / 3):
 
 @selector
 @counter
-def income_amount(df, lower=5_000, upper=200_000):
-    """Yearly income between \pounds5k and \pounds200k"""
+def income_amount(df, lower=10_000, upper=500_000):
+    """Yearly income between \pounds10k and \pounds500k"""
     g = df.groupby("user_id")
     min_income = g.income.transform("min")
     max_income = g.income.transform("max")
@@ -162,16 +203,19 @@ def income_amount(df, lower=5_000, upper=200_000):
 def max_accounts(df, max_accounts=10):
     """No more than 10 accounts in any year"""
     year = pd.Grouper(freq="Y", key="date")
-    max_num_accounts_in_year = (
+    cond = (
         df.groupby(["user_id", year])
-        .account_id.transform("nunique")
-        .groupby(df.user_id)
-        .transform(max)
+        .account_id.nunique()
+        .groupby('user_id')
+        .max()
+        .le(max_accounts)
     )
-    return df.loc[max_num_accounts_in_year <= max_accounts]
+    users = cond[cond].index
+    return df[df.user_id.isin(users)]
 
 
-@selector
+
+# @selector
 @counter
 def max_debits(df, max_debits=100_000):
     """Debits of less than \pounds100k each month"""
@@ -190,3 +234,8 @@ def add_final_count(df):
     return df
 
 
+# tmp for dev
+def select_sample(df):
+    for func in selector_funcs:
+        df = func.func(df, **func.kwargs)
+    return df
