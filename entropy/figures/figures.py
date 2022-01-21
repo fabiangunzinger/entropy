@@ -1,5 +1,4 @@
 import argparse
-import collections
 import functools
 import os
 import sys
@@ -16,17 +15,9 @@ import entropy.helpers.aws as ha
 import entropy.helpers.data as hd
 import entropy.figures.helpers as fh
 
-Figure = collections.namedtuple('Figure', ('func', 'filename'))
 
 figure_funcs = []
 
-# def figure(func, **kwargs):
-#     def wrapper(func):
-#         figure_funcs.append(Figure(func, kwargs)
-
-    # figure_funcs.append(func)
-    # return func
-    
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
@@ -34,7 +25,6 @@ def parse_args(argv):
     return parser.parse_args(argv)
 
 
-@figure('sample_description.png')
 def sample_description(df, write=True):
     """Creates a 2x2 figure with basic user demographic info."""
     figname = "sample_description.png"

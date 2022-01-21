@@ -27,6 +27,12 @@ def read_analysis_data():
     return ha.read_parquet(fp)
 
 @hh.timer
+def read_raw_sample(sample):
+    fp = f"s3://3di-data-mdb/raw/mdb_{sample}.parquet"
+    return ha.read_parquet(fp)
+
+
+@hh.timer
 def read_sample(sample):
     fp = f"s3://3di-project-entropy/entropy_{sample}.parquet"
     return ha.read_parquet(fp)
