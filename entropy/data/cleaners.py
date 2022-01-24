@@ -27,19 +27,19 @@ def rename_cols(df):
     new_names = {
         "Account Created Date": "account_created",
         "Account Reference": "account_id",
-        "Derived Gender": "user_gender",
-        "LSOA": "user_lsoa",
-        "MSOA": "user_msoa",
+        "Derived Gender": "gender",
+        "LSOA": "lsoa",
+        "MSOA": "msoa",
         "Merchant Name": "merchant",
-        "Postcode": "user_postcode",
+        "Postcode": "postcode",
         "Provider Group Name": "account_provider",
-        "Salary Range": "user_salary_range",
+        "Salary Range": "salary_range",
         "Transaction Date": "date",
         "Transaction Description": "desc",
         "Transaction Reference": "id",
         "Transaction Updated Flag": "updated_flag",
         "User Reference": "user_id",
-        "Year of Birth": "user_yob",
+        "Year of Birth": "yob",
         "Auto Purpose Tag Name": "tag_auto",
         "Manual Tag Name": "tag_manual",
         "User Precedence Tag Name": "tag_up",
@@ -49,18 +49,25 @@ def rename_cols(df):
 
 
 @cleaner
-def drop_unneeded_vars(df):
-    vars = ["user_lsoa", "user_msoa"]
-    return df.drop(columns=vars)
-
-
-@cleaner
 def clean_headers(df):
     """Converts column headers to snake case."""
     df.columns = (
         df.columns.str.lower().str.replace(r"[\s\.]", "_", regex=True).str.strip()
     )
     return df
+
+
+@cleaner
+def drop_unneeded_vars(df):
+    vars = [
+        "lsoa",
+        "msoa",
+        "salary_range",
+        "data_warehouse_date_created",
+        "data_warehouse_date_last_updated",
+        "updated_flag",
+    ]
+    return df.drop(columns=vars)
 
 
 @cleaner
@@ -89,7 +96,7 @@ def drop_first_and_last_month(df):
 @cleaner
 def lowercase_categories(df):
     """Converts all category values to lowercase to simplify regex searches.
-    
+
     Recasts categories because casting to lowercase can lead to duplicate
     categories.
     """
@@ -110,8 +117,8 @@ def gender_to_female(df):
     Uses float type becuase bool type doesn't handle na values well.
     """
     mapping = {"f": 1, "m": 0, "u": np.nan}
-    df["user_female"] = df.user_gender.map(mapping).astype("float32")
-    return df.drop(columns="user_gender")
+    df["female"] = df.gender.map(mapping).astype("float32")
+    return df.drop(columns="gender")
 
 
 @cleaner
@@ -237,7 +244,7 @@ def clean_description(df):
     'o2', and '14jan' remain unchanged).
     """
     kwargs = dict(repl=" ", regex=True)
-    df['desco'] = df.desc
+    df["desco"] = df.desc
     df["desc"] = (
         df.desc.str.replace(r"-\s(\w\s)?.{2,3}$", **kwargs)
         .str.replace(fr"[{string.punctuation}]", **kwargs)
@@ -328,5 +335,3 @@ def order_and_sort(df):
     order = first + sorted(user) + sorted(account) + sorted(txn)
 
     return df[order].sort_values(["user_id", "date"])
-
-

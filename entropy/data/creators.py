@@ -83,8 +83,8 @@ def income(df):
 @creator
 def age(df):
     """Adds age for each user."""
-    df["user_age"] = 2021 - df.user_yob
-    df.drop("user_yob", axis=1)
+    df["age"] = 2021 - df.yob
+    df.drop("yob", axis=1)
     return df
 
 
@@ -163,5 +163,5 @@ def _get_regions_lookup_table():
 
 @creator
 def region_name(df):
-    regions = _get_regions_lookup_table().rename(columns={"pcsector": "user_postcode"})
-    return df.merge(regions, how="left", on="user_postcode", validate="m:1")
+    regions = _get_regions_lookup_table().rename(columns={"pcsector": "postcode"})
+    return df.merge(regions, how="left", on="postcode", validate="m:1")
