@@ -82,14 +82,14 @@ def savings_accounts_flows(df):
     is_savings_account = df.account_type.eq("savings")
     is_savings_flow = is_not_interest_txn & is_savings_account
     df["amount"] = df.amount.where(is_savings_flow, np.nan)
-    cat_debit = pd.CategoricalDtype(categories=["sa_outflows", "sa_inflows"])
-    df["debit"] = df.debit.astype(cat_debit)
+    df['debit'] = df.debit.map({True: 'sa_outflows', False: 'sa_inflows'})
     group_cols = idx_cols + ["income", "debit"]
     return (
         df.groupby(group_cols)
         .amount.sum()
         .abs()
         .unstack()
+        .fillna(0)
         .reset_index("income")
         .assign(
             sa_net_inflows=lambda df: df.sa_inflows - df.sa_outflows,
