@@ -143,17 +143,18 @@ def validator(df):
     return df
 
 
-def main(df):
-    return pd.concat((func(df) for func in column_makers), axis=1, join="outer").pipe(
-        validator
-    )
+def main(txn_data=None):
+    """Produces analysis data from transactions data."""
+    if txn_data is None:
+        SAMPLE = "XX7"
+        fp_txn = f"s3://3di-project-entropy/entropy_{SAMPLE}.parquet"
+        txn_data = ha.read_parquet(fp_txn)
+    analysis_data = pd.concat((func(txn_data) for func in column_makers), axis=1, join="outer")
+    fp = f"s3://3di-project-entropy/analysis_data.parquet"
+    ha.write_parquet(analysis_data, fp, index=True)
+    validator(analysis_data)
+
 
 
 if __name__ == "__main__":
-
-    SAMPLE = "XX7"
-    fp_txn = f"s3://3di-project-entropy/entropy_{SAMPLE}.parquet"
-    fp_analysis = f"s3://3di-project-entropy/analysis_data.parquet"
-    txn_data = ha.read_parquet(fp_txn)
-    analysis_data = main(txn_data)
-    ha.write_parquet(analysis_data, fp_analysis, index=True)
+    main()
