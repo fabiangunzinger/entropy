@@ -148,12 +148,11 @@ def monthly_income_pmts(df, income_months_ratio=2 / 3):
 
 @selector
 @counter
-def annual_income(df, lower=10_000, upper=500_000):
-    """Yearly income between \pounds10k and \pounds500k"""
+def annual_income(df, min_income=10_000):
+    """Yearly income of at least \pounds10k"""
     g = df.groupby("user_id")
     min_income = g.income.transform("min")
-    max_income = g.income.transform("max")
-    return df.loc[min_income.gt(lower) & max_income.lt(upper)]
+    return df.loc[min_income.ge(min_income)]
 
 
 @selector
