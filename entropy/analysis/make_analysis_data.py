@@ -1,5 +1,6 @@
 """
 Create dataset used for analysis.
+
 """
 import collections
 
@@ -117,15 +118,16 @@ def income(df):
     """Adds income variables."""
     df = df.copy()
     df["log_income"] = np.log(df.income)
-    return df.groupby(idx_cols)[["income", "log_income"]].first()
+    cols = ["income", "log_income"]
+    return df.groupby(idx_cols)[cols].first()
 
 
 @column_adder
 def demographics(df):
     """Adds demographic variable."""
     df = df.copy()
-    df["age"] = df.date.dt.year - df.user_yob
-    cols = ["user_female", "age", "region"]
+    df["age"] = df.date.dt.year - df.yob
+    cols = ["female", "age", "region"]
     return df.groupby(idx_cols)[cols].first()
 
 
@@ -149,7 +151,7 @@ def main(df):
 
 if __name__ == "__main__":
 
-    SAMPLE = "777"
+    SAMPLE = "XX7"
     fp_txn = f"s3://3di-project-entropy/entropy_{SAMPLE}.parquet"
     fp_analysis = f"s3://3di-project-entropy/analysis_data.parquet"
     txn_data = ha.read_parquet(fp_txn)
