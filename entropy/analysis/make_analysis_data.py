@@ -13,8 +13,6 @@ import entropy.helpers.aws as ha
 month = pd.Grouper(key="date", freq="m")
 idx_cols = ["user_id", month]
 
-Item = collections.namedtuple('Item', ('func', 'kwargs'))
-
 column_makers = []
 control_variables = []
 
@@ -26,16 +24,15 @@ def column_adder(func):
 
 @column_adder
 def obs_count(df):
-    return df.groupby(idx_cols).id.count().rename("obs")
+    return df.groupby(idx_cols).size().rename("obs")
 
 
 @column_adder
 def account_balances(df):
     """Calculates average monthly balances for user's savings and current accounts."""
     return (
-        df.loc[df.account_type.isin(["current", "savings"])]
         # daily account balances
-        .groupby(
+        df.groupby(
             ["user_id", "account_type", "account_id", "date"],
             observed=True,
         )
@@ -49,10 +46,14 @@ def account_balances(df):
         .groupby(["user_id", "account_type"])
         .balance.resample("m")
         .mean()
-        # reformat and trim
+        # unstack, ffill months with no txns, then bfill
+        # first user months with no txns
         .unstack(level="account_type")
+        .ffill()
+        .bfill()
+        # keep needed columns and rename
+        .loc[:, ["current", "savings"]]
         .rename(columns={"current": "balance_ca", "savings": "balance_sa"})
-        .apply(hd.trim, pct=1, how="both")
     )
 
 
@@ -63,19 +64,17 @@ def savings_accounts_flows(df):
     Also calculates scaled flows by dividing by users monthly income.
     """
     df = df.copy()
-    df["debit"] = df.debit.replace({True: "sa_outflows", False: "sa_inflows"})
     is_not_interest_txn = ~df.tag_auto.str.contains("interest", na=False)
     is_savings_account = df.account_type.eq("savings")
-    mask = is_not_interest_txn & is_savings_account
+    is_savings_flow = is_not_interest_txn & is_savings_account
+    df["amount"] = df.amount.where(is_savings_flow, np.nan)
+    df["debit"] = df.debit.replace({True: "sa_outflows", False: "sa_inflows"})
     group_cols = idx_cols + ["income", "debit"]
-
     return (
-        df[mask]
-        .groupby(group_cols)
+        df.groupby(group_cols)
         .amount.sum()
         .abs()
         .unstack()
-        .fillna(0)
         .reset_index("income")
         .assign(
             sa_net_inflows=lambda df: df.sa_inflows - df.sa_outflows,
@@ -84,86 +83,75 @@ def savings_accounts_flows(df):
             sa_scaled_net_inflows=lambda df: df.sa_net_inflows / (df.income / 12),
         )
         .drop(columns="income")
-        .apply(hd.trim, pct=1, how="both")
     )
 
 
 @column_adder
-def total_monthly_spend(df):
-    """Calculates log of total spend per user-month."""
-    mask = df.tag_group.eq("spend")
-    return (
-        df[mask]
-        .groupby(idx_cols)
-        .amount.sum()
-        .apply(np.log)
-        .rename("total_monthly_spend")
-        .pipe(hd.trim, pct=1, how="both")
-    )
-
-
-@column_adder
-def tag_monthly_spend(df):
-    """Calculates spend per tag per user-month."""
+def log_monthly_spend(df):
+    """Calculates log of spend per user-month."""
     df = df.copy()
+    is_spend = df.tag_group.eq("spend") & df.debit
+    df["amount"] = df.amount.where(is_spend, np.nan)
+    return df.groupby(idx_cols).amount.sum().apply(np.log).rename("log_monthly_spend")
+
+
+@column_adder
+def tag_monthly_spend_prop(df):
+    """Calculates spend per tag per user-month as proportion of total monthly spend."""
+    df = df.copy()
+    is_spend = df.tag_group.eq("spend") & df.debit
+    df["amount"] = df.amount.where(is_spend, np.nan)
     df["tag"] = df.tag.cat.rename_categories(lambda x: "tag_spend_" + x)
-    mask = df.tag_group.eq("spend")
     group_cols = idx_cols + ["tag"]
-    df = (
-        df[mask]
-        .groupby(group_cols, observed=True)
+    return (
+        df.groupby(group_cols, observed=True)
         .amount.sum()
         .unstack()
         .fillna(0)
-        .apply(hd.trim, pct=1, how="both")
+        .pipe(lambda df: df.div(df.sum(1), axis=0))
     )
-    row_totals = df.sum(1)
-    return df.div(row_totals, axis=0)
 
 
 @column_adder
 def income(df):
     """Adds income variables."""
+    df = df.copy()
     df["log_income"] = np.log(df.income)
-    return (
-        df.groupby(idx_cols)[["income", "log_income"]]
-        .first()
-        .apply(hd.trim, pct=1, how="upper")
-    )
+    return df.groupby(idx_cols)[["income", "log_income"]].first()
 
 
 @column_adder
 def demographics(df):
     """Adds demographic variable."""
+    df = df.copy()
     df["age"] = df.date.dt.year - df.user_yob
     cols = ["user_female", "age", "region"]
     return df.groupby(idx_cols)[cols].first()
 
 
 @column_adder
-def txn_counts(df):
-    """Calculates number of txns per user-month per account type."""
-    group_cols = idx_cols + ["account_type"]
-    return (
-        df.groupby(group_cols, observed=True)
-        .size()
-        .unstack()[["current", "savings"]]
-        .rename(columns=lambda x: "txn_count_" + x[0] + "a")
-        .apply(hd.trim, pct=1, how='upper')
-    )
+def entropy(df):
+    """Adds all entropy variables."""
+    cols = hd.colname_subset(df, "entropy")
+    return df.groupby(idx_cols)[cols].first()
+
+
+def validator(df):
+    assert df.isna().sum().sum() == 0
+    return df
 
 
 def main(df):
-    return pd.concat((func(df) for func in column_makers), axis=1)
+    return pd.concat((func(df) for func in column_makers), axis=1, join="outer").pipe(
+        validator
+    )
 
 
 if __name__ == "__main__":
 
-    print(column_makers)
-
-#     SAMPLE = "777"
-#     fp_txn = f"s3://3di-project-entropy/entropy_{SAMPLE}.parquet"
-#     fp_analysis = f"s3://3di-project-entropy/analysis_data.parquet"
-#     txn_data = ha.read_parquet(fp_txn)
-#     analysis_data = main(txn_data)
-#     ha.write_parquet(analysis_data, fp_analysis, index=True)
+    SAMPLE = "777"
+    fp_txn = f"s3://3di-project-entropy/entropy_{SAMPLE}.parquet"
+    fp_analysis = f"s3://3di-project-entropy/analysis_data.parquet"
+    txn_data = ha.read_parquet(fp_txn)
+    analysis_data = main(txn_data)
+    ha.write_parquet(analysis_data, fp_analysis, index=True)
