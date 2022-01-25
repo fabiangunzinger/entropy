@@ -56,6 +56,8 @@ def balances(df):
     return df.merge(balance, how="left", validate="m:1")
 
 
+@creator
+@hh.timer
 def income(df):
     """
     Adds yearly income for each user.
