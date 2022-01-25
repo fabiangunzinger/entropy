@@ -4,6 +4,7 @@ import string
 import numpy as np
 
 import entropy.data.txn_classifications as tc
+import entropy.helpers.helpers as hh
 
 
 cleaner_funcs = []
@@ -16,6 +17,7 @@ def cleaner(func):
 
 
 @cleaner
+@hh.timer
 def rename_cols(df):
     """Renames columns where needed.
 
@@ -49,6 +51,7 @@ def rename_cols(df):
 
 
 @cleaner
+@hh.timer
 def clean_headers(df):
     """Converts column headers to snake case."""
     df.columns = (
@@ -58,6 +61,7 @@ def clean_headers(df):
 
 
 @cleaner
+@hh.timer
 def drop_unneeded_vars(df):
     vars = [
         "lsoa",
@@ -71,6 +75,7 @@ def drop_unneeded_vars(df):
 
 
 @cleaner
+@hh.timer
 def add_year_month_variable(df):
     """Creates year-month date as helper variable."""
     y = df.date.dt.year * 100
@@ -80,6 +85,7 @@ def add_year_month_variable(df):
 
 
 @cleaner
+@hh.timer
 def drop_first_and_last_month(df):
     """Drops first and last month for each user.
 
@@ -94,6 +100,7 @@ def drop_first_and_last_month(df):
 
 
 @cleaner
+@hh.timer
 def lowercase_categories(df):
     """Converts all category values to lowercase to simplify regex searches.
 
@@ -106,11 +113,13 @@ def lowercase_categories(df):
 
 
 @cleaner
+@hh.timer
 def drop_missing_txn_desc(df):
     return df[df.desc.notna()]
 
 
 @cleaner
+@hh.timer
 def gender_to_female(df):
     """Replaces gender variable with female dummy.
 
@@ -122,6 +131,7 @@ def gender_to_female(df):
 
 
 @cleaner
+@hh.timer
 def credit_debit_to_debit(df):
     """Replaces credit_debit variable with credit dummy."""
     df["debit"] = df.credit_debit.eq("debit")
@@ -129,6 +139,7 @@ def credit_debit_to_debit(df):
 
 
 @cleaner
+@hh.timer
 def sign_amount(df):
     """Makes credits negative."""
     df["amount"] = df.amount.where(df.debit, df.amount.mul(-1))
@@ -136,6 +147,7 @@ def sign_amount(df):
 
 
 @cleaner
+@hh.timer
 def missings_to_nan(df):
     """Converts missing category values to NaN."""
     mbl = "merchant_business_line"
@@ -149,6 +161,7 @@ def missings_to_nan(df):
 
 
 @cleaner
+@hh.timer
 def zero_balances_to_missing(df):
     """Replaces zero latest balances with missings.
 
@@ -180,6 +193,7 @@ def _apply_grouping(grouping, df, col_name):
 
 
 @cleaner
+@hh.timer
 def add_tag(df):
     """Creates custom transaction tags for spends, income, and transfers."""
     df["tag"] = np.nan
@@ -191,6 +205,7 @@ def add_tag(df):
 
 
 @cleaner
+@hh.timer
 def tag_corrections(df):
     """Fix issues with automatic tagging.
 
@@ -224,6 +239,7 @@ def tag_corrections(df):
 
 
 @cleaner
+@hh.timer
 def add_tag_group(df):
     """Groups transactions into income, spend, and transfers."""
     df["tag_group"] = np.nan
@@ -232,7 +248,8 @@ def add_tag_group(df):
     return df
 
 
-@cleaner
+# @cleaner
+@hh.timer
 def clean_description(df):
     """Cleans up txnd description for better duplicate detection.
 
@@ -258,6 +275,7 @@ def clean_description(df):
 
 
 @cleaner
+@hh.timer
 def drop_type1_dups(df):
     """Drops Type 1 duplicates.
 
@@ -269,62 +287,8 @@ def drop_type1_dups(df):
     return df.drop_duplicates(subset=cols)
 
 
-def _potential_type2_dups(df):
-    """Returns desc and duplicate group id for potential Type 2 duplicates."""
-    cols = ["date", "user_id", "account_id", "amount"]
-    mask = df.duplicated(subset=cols, keep=False)
-    assign_group_id = lambda df: df.groupby(cols).ngroup()
-    return df.loc[mask].assign(group=assign_group_id).loc[:, ["desc", "group"]]
-
-
-def _each_word_in_string(words, string):
-    """Tests whether each word from words appears in string.
-    Allows each substring in string to be matched only once.
-    """
-    unmatched = string
-    for w in words:
-        if w not in unmatched:
-            return False
-        unmatched = unmatched.replace(w, "", 1)
-    return True
-
-
-def _type2_dups_indices(g):
-    """Checks for each txn pair in a group whether one txn is a Type 2
-    duplicate of the other, and returns idx of all duplicates in group.
-    """
-    dups = []
-    pairs = list(itertools.combinations(g.index, 2))
-    for first, second in pairs:
-        words = g.loc[first].desc.split()
-        string = g.loc[second].desc
-        if _each_word_in_string(words, string):
-            dups.append(first)
-            break
-        words = g.loc[second].desc.split()
-        string = g.loc[first].desc
-        if _each_word_in_string(words, string):
-            dups.append(second)
-    return dups
-
-
 @cleaner
-def drop_type2_dups(df):
-    """Drops Type 2 duplicates.
-
-    A Type 2 duplicate is a txn whose user id, account id, date, and amount
-    are identical to another txn, and whose txn description is similar to that
-    other txn, where "similar" means that each word in the txn description
-    appears in the description of the other txn.
-    """
-    potential_dups = _potential_type2_dups(df)
-    g = potential_dups.groupby("group")
-    group_dup_indices = g.apply(_type2_dups_indices)
-    dup_indices = group_dup_indices.sum()
-    return df.drop(dup_indices)
-
-
-@cleaner
+@hh.timer
 def order_and_sort(df):
     """Orders columns and sort values."""
     cols = df.columns

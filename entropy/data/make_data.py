@@ -6,8 +6,8 @@ import sys
 import pandas as pd
 
 from entropy import config
-from entropy.helpers import aws
-from entropy.helpers import helpers
+import entropy.helpers.aws as ha
+import entropy.helpers.helpers as hh
 from .cleaners import cleaner_funcs
 from .selectors import selector_funcs, sample_counts
 from .creators import creator_funcs
@@ -23,21 +23,23 @@ def parse_args(argv):
 
 
 def read_data(path):
-    return aws.read_parquet(path)
+    return ha.read_parquet(path)
 
-
+@hh.timer
 def clean_data(df):
     for func in cleaner_funcs:
         df = func(df)
     return df
 
 
+@hh.timer
 def select_sample(df):
     for func in selector_funcs:
         df = func.func(df, **func.kwargs)
     return df
 
 
+@hh.timer
 def create_vars(df):
     if not df.empty:
         for func in creator_funcs:
@@ -54,7 +56,7 @@ def validate_data(df):
 
 
 def write_data(df, path, **kwargs):
-    aws.write_parquet(df, path, **kwargs)
+    ha.write_parquet(df, path, **kwargs)
     return df
 
 
@@ -69,7 +71,7 @@ def get_table_path(sample_name):
     return os.path.join(config.TABDIR, table_name)
 
 
-@helpers.timer
+@hh.timer
 def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
