@@ -23,9 +23,22 @@ def column_adder(func):
     return func
 
 
-@column_adder
+# @column_adder
 def obs_count(df):
     return df.groupby(idx_cols).size().rename("obs")
+
+
+@column_adder
+def txn_counts(df):
+    group_cols = idx_cols + ["account_type"]
+    return (
+        df.groupby(group_cols, observed=True)
+        .size()
+        .unstack()
+        .fillna(0)
+        .loc[:, ["savings", "current"]]
+        .rename(columns=lambda x: f"txn_count_{x[0]}a")
+    )
 
 
 @column_adder
@@ -69,8 +82,8 @@ def savings_accounts_flows(df):
     is_savings_account = df.account_type.eq("savings")
     is_savings_flow = is_not_interest_txn & is_savings_account
     df["amount"] = df.amount.where(is_savings_flow, np.nan)
-    cat_debit = pd.CategoricalDtype(categories=['sa_outflows', 'sa_inflows'])
-    df['debit'] = df.debit.astype(cat_debit)
+    cat_debit = pd.CategoricalDtype(categories=["sa_outflows", "sa_inflows"])
+    df["debit"] = df.debit.astype(cat_debit)
     group_cols = idx_cols + ["income", "debit"]
     return (
         df.groupby(group_cols)
