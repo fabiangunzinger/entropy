@@ -69,7 +69,8 @@ def savings_accounts_flows(df):
     is_savings_account = df.account_type.eq("savings")
     is_savings_flow = is_not_interest_txn & is_savings_account
     df["amount"] = df.amount.where(is_savings_flow, np.nan)
-    df["debit"] = df.debit.replace({True: "sa_outflows", False: "sa_inflows"})
+    cat_debit = pd.CategoricalDtype(categories=['sa_outflows', 'sa_inflows'])
+    df['debit'] = df.debit.astype(cat_debit)
     group_cols = idx_cols + ["income", "debit"]
     return (
         df.groupby(group_cols)
@@ -149,11 +150,12 @@ def main(txn_data=None):
         SAMPLE = "XX7"
         fp_txn = f"s3://3di-project-entropy/entropy_{SAMPLE}.parquet"
         txn_data = ha.read_parquet(fp_txn)
-    analysis_data = pd.concat((func(txn_data) for func in column_makers), axis=1, join="outer")
+    analysis_data = pd.concat(
+        (func(txn_data) for func in column_makers), axis=1, join="outer"
+    )
     fp = f"s3://3di-project-entropy/analysis_data.parquet"
     ha.write_parquet(analysis_data, fp, index=True)
     validator(analysis_data)
-
 
 
 if __name__ == "__main__":

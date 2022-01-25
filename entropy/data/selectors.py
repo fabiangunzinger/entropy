@@ -163,7 +163,7 @@ def demographic_info(df):
 
     Ensures we can calculate control variables for all users.
     """
-    cols = ['yob', 'female', 'postcode']
+    cols = ['yob', 'female', 'region']
     return df.dropna(subset=cols)
 
 
