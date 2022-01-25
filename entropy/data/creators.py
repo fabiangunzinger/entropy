@@ -6,6 +6,7 @@ import pandas as pd
 from scipy.stats import entropy
 
 import entropy.helpers.aws as ha
+import entropy.helpers.helpers as hh
 from entropy import config
 
 
@@ -19,6 +20,7 @@ def creator(func):
 
 
 @creator
+@hh.timer
 def balances(df):
     """Adds running account balances.
 
@@ -54,7 +56,6 @@ def balances(df):
     return df.merge(balance, how="left", validate="m:1")
 
 
-@creator
 def income(df):
     """
     Adds yearly income for each user.
@@ -81,6 +82,7 @@ def income(df):
 
 
 @creator
+@hh.timer
 def age(df):
     """Adds user age at time of transaction."""
     df["age"] = df.date.dt.year - df.yob
@@ -89,25 +91,21 @@ def age(df):
 
 
 @creator
+@hh.timer
 def entropy_spend_tag_counts(df):
-    """Adds Shannon Entropy scores based on tag counts of spend txns."""
+    """Adds Shannon entropy scores based on tag counts of spend txns."""
+    df = df.copy()
+    is_spend = df.tag_group.eq("spend") & df.debit
+    df["tag"] = df.tag.where(is_spend, np.nan)
+    g = df.groupby(["user_id", "ym", "tag"], observed=True)
+    tag_txns = g.size().unstack().fillna(0)
 
-    def calc_entropy(g, num_unique_tags):
-        num_total_txns = len(g)
-        num_txns_by_cat = g.groupby("tag").size()
-        prop_by_cat = (num_txns_by_cat + 1) / (num_total_txns + num_unique_tags)
-        return entropy(prop_by_cat, base=2)
-
-    spend = df[df.tag_group.eq("spend")].copy()
-    spend["tag"] = spend.tag.cat.remove_unused_categories()
-    num_unique_tags = spend.tag.nunique()
-    entropy_scores = (
-        spend.groupby(["user_id", "ym"])
-        .apply(calc_entropy, num_unique_tags)
-        .rename("entropy_sptac")
-        .reset_index()
-    )
-    return df.merge(entropy_scores, on=["user_id", "ym"], validate="m:1")
+    total_txns = tag_txns.sum(1)
+    num_unique_tags = len(tag_txns.columns)
+    tag_probs = (tag_txns + 1).div(total_txns + num_unique_tags, axis=0)
+    user_month_entropy = entropy(tag_probs, base=2, axis=1)
+    s = pd.Series(user_month_entropy, index=tag_probs.index).rename("entropy_sptac")
+    return df.merge(s, how="left", on=["user_id", "ym"], validate="m:1")
 
 
 def _get_region():
@@ -162,6 +160,7 @@ def _get_regions_lookup_table():
 
 
 @creator
+@hh.timer
 def region_name(df):
     regions = _get_regions_lookup_table().rename(columns={"pcsector": "postcode"})
     return df.merge(regions, how="left", on="postcode", validate="m:1")
