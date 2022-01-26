@@ -13,7 +13,7 @@ test:
 
 
 .PHONY: mdb_data
-mdb_data: $(SAMPLES)
+txn_data: $(SAMPLES)
 
 $(SAMPLES):
 	@python -m entropy.data.make_data\
