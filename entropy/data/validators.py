@@ -3,6 +3,7 @@ Functions to validate integrity of transactions dataset.
 
 """
 
+import numpy as np
 import entropy.data.txn_classifications as tc
 
 validator_funcs = []
@@ -25,8 +26,9 @@ def tag_groups(df):
 @validator
 def spend_tag(df):
     """All occurring spend tags are valid."""
-    spend_txns = df[df.tag_group.eq("spend")]
+    spend_txns = df[df.tag_group.eq("spend") & df.debit]
     occurring = set(spend_txns.tag.unique())
+    return occurring
     valid = set(tc.spend_subgroups.keys())
     assert occurring <= valid
 
@@ -62,12 +64,18 @@ def val_no_missing_months(df):
     assert all(months_observed == months_range)
 
 
-@validator
+# @validator
 def val_min_monthly_grocery_txns(df, min_txns=4):
     s = df.tag_auto.eq("food, groceries, household") & df.debit
     assert all(
         s.groupby([df.user_id, df.ym]).sum().groupby("user_id").min() >= min_txns
     )
+
+@validator
+def val_monthly_min_spend(df, min_spend=200):
+    is_spend = df.tag_group.eq('spend') & df.debit
+    spend = df.amount.where(is_spend, np.nan)
+    assert all(spend.groupby([df.user_id, df.ym]).sum() >= min_spend)
 
 
 @validator
@@ -86,8 +94,8 @@ def val_monthly_income_pmts(df, income_months_ratio=2 / 3):
 
 
 @validator
-def val_annual_income(df, lower=10_000, upper=500_000):
-    assert (df.income.min() >= lower) and (df.income.max() <= upper)
+def val_annual_income(df, lower=10_000j):
+    assert df.income.min() >= lower
 
 
 @validator

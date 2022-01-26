@@ -8,6 +8,7 @@ import collections
 import functools
 import re
 
+import numpy as np
 import pandas as pd
 
 import entropy.helpers.helpers as hh
@@ -116,18 +117,12 @@ def no_missing_months(df):
 
 @selector
 @counter
-def min_monthly_grocery_transactions(df, min_txns=4):
-    """At least 4 grocery txns per month
-
-    Provides a basic check that user has added all accounts to MDB.
-    """
+def monthly_min_spend(df, min_spend=200):
+    """Spend of at least £200 per month"""
+    is_spend = df.tag_group.eq("spend") & df.debit
+    spend = df.amount.where(is_spend, np.nan)
     cond = (
-        (df.tag_auto.eq("food, groceries, household") & df.debit)
-        .groupby([df.user_id, df.ym])
-        .sum()
-        .groupby("user_id")
-        .min()
-        .ge(min_txns)
+        spend.groupby([df.user_id, df.ym]).sum().groupby("user_id").min().ge(min_spend)
     )
     users = cond[cond].index
     return df[df.user_id.isin(users)]
@@ -162,7 +157,7 @@ def demographic_info(df):
 
     Ensures we can calculate control variables for all users.
     """
-    cols = ['yob', 'female', 'region']
+    cols = ["yob", "female", "region"]
     return df.dropna(subset=cols)
 
 
