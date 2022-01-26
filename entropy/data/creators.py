@@ -96,10 +96,10 @@ def age(df):
 @hh.timer
 def entropy_spend_tag_counts(df):
     """Adds Shannon entropy scores based on tag counts of spend txns."""
-    df = df.copy()
-    is_spend = df.tag_group.eq("spend") & df.debit
-    df["tag"] = df.tag.where(is_spend, np.nan)
-    g = df.groupby(["user_id", "ym", "tag"], observed=True)
+    data = df.copy()
+    is_spend = data.tag_group.eq("spend") & data.debit
+    data["tag"] = data.tag.where(is_spend, np.nan)
+    g = data.groupby(["user_id", "ym", "tag"], observed=True)
     tag_txns = g.size().unstack().fillna(0)
 
     total_txns = tag_txns.sum(1)

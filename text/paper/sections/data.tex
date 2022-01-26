@@ -33,9 +33,31 @@ a third party might not only select on demographic characteristics, but also
 for an increased need for financial management, or, one could argue, for a
 higher degree of financial sophistication. However, while
 non-representativeness could partially be addressed by re-weighting the sample,
-as was done in \citet{bhourquin2020effects}, it is not of much consequence for
+as was done in \citet{bourquin2020effects}, it is not of much consequence for
 our purpose here, since our ability to infer behaviour traits from transaction
 data is not dependent on having a representative sample of people.
+
+Further limitations:
+\begin{itemize}
+    \item To the extent that users link shared accounts, they might be more
+        appropriately thought of as households rather than individual usres
+    \citep{bourquin2020effects}. We assume that in the majority of cases,
+    shared partner accounts are used for shared household expenses rather than
+    personal expenses, and that salary payments are paid into personal
+    accounts. To the extent that this is true, identified salaries are to a
+    single individual, and expenses made by a partner with a shared account
+    would mainly be for household items that an individual would have also
+    purchased if they lived on their own (albeit in smaller quantities), but
+    not for additional spending categories, which would impact our entropy
+    spending tag based entropy measure.
+
+    \item Some accounts might be business accounts. Using versions of the
+        algorightms used by \citet{bourquin2020effects} to identify such
+        accounts showed, however, that such accounts only make up a tiny
+        percentage of overall accounts and would not influence our results. We
+        thus do not exclude them.
+\end{itemize}
+
 
 
 \subsection{Preprocessing and sample selection}%
@@ -53,6 +75,11 @@ that.
         outliers with the cutoff percentile value) because we believe that
         outliers result from errors in the data rather than represent genuine
         information.
+    \item Actually, we don't do either of the above. With the harsher selection
+        methods, the statistics are very reasonable, which, if anything, would
+        suggest using winsorizing. However,
+        [this](https://blogs.sas.com/content/iml/2017/02/08/winsorization-good-bad-and-ugly.html)
+        article convincingly argues that we shouldn't do that in our case.
 \end{itemize}
 
 
@@ -201,3 +228,9 @@ user-month; distribution of user-month entropy scores.}
 
 \end{figure}
 
+\subsection{Control variables}%
+\label{sub:control_variables}
+
+We calculate age as an individual's approximate age at the time of the
+transactions, by subtracting a user's year of birth from the year the
+transaction took place.

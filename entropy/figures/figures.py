@@ -35,21 +35,21 @@ def sample_description(df, write=True):
     data = g.age.first()
     bins = np.linspace(20, 65, 46) - 0.5
     sns.histplot(data, bins=bins, color=colour, ax=ax[0, 0])
-    fh.set_axis_labels(ax[0, 0], "Age", "Number of users")
+    ax[0, 0].set(xlabel='Age', ylabel='Number of users')
 
     data = g.income.last()
     sns.histplot(data, color=colour, ax=ax[0, 1])
     ax[0, 1].xaxis.set_major_formatter(mpl.ticker.StrMethodFormatter("{x:,.0f}"))
-    fh.set_axis_labels(ax[0, 1], "Income (£)", "Number of users")
+    ax[0, 1].set(xlabel="Annual income (£)", ylabel="Number of users")
 
     data = df.groupby("user_id").region.first().value_counts(ascending=True)
     data.plot(kind="barh", color=colour, ax=ax[1, 0])
-    fh.set_axis_labels(ax[1, 0], "Number of users", "")
+    ax[1, 0].set(xlabel='Number of users', ylabel='Region')
 
     gender_names = {1: "Female", 0: "Male"}
-    data = g.user_female.first().map(gender_names).value_counts()
+    data = g.female.first().map(gender_names).value_counts()
     data.plot(kind="bar", color=colour, rot=0, ax=ax[1, 1])
-    fh.set_axis_labels(ax[0, 1], "", "Number of users")
+    ax[1, 1].set(xlabel="Gender", ylabel="Number of users")
 
     fh.set_style()
     fh.set_size(fig)
@@ -213,8 +213,6 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv[1:]
     args = parse_args(argv)
-
-
 
 
 # if __name__ == "__main__":

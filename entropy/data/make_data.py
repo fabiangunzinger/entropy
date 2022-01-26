@@ -33,13 +33,6 @@ def clean_data(df):
 
 
 @hh.timer
-def select_sample(df):
-    for func in selector_funcs:
-        df = func.func(df, **func.kwargs)
-    return df
-
-
-@hh.timer
 def create_vars(df):
     if not df.empty:
         for func in creator_funcs:
@@ -47,6 +40,14 @@ def create_vars(df):
     return df
 
 
+@hh.timer
+def select_sample(df):
+    for func in selector_funcs:
+        df = func.func(df, **func.kwargs)
+    return df
+
+
+@hh.timer
 def validate_data(df):
     if not df.empty:
         for func in validator_funcs:

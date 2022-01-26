@@ -64,13 +64,6 @@ def val_no_missing_months(df):
     assert all(months_observed == months_range)
 
 
-# @validator
-def val_min_monthly_grocery_txns(df, min_txns=4):
-    s = df.tag_auto.eq("food, groceries, household") & df.debit
-    assert all(
-        s.groupby([df.user_id, df.ym]).sum().groupby("user_id").min() >= min_txns
-    )
-
 @validator
 def val_monthly_min_spend(df, min_spend=200):
     is_spend = df.tag_group.eq('spend') & df.debit
