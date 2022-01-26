@@ -22,6 +22,7 @@ def parse_args(argv):
     return parser.parse_args(argv)
 
 
+@hh.timer
 def read_data(path):
     return ha.read_parquet(path)
 
@@ -56,6 +57,7 @@ def validate_data(df):
     return df
 
 
+@hh.timer
 def write_data(df, path, **kwargs):
     ha.write_parquet(df, path, **kwargs)
     return df
