@@ -72,25 +72,6 @@ def current_and_savings_account(df):
 
 @selector
 @counter
-def account_balances_available(df):
-    """Account balances available
-
-    Retains only users for whom we can calculate the balance for all their
-    savings and current accounts."""
-    cond = (
-        df.balance.isna()
-        .groupby([df.user_id, df.account_type])
-        .sum()
-        .unstack()[["savings", "current"]]
-        .sum(1)
-        .eq(0)
-    )
-    users = cond[cond].index
-    return df[df.user_id.isin(users)]
-
-
-@selector
-@counter
 def min_number_of_months(df, min_months=6):
     """At least 6 months of data"""
     cond = df.groupby("user_id").ym.transform("nunique") >= min_months

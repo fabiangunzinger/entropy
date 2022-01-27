@@ -23,11 +23,6 @@ def column_adder(func):
     return func
 
 
-# @column_adder
-def obs_count(df):
-    return df.groupby(idx_cols).size().rename("obs")
-
-
 @column_adder
 def txn_counts(df):
     group_cols = idx_cols + ["account_type"]
@@ -38,36 +33,6 @@ def txn_counts(df):
         .fillna(0)
         .loc[:, ["savings", "current"]]
         .rename(columns=lambda x: f"txn_count_{x[0]}a")
-    )
-
-
-@column_adder
-def account_balances(df):
-    """Calculates average monthly balances for user's savings and current accounts."""
-    return (
-        # daily account balances
-        df.groupby(
-            ["user_id", "account_type", "account_id", "date"],
-            observed=True,
-        )
-        .balance.first()
-        # daily account type balances
-        .groupby(["user_id", "account_type", "date"], observed=True)
-        .sum()
-        # monthly account type mean balance
-        .reset_index()
-        .set_index("date")
-        .groupby(["user_id", "account_type"])
-        .balance.resample("m")
-        .mean()
-        # unstack, ffill months with no txns, then bfill
-        # first user months with no txns
-        .unstack(level="account_type")
-        .ffill()
-        .bfill()
-        # keep needed columns and rename
-        .loc[:, ["current", "savings"]]
-        .rename(columns={"current": "balance_ca", "savings": "balance_sa"})
     )
 
 

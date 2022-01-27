@@ -21,43 +21,6 @@ def creator(func):
 
 @creator
 @hh.timer
-def balances(df):
-    """Adds running account balances.
-
-    Daily account balance is calculated as the sum of the cumulative
-    balance and the offset, where the offset is the difference between
-    the cumulative balance and the actually reported balance on the day
-    of the last refresh or the nearest preceeding date. Returns nan if either
-    latest balance isn't available or last refresh data predates the period for
-    which we observe a user.
-    """
-
-    def helper(g):
-        last_refresh_balance = g.latest_balance.iloc[0]
-        last_refresh_date = g.account_last_refreshed.iloc[0].normalize()
-
-        daily_net_spend = g.resample("D").amount.sum().mul(-1)
-        cum_balance = daily_net_spend.cumsum()
-        try:
-            # get cum_balance on last refreshed date or nearest preceeding date
-            # fails if last refresh date is dummy date outside the period we
-            # observe a user.
-            idx = cum_balance.index.get_loc(last_refresh_date, method="ffill")
-        except KeyError:
-            last_refresh_cum_balance = np.nan
-        else:
-            last_refresh_cum_balance = cum_balance[idx]
-
-        offset = last_refresh_balance - last_refresh_cum_balance
-        balance = cum_balance + offset
-        return balance.rename("balance")
-
-    balance = df.set_index("date").groupby("account_id").apply(helper).reset_index()
-    return df.merge(balance, how="left", validate="m:1")
-
-
-@creator
-@hh.timer
 def income(df):
     """
     Adds yearly income for each user.
