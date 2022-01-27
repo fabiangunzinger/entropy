@@ -155,10 +155,13 @@ def annual_income(df, min_income=10_000):
 def demographic_info(df):
     """Demographic information available
 
-    Ensures we can calculate control variables for all users.
+    Retains only users for which we have full demographic information.
     """
     cols = ["yob", "female", "region"]
-    return df.dropna(subset=cols)
+    missings = df[cols].isna()
+    cond = missings.groupby(df.user_id).sum().sum(1).eq(0)
+    users = cond[cond].index
+    return df[df.user_id.isin(users)]
 
 
 @selector
