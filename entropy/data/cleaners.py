@@ -276,10 +276,10 @@ def clean_description(df):
 
 @cleaner
 @hh.timer
-def drop_type1_dups(df):
-    """Drops Type 1 duplicates.
+def drop_duplicates(df):
+    """Drops duplicate transactions.
 
-    A Type 1 duplicate is the second of two txns with identical user and
+    A duplicate txn is the second of two txns with identical user and
     account ids, dates, amounts, and txn descriptions.
     """
     df = df.copy()
