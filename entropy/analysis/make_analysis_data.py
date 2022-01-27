@@ -7,8 +7,9 @@ import collections
 import numpy as np
 import pandas as pd
 
-import entropy.helpers.data as hd
 import entropy.helpers.aws as ha
+import entropy.helpers.data as hd
+import entropy.helpers.helpers as hh
 
 
 month = pd.Grouper(key="date", freq="m")
@@ -47,7 +48,7 @@ def savings_accounts_flows(df):
     is_savings_account = df.account_type.eq("savings")
     is_savings_flow = is_not_interest_txn & is_savings_account
     df["amount"] = df.amount.where(is_savings_flow, np.nan)
-    df['debit'] = df.debit.map({True: 'sa_outflows', False: 'sa_inflows'})
+    df["debit"] = df.debit.map({True: "sa_outflows", False: "sa_inflows"})
     group_cols = idx_cols + ["income", "debit"]
     return (
         df.groupby(group_cols)
@@ -81,6 +82,7 @@ def tag_monthly_spend_prop(df):
     df = df.copy()
     is_spend = df.tag_group.eq("spend") & df.debit
     df["amount"] = df.amount.where(is_spend, np.nan)
+    df["tag"] = df.tag.where(is_spend, np.nan)
     df["tag"] = df.tag.cat.rename_categories(lambda x: "tag_spend_" + x)
     group_cols = idx_cols + ["tag"]
     return (
