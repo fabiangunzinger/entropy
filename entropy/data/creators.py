@@ -67,11 +67,11 @@ def income(df):
     numbers (credits are negative in dataset).
     """
     year = df.date.dt.year.rename("year")
+    mask = df.tag_group.eq("income") & ~df.debit
     yearly_incomes = (
-        df.loc[df.tag_group.eq("income")]
+        df.loc[mask]
         .groupby(["user_id", year])
-        .agg({"amount": "sum", "ym": "nunique"})
-        .rename(columns={"amount": "income", "ym": "observed_months"})
+        .agg(income=("amount", "sum"), observed_months=("ym", "nunique"))
         .assign(income=lambda df: df.income / df.observed_months * -12)
         .drop(columns="observed_months")
     )
@@ -81,6 +81,7 @@ def income(df):
         right_on=["user_id", "year"],
         validate="m:1",
     ).drop(columns="year")
+
 
 
 @creator

@@ -145,9 +145,9 @@ def monthly_income_pmts(df, income_months_ratio=2 / 3):
 @counter
 def annual_income(df, min_income=10_000):
     """Yearly income of at least \pounds10k"""
-    g = df.groupby("user_id")
-    min_income = g.income.transform("min")
-    return df.loc[min_income.ge(min_income)]
+    cond = df.groupby("user_id").income.min() >= min_income
+    users = cond[cond].index
+    return df[df.user_id.isin(users)]
 
 
 @selector
