@@ -87,7 +87,7 @@ def val_monthly_income_pmts(df, income_months_ratio=2 / 3):
 
 
 @validator
-def val_annual_income(df, lower=10_000j):
+def val_annual_income(df, lower=10_000):
     assert df.income.min() >= lower
 
 
