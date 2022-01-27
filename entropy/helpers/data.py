@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 
 from IPython.display import display
 import entropy.helpers.aws as ha
@@ -23,8 +24,9 @@ def inspect(df, nrows=2):
 
 @hh.timer
 def read_analysis_data():
-    fp = f's3://3di-project-entropy/analysis_data.parquet'
+    fp = f"s3://3di-project-entropy/analysis_data.parquet"
     return ha.read_parquet(fp)
+
 
 @hh.timer
 def read_raw_sample(sample):
@@ -42,9 +44,9 @@ def read_samples(samples):
     return (read_sample(sample) for sample in samples)
 
 
-def trim(series, pct=1, how='both'):
+def trim(series, pct=1, how="both"):
     """Replaces series values outside of specified percentile on both sides with nan.
-    
+
     Arguments:
         pct : Percentile of data to be removed from specified ends.
             Default is 1.
@@ -53,9 +55,9 @@ def trim(series, pct=1, how='both'):
 
     """
     lower, upper = np.nanpercentile(series, [pct, 100 - pct])
-    if how == 'both':
+    if how == "both":
         cond = series.between(lower, upper)
-    elif how == 'lower':
+    elif how == "lower":
         cond = series.gt(lower)
     else:
         cond = series.lt(upper)
@@ -89,3 +91,15 @@ def colname_subset(df, pattern):
     columns = df.columns
     return list(columns[columns.str.contains(pattern)])
 
+
+def user_period_data(df, user_id, period):
+    idx = pd.IndexSlice
+    return (
+        df.set_index(["user_id", "date"], drop=False)
+        .loc[idx[user_id, period], :]
+        .reset_index(drop=True)
+    )
+
+
+def user_data(df, user_id):
+    return df[df.user_id.eq(user_id)]
