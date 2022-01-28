@@ -1,3 +1,4 @@
+import math
 import os
 import s3fs
 
@@ -72,6 +73,24 @@ def entropy_spend_tag_counts(df):
     user_month_entropy = entropy(tag_probs, base=2, axis=1)
     s = pd.Series(user_month_entropy, index=tag_probs.index).rename("entropy_sptac")
     return df.merge(s, how="left", on=["user_id", "ym"], validate="m:1")
+
+
+def entropy_spend_tag_counts_partial(df):
+    """Adds Shannon entropy scores based on tag counts of spend txns."""
+    data = df.copy()
+    is_spend = data.tag_group.eq("spend") & data.debit
+    data["tag"] = data.tag.where(is_spend, np.nan)
+    g = data.groupby(["user_id", "ym", "tag"], observed=True)
+    tag_txns = g.size().unstack().fillna(0)
+    total_txns = tag_txns.sum(1)
+    num_unique_tags = len(tag_txns.columns)
+    tag_probs = (tag_txns + 1).div(total_txns + num_unique_tags, axis=0)
+    return tag_probs
+     
+    user_month_entropy = entropy(tag_probs, base=2, axis=1)
+    s = pd.Series(user_month_entropy, index=tag_probs.index).rename("entropy_sptac")
+    return df.merge(s, how="left", on=["user_id", "ym"], validate="m:1")
+
 
 
 def _get_region():

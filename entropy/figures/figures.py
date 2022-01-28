@@ -37,7 +37,7 @@ def sample_description(df, write=True):
     sns.histplot(data, bins=bins, color=colour, ax=ax[0, 0])
     ax[0, 0].set(xlabel='Age', ylabel='Number of users')
 
-    data = g.income.last()
+    data = hd.winsorise(g.income.last(), how='upper')
     sns.histplot(data, color=colour, ax=ax[0, 1])
     ax[0, 1].xaxis.set_major_formatter(mpl.ticker.StrMethodFormatter("{x:,.0f}"))
     ax[0, 1].set(xlabel="Annual income (£)", ylabel="Number of users")
@@ -52,9 +52,112 @@ def sample_description(df, write=True):
     ax[1, 1].set(xlabel="Gender", ylabel="Number of users")
 
     fh.set_style()
-    fh.set_size(fig)
+    fh.set_size(fig, width=10, height=6)
     if write:
         fh.save_fig(fig, figname)
+
+
+def monthly_savings(df):
+    """Plots histograms of savings account flows."""
+    pct_histplot = functools.partial(sns.histplot, stat="percent")
+    columns = ["sa_scaled_inflows", "sa_scaled_outflows", "sa_scaled_net_inflows"]
+    xlabels = {
+        "sa_scaled_outflows": "Outflows (% of monthly income)",
+        "sa_scaled_inflows": "Inflows (% of monthly income)",
+        "sa_scaled_net_inflows": "Net inflows (% of monthly income)",
+    }
+    ylabel = "User-months (%)"
+
+    fig, ax = plt.subplots(2, 3)
+    for i, col in enumerate(columns):
+        data = df[col].pipe(hd.trim, pct=1, how="both") * 100
+        pct_histplot(x=data, ax=ax[0, i])
+        ax[0, i].set(xlabel="", ylabel=ylabel)
+
+        data = data[data != 0]
+        data.describe()
+        pct_histplot(x=data, ax=ax[1, i])
+        ax[1, i].set(xlabel=xlabels[col], ylabel=ylabel)
+    fh.set_style()
+    fh.set_size(fig, width=10, height=6)
+    return fig, ax
+
+
+def regplot(df, y_vars, x_var, sample_frac=0.01, winsorise_kws=None):
+    """Plots scatterplot of x and y vars with lowess line."""
+    data = (
+        df.filter(like=x_var)
+        .join(df.filter(regex=y_vars))
+        .sample(frac=sample_frac, random_state=2312)
+    )
+    if winsorise_kws:
+        data.iloc[:, 1:] = data.iloc[:, 1:].apply(hd.winsorise, **winsorise_kws)
+
+    num_y_vars = len(data.columns) - 1
+    fig, ax = plt.subplots(1, num_y_vars, figsize=(6 * num_y_vars, 4))
+    for idx, var in enumerate(data.iloc[:, 1:]):
+        sns.regplot(
+            y=data.loc[:, var],
+            x=data.iloc[:, 0],
+            lowess=True,
+            line_kws=dict(color="orange"),
+            ci=95,
+            ax=ax[idx],
+        )
+
+
+def txns_breakdowns_and_entropy(df, write=True):
+    """Plots histogram of number of user-month txns and spending categories,
+    and user-month entropy."""
+
+    def make_data(df):
+        return df[df.tag_group.eq("spend")]
+
+    def make_figure(data):
+        histplot = functools.partial(sns.histplot, stat="percent")
+        ylabel = "User-months (%)"
+        user_month_data = data.set_index("date").groupby("user_id").resample("m")
+
+        fig, ax = plt.subplots(2, 2)
+
+        axis = ax[0, 0]
+        d = user_month_data.id.count()
+        d = ha.trim(d, pct=1)
+        median = d.median()
+        histplot(data=d, bins=30, ax=axis)
+        axis.axvline(median, color="green")
+        axis.text(median + 5, 8, f"Median: {median:.0f}")
+        fh.set_axis_labels(axis, "Transactions", ylabel)
+
+        axis = ax[0, 1]
+        (
+            data.tag.str.replace("_", " ")
+            .str.title()
+            .value_counts(ascending=True, normalize=True)
+            .mul(100)[-9:]
+            .plot(kind="barh", ax=axis)
+        )
+        fh.set_axis_labels(axis, "Transactions (%)", "Spending categories")
+
+        axis = ax[1, 0]
+        d = user_month_data.tag.nunique()
+        bins = np.arange(9 + 1) + 0.5
+        histplot(data=d, bins=bins, ax=axis)
+        fh.set_axis_labels(axis, "Number of spending categories", ylabel)
+
+        axis = ax[1, 1]
+        d = user_month_data.entropy_sptac.first()
+        histplot(data=d, bins=40, ax=axis)
+        fh.set_axis_labels(axis, "Entropy", ylabel)
+
+        return fig, ax
+
+    data = make_data(df)
+    fig, ax = make_figure(data)
+    fh.set_style()
+    fh.set_size(fig)
+    if write:
+        fh.save_fig(fig, "txns_breakdowns_and_entropy.png")
 
 
 def num_txns_by_account_type(df, write=True):
@@ -129,84 +232,6 @@ def balances_by_account_type(df, write=True, **kwargs):
     fh.set_size(fig)
     if write:
         fh.save_fig(fig, "balances_by_account_type.png")
-
-
-def txns_breakdowns_and_entropy(df, write=True):
-    """Plots histogram of number of user-month txns and spending categories,
-    and user-month entropy."""
-
-    def make_data(df):
-        return df[df.tag_group.eq("spend")]
-
-    def make_figure(data):
-        histplot = functools.partial(sns.histplot, stat="percent")
-        ylabel = "User-months (%)"
-        user_month_data = data.set_index("date").groupby("user_id").resample("m")
-
-        fig, ax = plt.subplots(2, 2)
-
-        axis = ax[0, 0]
-        d = user_month_data.id.count()
-        d = ha.trim(d, pct=1)
-        median = d.median()
-        histplot(data=d, bins=30, ax=axis)
-        axis.axvline(median, color="green")
-        axis.text(median + 5, 8, f"Median: {median:.0f}")
-        fh.set_axis_labels(axis, "Transactions", ylabel)
-
-        axis = ax[0, 1]
-        (
-            data.tag.str.replace("_", " ")
-            .str.title()
-            .value_counts(ascending=True, normalize=True)
-            .mul(100)[-9:]
-            .plot(kind="barh", ax=axis)
-        )
-        fh.set_axis_labels(axis, "Transactions (%)", "Spending categories")
-
-        axis = ax[1, 0]
-        d = user_month_data.tag.nunique()
-        bins = np.arange(9 + 1) + 0.5
-        histplot(data=d, bins=bins, ax=axis)
-        fh.set_axis_labels(axis, "Number of spending categories", ylabel)
-
-        axis = ax[1, 1]
-        d = user_month_data.entropy_sptac.first()
-        histplot(data=d, bins=40, ax=axis)
-        fh.set_axis_labels(axis, "Entropy", ylabel)
-
-        return fig, ax
-
-    data = make_data(df)
-    fig, ax = make_figure(data)
-    fh.set_style()
-    fh.set_size(fig)
-    if write:
-        fh.save_fig(fig, "txns_breakdowns_and_entropy.png")
-
-
-def monthly_savings(df):
-    """Plots histograms of savings account flows."""
-    pct_histplot = functools.partial(sns.histplot, stat="percent")
-    columns = ["sa_scaled_inflows", "sa_scaled_outflows", "sa_scaled_net_inflows"]
-    xlabels = {
-        "sa_scaled_outflows": "Outflows (% of monthly income)",
-        "sa_scaled_inflows": "Inflows (% of monthly income)",
-        "sa_scaled_net_inflows": "Net inflows (% of monthly income)",
-    }
-    ylabel = "User-months (%)"
-
-    fig, ax = plt.subplots(2, 3)
-    for i, col in enumerate(columns):
-        data = df[col].pipe(hd.trim, pct=1, how="both")
-        pct_histplot(x=data, ax=ax[0, i])
-        ax[0, i].set(xlabel="", ylabel=ylabel)
-        data = data[data != 0]
-        pct_histplot(x=data, ax=ax[1, i])
-        ax[1, i].set(xlabel=xlabels[col], ylabel=ylabel)
-    fh.set_style()
-    fh.set_size(fig, height=3)
-    return fig, ax
 
 
 def main(argv=None):

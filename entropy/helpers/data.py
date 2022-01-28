@@ -64,6 +64,19 @@ def trim(series, pct=1, how="both"):
     return series.where(cond, np.nan)
 
 
+def winsorise(series, pct=1, how="both"):
+    """Replaces series outside of specified percentile with percentile
+    value."""
+    lower_pct, upper_pct = np.nanpercentile(series, [pct, 100 - pct])
+    if how == "both":
+        kwargs = dict(lower=lower_pct, upper=upper_pct)
+    elif how == "lower":
+        kwargs = dict(lower=lower_pct)
+    else:
+        kwargs = dict(upper=upper_pct)
+    return series.clip(**kwargs)
+
+
 def breakdown(df, group_var, group_var_value, component_var, metric="value", net=False):
     """Calculates sorted breakdown of group_var_value by component_var.
 
