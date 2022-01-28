@@ -68,12 +68,15 @@ def savings_accounts_flows(df):
 
 
 @column_adder
-def log_monthly_spend(df):
-    """Calculates log of spend per user-month."""
+def monthly_spend(df):
+    """Calculates spend and log spend per user-month."""
     df = df.copy()
     is_spend = df.tag_group.eq("spend") & df.debit
     df["amount"] = df.amount.where(is_spend, np.nan)
-    return df.groupby(idx_cols).amount.sum().apply(np.log).rename("log_monthly_spend")
+
+    return df.groupby(idx_cols).amount.agg(
+        monthly_spend="sum", log_monthly_spend=lambda s: np.log(s.sum())
+    )
 
 
 @column_adder
@@ -83,7 +86,7 @@ def tag_monthly_spend_prop(df):
     is_spend = df.tag_group.eq("spend") & df.debit
     df["amount"] = df.amount.where(is_spend, np.nan)
     df["tag"] = df.tag.where(is_spend, np.nan)
-    df["tag"] = df.tag.cat.rename_categories(lambda x: "tag_spend_" + x)
+    df["tag"] = df.tag.cat.rename_categories(lambda x: "prop_spend_" + x)
     group_cols = idx_cols + ["tag"]
     return (
         df.groupby(group_cols, observed=True)
