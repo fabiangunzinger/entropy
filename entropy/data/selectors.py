@@ -100,7 +100,7 @@ def no_missing_months(df):
 @counter
 def monthly_min_spend(df, min_spend=200):
     """Current account debits of at least £200 each month"""
-    is_ca_spend = df.tag_group.eq("spend") & df.account_type('current') & df.debit
+    is_ca_spend = df.tag_group.eq("spend") & df.account_type.eq('current') & df.debit
     spend = df.amount.where(is_ca_spend, np.nan)
     cond = (
         spend.groupby([df.user_id, df.ym]).sum().groupby("user_id").min().ge(min_spend)
