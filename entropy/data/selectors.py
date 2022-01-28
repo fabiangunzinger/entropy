@@ -63,7 +63,7 @@ def add_raw_count(df):
 @selector
 @counter
 def current_and_savings_account(df):
-    """At least one current and one savings account"""
+    """One or more current and savings account"""
     s = df.groupby(["user_id", "account_type"]).size().unstack()
     cond = s.savings.gt(0) & s.current.gt(0)
     users = cond[cond].index
@@ -81,7 +81,7 @@ def min_number_of_months(df, min_months=6):
 @selector
 @counter
 def no_missing_months(df):
-    """No missing months
+    """No gaps in observed months
 
     Requires that there are no months between first and last observed month for
     which we observe no transactions.
@@ -99,10 +99,11 @@ def no_missing_months(df):
 @selector
 @counter
 def monthly_min_spend(df, min_spend=200):
-    """Current account debits of at least £200 each month"""
+    """Current account debits of at least \pounds200 each month"""
     is_ca_spend = df.tag_group.eq("spend") & df.account_type.eq('current') & df.debit
     spend = df.amount.where(is_ca_spend, np.nan)
     cond = (
+ 
         spend.groupby([df.user_id, df.ym]).sum().groupby("user_id").min().ge(min_spend)
     )
     users = cond[cond].index
