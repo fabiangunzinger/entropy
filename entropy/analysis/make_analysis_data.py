@@ -127,6 +127,7 @@ def validator(df):
     return df
 
 
+@hh.timer
 def main(txn_data=None):
     """Produces analysis data from transactions data."""
     if txn_data is None:
