@@ -33,19 +33,7 @@ sumstats_table:
 	@printf '\nProducing sumstats table...\n'
 	@python -m entropy.analysis.sumstats_table
 
-
-
-
-
+.PHONY: figures
 figures:
 	@python -m entropy.figures.figures $(FIGDATA)
-
-fig_monthly_savings:
-	@echo 'Producing monthly savings figure...'
-	@python -m entropy.figures.monthly_savings $(FIGDATA)
-
-.PHONY: figures fig_user_age_hist
-
-fig_user_age_hist:
-	@python -m entropy.figures.user_age_hist $(FIGDATA)
 
