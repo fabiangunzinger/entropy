@@ -57,8 +57,9 @@ def user_chars(df, write=True):
         fh.save_fig(fig, figname)
 
 
-def sa_flows(df):
+def sa_flows(df, write=True):
     """Plots histograms of savings account flows."""
+    figname='sa_flows.png'
     pct_histplot = functools.partial(sns.histplot, stat="percent")
     columns = ["sa_scaled_inflows", "sa_scaled_outflows", "sa_scaled_net_inflows"]
     xlabels = {
@@ -78,16 +79,18 @@ def sa_flows(df):
         data.describe()
         pct_histplot(x=data, ax=ax[1, i])
         ax[1, i].set(xlabel=xlabels[col], ylabel=ylabel)
+    fig.suptitle('Savings account flows')
     fh.set_style()
     fh.set_size(fig, width=10, height=6)
-    return fig, ax
+    if write:
+        fh.save_fig(fig, figname)
 
 
-def regplot(df, y_vars, x_var, sample_frac=0.01, winsorise_kws=None):
+def regplot(df, y, x, sample_frac=0.01, winsorise_kws=None):
     """Plots scatterplot of x and y vars with lowess line."""
     data = (
-        df.filter(like=x_var)
-        .join(df.filter(regex=y_vars))
+        df.filter(like=x)
+        .join(df.filter(regex=y))
         .sample(frac=sample_frac, random_state=2312)
     )
     if winsorise_kws:
