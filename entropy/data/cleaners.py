@@ -248,7 +248,7 @@ def add_tag_group(df):
     return df
 
 
-# @cleaner
+@cleaner
 @hh.timer
 def clean_description(df):
     """Cleans up txnd description for better duplicate detection.
