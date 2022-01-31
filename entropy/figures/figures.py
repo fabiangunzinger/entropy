@@ -57,7 +57,7 @@ def user_chars(df, write=True):
         fh.save_fig(fig, figname)
 
 
-def monthly_savings(df):
+def sa_flows(df):
     """Plots histograms of savings account flows."""
     pct_histplot = functools.partial(sns.histplot, stat="percent")
     columns = ["sa_scaled_inflows", "sa_scaled_outflows", "sa_scaled_net_inflows"]
