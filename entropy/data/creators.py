@@ -53,8 +53,7 @@ def income(df):
 def age(df):
     """Adds user age at time of transaction."""
     df["age"] = df.date.dt.year - df.yob
-    df.drop("yob", axis=1)
-    return df
+    return df.drop("yob", axis=1)
 
 
 @creator
