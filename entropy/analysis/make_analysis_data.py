@@ -124,6 +124,10 @@ def entropy(df):
 
 def validator(df):
     assert df.isna().sum().sum() == 0
+
+    # sa inflows or outflows > 0 if sa txns > 0 (currently violated)
+    # ca txns > 0 always
+
     return df
 
 
