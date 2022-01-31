@@ -25,9 +25,9 @@ def parse_args(argv):
     return parser.parse_args(argv)
 
 
-def sample_description(df, write=True):
+def user_chars(df, write=True):
     """Creates a 2x2 figure with basic user demographic info."""
-    figname = "sample_description.png"
+    figname = "user_chars.png"
     colour = "blue"
     g = df.groupby("user_id")
     fig, ax = plt.subplots(2, 2)
