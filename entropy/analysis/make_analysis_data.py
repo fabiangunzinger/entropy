@@ -15,16 +15,15 @@ import entropy.helpers.helpers as hh
 month = pd.Grouper(key="date", freq="m")
 idx_cols = ["user_id", month]
 
-column_makers = []
-control_variables = []
+aggregator_funcs = []
 
 
-def column_adder(func):
-    column_makers.append(func)
+def aggregator(func):
+    aggregator_funcs.append(func)
     return func
 
 
-@column_adder
+@aggregator
 def txn_counts(df):
     group_cols = idx_cols + ["account_type"]
     return (
@@ -37,7 +36,6 @@ def txn_counts(df):
     )
 
 
-@column_adder
 def savings_accounts_flows(df):
     """Calculates monthly inflows, outflows, and net-inflows into user's savings accounts.
 
@@ -67,7 +65,7 @@ def savings_accounts_flows(df):
     )
 
 
-@column_adder
+# @aggregator
 def monthly_spend(df):
     """Calculates spend and log spend per user-month."""
     df = df.copy()
@@ -79,7 +77,7 @@ def monthly_spend(df):
     )
 
 
-@column_adder
+# @aggregator
 def tag_monthly_spend_prop(df):
     """Calculates spend per tag per user-month as proportion of total monthly spend."""
     df = df.copy()
@@ -97,7 +95,7 @@ def tag_monthly_spend_prop(df):
     )
 
 
-@column_adder
+# @aggregator
 def income(df):
     """Adds income variables."""
     df = df.copy()
@@ -106,7 +104,7 @@ def income(df):
     return df.groupby(idx_cols)[cols].first()
 
 
-@column_adder
+# @aggregator
 def demographics(df):
     """Adds demographic variable."""
     df = df.copy()
@@ -115,7 +113,7 @@ def demographics(df):
     return df.groupby(idx_cols)[cols].first()
 
 
-@column_adder
+# @aggregator
 def entropy(df):
     """Adds all entropy variables."""
     cols = hd.colname_subset(df, "entropy")
@@ -139,12 +137,15 @@ def main(txn_data=None):
         fp_txn = f"s3://3di-project-entropy/entropy_{SAMPLE}.parquet"
         txn_data = ha.read_parquet(fp_txn)
     analysis_data = pd.concat(
-        (func(txn_data) for func in column_makers), axis=1, join="outer"
+        (func(txn_data) for func in aggregator_funcs), axis=1, join="outer"
     )
     fp = f"s3://3di-project-entropy/analysis_data.parquet"
     ha.write_parquet(analysis_data, fp, index=True)
     validator(analysis_data)
 
+
+def main():
+    print(aggregator_funcs)
 
 if __name__ == "__main__":
     main()
