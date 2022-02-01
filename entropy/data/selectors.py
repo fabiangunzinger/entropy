@@ -6,6 +6,7 @@ First line in docstring is used in selection table.
 
 import collections
 import functools
+import itertools
 import re
 
 import numpy as np
@@ -16,17 +17,11 @@ import entropy.helpers.helpers as hh
 
 selector_funcs = []
 sample_counts = collections.Counter()
-FuncWithKwargs = collections.namedtuple("FuncWithKwargs", ["func", "kwargs"])
 
 
-def selector(func=None, **kwargs):
-    """Add function to list of selector functions."""
-
-    def wrapper(func):
-        selector_funcs.append(FuncWithKwargs(func, kwargs))
-        return func
-
-    return wrapper(func) if func else wrapper
+def selector(func):
+    selector_funcs.append(func)
+    return func
 
 
 def counter(func):
@@ -41,10 +36,11 @@ def counter(func):
         description = func.__doc__.splitlines()[0]
         sample_counts.update(
             {
-                description + "@users": df.user_id.nunique(),
-                description + "@accounts": df.account_id.nunique(),
-                description + "@txns": df.id.nunique(),
-                description + "@value": df.amount.abs().sum() / 1e6,
+                description + "@users": df.index.get_level_values('user_id').nunique(),
+                description + "@accounts":
+                len(set(itertools.chain.from_iterable(df.active_accounts))), 
+                description + "@txns": df.txns_count.sum(),
+                description + "@value": df.txns_value.sum() / 1e6,
             }
         )
         return df
@@ -60,8 +56,8 @@ def add_raw_count(df):
     return df
 
 
-@selector
-@counter
+# @selector
+# @counter
 def current_and_savings_account(df):
     """One or more current and savings account"""
     s = df.groupby(["user_id", "account_type"]).size().unstack()
@@ -74,12 +70,13 @@ def current_and_savings_account(df):
 @counter
 def min_number_of_months(df, min_months=6):
     """At least 6 months of data"""
-    cond = df.groupby("user_id").ym.transform("nunique") >= min_months
-    return df.loc[cond]
+    cond = df.groupby('user_id').size() >= min_months
+    users = cond[cond].index
+    return df.loc[users]
 
 
-@selector
-@counter
+# @selector
+# @counter
 def no_missing_months(df):
     """No gaps in observed months
 
@@ -96,8 +93,8 @@ def no_missing_months(df):
     return df.loc[months_observed == months_range]
 
 
-@selector
-@counter
+# @selector
+# @counter
 def monthly_min_spend(df, min_spend=200):
     """Monthly debits of at least \pounds200"""
     is_ca_spend = df.tag_group.eq("spend") & df.account_type.eq('current') & df.debit
@@ -110,8 +107,8 @@ def monthly_min_spend(df, min_spend=200):
     return df[df.user_id.isin(users)]
 
 
-@selector
-@counter
+# @selector
+# @counter
 def monthly_income_pmts(df, income_months_ratio=2 / 3):
     """Income in 2/3 of all observed months"""
 
@@ -123,8 +120,8 @@ def monthly_income_pmts(df, income_months_ratio=2 / 3):
     return df.groupby("user_id").filter(helper)
 
 
-@selector
-@counter
+# @selector
+# @counter
 def annual_income(df, min_income=10_000):
     """Yearly income of at least \pounds10k"""
     cond = df.groupby("user_id").income.min() >= min_income
@@ -132,8 +129,8 @@ def annual_income(df, min_income=10_000):
     return df[df.user_id.isin(users)]
 
 
-@selector
-@counter
+# @selector
+# @counter
 def demographic_info(df):
     """Complete demographic information
 
@@ -146,8 +143,8 @@ def demographic_info(df):
     return df[df.user_id.isin(users)]
 
 
-@selector
-@counter
+# @selector
+# @counter
 def add_final_count(df):
     """Final sample
     Add count of final dataset to selection table."""

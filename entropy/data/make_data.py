@@ -1,77 +1,49 @@
 import argparse
 import os
-import re
 import sys
 
 import pandas as pd
 
 from entropy import config
+import entropy.data.aggregators as agg
+import entropy.data.cleaners as cl
+import entropy.data.selection_table as st
+import entropy.data.selectors as sl
+import entropy.data.validators as vl
 import entropy.helpers.aws as ha
+import entropy.helpers.data as hd
 import entropy.helpers.helpers as hh
-from .cleaners import cleaner_funcs
-from .selectors import selector_funcs, sample_counts
-from .creators import creator_funcs
-from .validators import validator_funcs
-from .selection_table import selection_table, write_selection_table
 
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument("input_path")
-    parser.add_argument("output_path")
+    parser.add_argument("sample")
     return parser.parse_args(argv)
 
 
 @hh.timer
-def read_data(path):
-    return ha.read_parquet(path)
-
-@hh.timer
 def clean_data(df):
-    for func in cleaner_funcs:
+    for func in cl.cleaner_funcs:
         df = func(df)
     return df
 
 
 @hh.timer
-def create_vars(df):
-    if not df.empty:
-        for func in creator_funcs:
-            df = func(df)
-    return df
-
-
-@hh.timer
 def select_sample(df):
-    for func in selector_funcs:
-        df = func.func(df, **func.kwargs)
+    for func in sl.selector_funcs:
+        df = func(df)
     return df
 
 
 @hh.timer
 def validate_data(df):
-    if not df.empty:
-        for func in validator_funcs:
-            func(df)
-    print('All validation checks passed.')
+    for func in vl.validator_funcs:
+        func(df)
     return df
 
 
-@hh.timer
-def write_data(df, path, **kwargs):
-    ha.write_parquet(df, path, **kwargs)
-    return df
-
-
-def get_sample_name(path):
-    sample_name_pattern = "[X\d]+"
-    filename = os.path.basename(path)
-    return re.search(sample_name_pattern, filename).group()
-
-
-def get_table_path(sample_name):
-    table_name = f"sample_selection_{sample_name}.tex"
-    return os.path.join(config.TABDIR, table_name)
+def aggregate_data(df):
+    return pd.concat((func(df) for func in agg.aggregator_funcs), axis=1, join="outer")
 
 
 @hh.timer
@@ -80,23 +52,26 @@ def main(argv=None):
         argv = sys.argv[1:]
     args = parse_args(argv)
 
-    sample_name = get_sample_name(args.input_path)
-    print("Making sample:", sample_name)
+    print("Making sample:", args.sample)
+
+    txn_path = os.path.join(config.AWS_BUCKET, f"txn_{args.sample}.parquet")
+    analysis_path = os.path.join(config.AWS_BUCKET, f"analysis_{args.sample}.parquet")
 
     df = (
-        read_data(args.input_path)
+        hd.read_raw_data(args.sample)
         .pipe(clean_data)
-        .pipe(create_vars)
+        .pipe(ha.write_parquet, txn_path)
+        .pipe(aggregate_data)
         .pipe(select_sample)
+        .pipe(validate_data)
+        .pipe(ha.write_parquet, analysis_path)
     )
-    write_data(df, args.output_path)
-    validate_data(df)
+    print(df.head())
 
-    table = selection_table(sample_counts)
-    tbl_path = get_table_path(sample_name)
-    write_selection_table(table, tbl_path)
-    with pd.option_context('max_colwidth', 25):
-        print(table)
+    selection_table = st.make_selection_table(sl.sample_counts)
+    st.write_selection_table(selection_table, args.sample)
+    with pd.option_context("max_colwidth", 25):
+        print(selection_table)
 
 
 if __name__ == "__main__":

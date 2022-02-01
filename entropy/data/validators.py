@@ -1,5 +1,5 @@
 """
-Functions to validate integrity of transactions dataset.
+Functions to validate data integrity.
 
 """
 
@@ -14,8 +14,17 @@ def validator(func):
     validator_funcs.append(func)
     return func
 
-
 @validator
+def validator(df):
+    assert df.isna().sum().sum() == 0
+
+    # sa inflows or outflows > 0 if sa txns > 0 (currently violated)
+    # ca txns > 0 always
+
+    return df
+
+
+# @validator
 def tag_groups(df):
     """All occurring tag groups are valid."""
     occurring = set(df.tag_group.cat.categories)
@@ -23,7 +32,7 @@ def tag_groups(df):
     assert occurring <= valid
 
 
-@validator
+# @validator
 def spend_tag(df):
     """All occurring spend tags are valid."""
     spend_txns = df[df.tag_group.eq("spend") & df.debit]
@@ -33,19 +42,19 @@ def spend_tag(df):
     assert occurring <= valid
 
 
-@validator
+# @validator
 def val_current_and_savings_account(df):
     min_accounts = df.groupby(["user_id"]).account_type.value_counts().unstack().min()
     assert min_accounts["current"] > 0
     assert min_accounts["savings"] > 0
 
 
-@validator
+# @validator
 def val_min_number_of_months(df, min_months=6):
     assert df.groupby("user_id").ym.nunique().min() >= min_months
 
 
-@validator
+# @validator
 def val_no_missing_months(df):
     def month_range(date):
         return (date.max().to_period("M") - date.min().to_period("m")).n + 1
@@ -56,14 +65,14 @@ def val_no_missing_months(df):
     assert all(months_observed == months_range)
 
 
-@validator
+# @validator
 def val_monthly_min_spend(df, min_spend=200):
     is_spend = df.tag_group.eq('spend') & df.debit
     spend = df.amount.where(is_spend, np.nan)
     assert all(spend.groupby([df.user_id, df.ym]).sum() >= min_spend)
 
 
-@validator
+# @validator
 def val_monthly_income_pmts(df, income_months_ratio=2 / 3):
     months_with_income = (
         df.tag_group.eq("income")
@@ -78,12 +87,12 @@ def val_monthly_income_pmts(df, income_months_ratio=2 / 3):
     return all(months_with_income / all_months > income_months_ratio)
 
 
-@validator
+# @validator
 def val_annual_income(df, lower=10_000):
     assert df.income.min() >= lower
 
 
-@validator
+# @validator
 def val_demographic_info(df):
     cols = ["yob", "female", "postcode"]
     assert df[cols].isna().sum().sum() == 0
