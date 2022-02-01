@@ -135,7 +135,7 @@ def annual_income(df, min_income=10_000):
 @selector
 @counter
 def demographic_info(df):
-    """Demographic information available
+    """Complete demographic information
 
     Retains only users for which we have full demographic information.
     """
