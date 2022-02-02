@@ -198,8 +198,6 @@ def female(df):
     return df.groupby(idx_cols).female.first()
 
 
-
-
 @aggregator
 def savings_accounts_flows(df):
     """Monthly inflows, outflows, and net-inflows into user's savings accounts.
@@ -230,6 +228,5 @@ def savings_accounts_flows(df):
         )
         .drop(columns="annual_income")
     )
-
 
 
