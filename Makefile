@@ -14,6 +14,7 @@ test:
 data: $(SAMPLES)
 
 $(SAMPLES):
+	@printf '\nMaking sample $@...\n'
 	@python -m entropy.data.make_data $@
 
 
