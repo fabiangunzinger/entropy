@@ -18,6 +18,25 @@ $(SAMPLES):
 	@python -m entropy.data.make_data $@
 
 
+.PHONY: rawdata
+rawdata: raw_777 raw_XX7
+
+raw_777:
+	@printf '\nMaking sample 777...\n'
+	@python -m entropy.data.make_data 777 --from-raw
+
+raw_XX7:
+	@printf '\nMaking sample XX7...\n'
+	@python -m entropy.data.make_data XX7 --from-raw
+
+
+
+
+
+
+
+
+
 .PHONY: analysis figures
 
 analysis: analysis_data sumstats_table

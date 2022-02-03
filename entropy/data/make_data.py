@@ -18,6 +18,7 @@ import entropy.helpers.helpers as hh
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument("sample")
+    parser.add_argument("--from-raw", action="store_true", help="start from raw data")
     return parser.parse_args(argv)
 
 
@@ -47,6 +48,7 @@ def aggregate_data(df):
     return pd.concat((func(df) for func in agg.aggregator_funcs), axis=1, join="outer")
 
 
+@hh.timer
 def write_data(df, filename, **kwargs):
     filepath = os.path.join(config.AWS_BUCKET, filename)
     ha.write_parquet(df, filepath, **kwargs)
@@ -79,8 +81,11 @@ def main(argv=None):
     ]
 
     df = (
-        hd.read_raw_data(args.sample, columns=columns)
-        .pipe(clean_data)
+        (
+            hd.read_raw_data(args.sample, columns=columns).pipe(clean_data)
+            if args.from_raw
+            else hd.read_txn_data(args.sample)
+        )
         .pipe(write_data, f"txn_{args.sample}.parquet")
         .pipe(aggregate_data)
         .pipe(select_sample)
@@ -88,10 +93,12 @@ def main(argv=None):
         .pipe(validate_data)
     )
 
-    selection_table = st.make_selection_table(sl.sample_counts)
-    st.write_selection_table(selection_table, args.sample)
+    selection_table = st.make_selection_table(sl.sample_counts).pipe(
+        st.write_selection_table, args.sample
+    )
+
+    print(df.head())
     with pd.option_context("max_colwidth", 25):
-        print(df.head())
         print(selection_table)
 
 
