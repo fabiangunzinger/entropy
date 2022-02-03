@@ -1,77 +1,58 @@
 import argparse
 import os
-import re
 import sys
 
 import pandas as pd
 
 from entropy import config
+import entropy.data.aggregators as agg
+import entropy.data.cleaners as cl
+import entropy.data.selection_table as st
+import entropy.data.selectors as sl
+import entropy.data.validators as vl
 import entropy.helpers.aws as ha
+import entropy.helpers.data as hd
 import entropy.helpers.helpers as hh
-from .cleaners import cleaner_funcs
-from .selectors import selector_funcs, sample_counts
-from .creators import creator_funcs
-from .validators import validator_funcs
-from .selection_table import selection_table, write_selection_table
 
 
 def parse_args(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument("input_path")
-    parser.add_argument("output_path")
+    parser.add_argument("sample")
+    parser.add_argument("--from-raw", action="store_true", help="start from raw data")
     return parser.parse_args(argv)
 
 
 @hh.timer
-def read_data(path):
-    return ha.read_parquet(path)
-
-@hh.timer
 def clean_data(df):
-    for func in cleaner_funcs:
+    for func in cl.cleaner_funcs:
         df = func(df)
     return df
 
 
 @hh.timer
-def create_vars(df):
-    if not df.empty:
-        for func in creator_funcs:
-            df = func(df)
-    return df
-
-
-@hh.timer
 def select_sample(df):
-    for func in selector_funcs:
-        df = func.func(df, **func.kwargs)
+    for func in sl.selector_funcs:
+        df = func(df)
     return df
 
 
 @hh.timer
 def validate_data(df):
-    if not df.empty:
-        for func in validator_funcs:
-            func(df)
-    print('All validation checks passed.')
+    for func in vl.validator_funcs:
+        func(df)
     return df
 
 
 @hh.timer
-def write_data(df, path, **kwargs):
-    ha.write_parquet(df, path, **kwargs)
+def aggregate_data(df):
+    return pd.concat((func(df) for func in agg.aggregator_funcs), axis=1, join="outer")
+
+
+@hh.timer
+def write_data(df, filename, **kwargs):
+    filepath = os.path.join(config.AWS_BUCKET, filename)
+    ha.write_parquet(df, filepath, **kwargs)
     return df
-
-
-def get_sample_name(path):
-    sample_name_pattern = "[X\d]+"
-    filename = os.path.basename(path)
-    return re.search(sample_name_pattern, filename).group()
-
-
-def get_table_path(sample_name):
-    table_name = f"sample_selection_{sample_name}.tex"
-    return os.path.join(config.TABDIR, table_name)
 
 
 @hh.timer
@@ -80,23 +61,45 @@ def main(argv=None):
         argv = sys.argv[1:]
     args = parse_args(argv)
 
-    sample_name = get_sample_name(args.input_path)
-    print("Making sample:", sample_name)
+    columns = [
+        "Transaction Reference",
+        "User Reference",
+        "Year of Birth",
+        "Postcode",
+        "Derived Gender",
+        "Transaction Date",
+        "Account Reference",
+        "Provider Group Name",
+        "Account Type",
+        "Transaction Description",
+        "Credit Debit",
+        "Amount",
+        "Auto Purpose Tag Name",
+        "Merchant Name",
+        "Latest Recorded Balance",
+        "Account Last Refreshed",
+    ]
 
     df = (
-        read_data(args.input_path)
-        .pipe(clean_data)
-        .pipe(create_vars)
+        (
+            hd.read_raw_data(args.sample, columns=columns)
+            .pipe(clean_data)
+            .pipe(write_data, f"txn_{args.sample}.parquet")
+            if args.from_raw
+            else hd.read_txn_data(args.sample)
+        )
+        .pipe(aggregate_data)
         .pipe(select_sample)
+        .pipe(write_data, f"analysis_{args.sample}.parquet", index=True)
+        .pipe(validate_data)
     )
-    write_data(df, args.output_path)
-    validate_data(df)
 
-    table = selection_table(sample_counts)
-    tbl_path = get_table_path(sample_name)
-    write_selection_table(table, tbl_path)
-    with pd.option_context('max_colwidth', 25):
-        print(table)
+    selection_table = st.make_selection_table(sl.sample_counts)
+    st.write_selection_table(selection_table, args.sample)
+
+    print(df.head())
+    with pd.option_context("max_colwidth", 25):
+        print(selection_table)
 
 
 if __name__ == "__main__":

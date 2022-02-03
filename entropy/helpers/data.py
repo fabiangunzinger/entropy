@@ -23,25 +23,21 @@ def inspect(df, nrows=2):
 
 
 @hh.timer
-def read_analysis_data():
-    fp = f"s3://3di-project-entropy/analysis_data.parquet"
-    return ha.read_parquet(fp)
-
-
-@hh.timer
-def read_raw_sample(sample):
+def read_raw_data(sample='XX7', **kwargs):
     fp = f"s3://3di-data-mdb/raw/mdb_{sample}.parquet"
-    return ha.read_parquet(fp)
+    return ha.read_parquet(fp, **kwargs)
 
 
 @hh.timer
-def read_sample(sample):
-    fp = f"s3://3di-project-entropy/entropy_{sample}.parquet"
-    return ha.read_parquet(fp)
+def read_txn_data(sample='XX7', **kwargs):
+    fp = f"s3://3di-project-entropy/txn_{sample}.parquet"
+    return ha.read_parquet(fp, **kwargs)
 
 
-def read_samples(samples):
-    return (read_sample(sample) for sample in samples)
+@hh.timer
+def read_analysis_data(sample='XX7', **kwargs):
+    fp = f"s3://3di-project-entropy/analysis_{sample}.parquet"
+    return ha.read_parquet(fp, **kwargs)
 
 
 def trim(series, pct=1, how="both"):

@@ -1,7 +1,13 @@
-import itertools
+"""
+Functions to clean raw MDB transaction data.
+
+"""
+
 import re
 import string
+
 import numpy as np
+import pandas as pd
 
 import entropy.data.txn_classifications as tc
 import entropy.helpers.helpers as hh
@@ -27,24 +33,24 @@ def rename_cols(df):
     (e.g `txn_id` is `id`).
     """
     new_names = {
-        "Account Created Date": "account_created",
+        # "Account Created Date": "account_created",
         "Account Reference": "account_id",
         "Derived Gender": "gender",
-        "LSOA": "lsoa",
-        "MSOA": "msoa",
+        # "LSOA": "lsoa",
+        # "MSOA": "msoa",
         "Merchant Name": "merchant",
         "Postcode": "postcode",
         "Provider Group Name": "account_provider",
-        "Salary Range": "salary_range",
+        # "Salary Range": "salary_range",
         "Transaction Date": "date",
         "Transaction Description": "desc",
         "Transaction Reference": "id",
-        "Transaction Updated Flag": "updated_flag",
+        # "Transaction Updated Flag": "updated_flag",
         "User Reference": "user_id",
         "Year of Birth": "yob",
         "Auto Purpose Tag Name": "tag_auto",
-        "Manual Tag Name": "tag_manual",
-        "User Precedence Tag Name": "tag_up",
+        # "Manual Tag Name": "tag_manual",
+        # "User Precedence Tag Name": "tag_up",
         "Latest Recorded Balance": "latest_balance",
     }
     return df.rename(columns=new_names)
@@ -62,30 +68,6 @@ def clean_headers(df):
 
 @cleaner
 @hh.timer
-def drop_unneeded_vars(df):
-    vars = [
-        "lsoa",
-        "msoa",
-        "salary_range",
-        "data_warehouse_date_created",
-        "data_warehouse_date_last_updated",
-        "updated_flag",
-    ]
-    return df.drop(columns=vars)
-
-
-@cleaner
-@hh.timer
-def add_year_month_variable(df):
-    """Creates year-month date as helper variable."""
-    y = df.date.dt.year * 100
-    m = df.date.dt.month
-    df["ym"] = y + m
-    return df
-
-
-@cleaner
-@hh.timer
 def drop_first_and_last_month(df):
     """Drops first and last month for each user.
 
@@ -93,10 +75,10 @@ def drop_first_and_last_month(df):
     the month, which would bias monthly entropy scores downwards (if we only
     observe a single txn, entropy would be 0).
     """
-    g = df.groupby("user_id")
-    first_month = g.ym.transform(min)
-    last_month = g.ym.transform(max)
-    return df[df.ym.between(first_month, last_month, inclusive="neither")]
+    ym = df.date.dt.to_period('m')
+    first_month = ym.groupby(df.user_id).transform('min')
+    last_month = ym.groupby(df.user_id).transform('max')
+    return df[ym.between(first_month, last_month, inclusive="neither")]
 
 
 @cleaner
@@ -148,15 +130,15 @@ def sign_amount(df):
 
 @cleaner
 @hh.timer
-def missings_to_nan(df):
+def missing_tags_to_nan(df):
     """Converts missing category values to NaN."""
-    mbl = "merchant_business_line"
-    mbl_missing = ["no merchant business line", "unknown merchant"]
-    df[mbl] = df[mbl].cat.remove_categories(mbl_missing)
+    # mbl = "merchant_business_line"
+    # mbl_missing = ["no merchant business line", "unknown merchant"]
+    # df[mbl] = df[mbl].cat.remove_categories(mbl_missing)
     df["merchant"] = df["merchant"].cat.remove_categories(["no merchant"])
-    df["tag_up"] = df["tag_up"].cat.remove_categories(["no tag"])
+    # df["tag_up"] = df["tag_up"].cat.remove_categories(["no tag"])
     df["tag_auto"] = df["tag_auto"].cat.remove_categories(["no tag"])
-    df["tag_manual"] = df["tag_manual"].cat.remove_categories(["no tag"])
+    # df["tag_manual"] = df["tag_manual"].cat.remove_categories(["no tag"])
     return df
 
 
@@ -261,7 +243,7 @@ def clean_description(df):
     'o2', and '14jan' remain unchanged).
     """
     kwargs = dict(repl=" ", regex=True)
-    df["desco"] = df.desc
+    df["desc_orig"] = df.desc
     df["desc"] = (
         df.desc.str.replace(r"-\s(\w\s)?.{2,3}$", **kwargs)
         .str.replace(fr"[{string.punctuation}]", **kwargs)
@@ -292,7 +274,7 @@ def drop_duplicates(df):
 def order_and_sort(df):
     """Orders columns and sort values."""
     cols = df.columns
-    first = ["id", "date", "user_id", "amount", "desc", "merchant", "tag_group", "tag"]
+    first = ["date", "user_id", "amount", "desc", "merchant", "tag_group", "tag"]
     user = cols[cols.str.startswith("user") & ~cols.isin(first)]
     account = cols[cols.str.startswith("account") & ~cols.isin(first)]
     txn = cols[~cols.isin(user.append(account)) & ~cols.isin(first)]

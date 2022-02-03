@@ -1,7 +1,5 @@
 SHELL = /bin/sh
 
-RAWDIR := s3://3di-data-mdb/raw
-CLEANDIR := s3://3di-project-entropy
 SAMPLES := 777 XX7
 FIGDATA := s3://3di-project-entropy/entropy_XX7.parquet
 
@@ -12,22 +10,36 @@ test:
 	python -m pytest
 
 
-.PHONY: mdb_data
-txn_data: $(SAMPLES)
+.PHONY: data
+data: $(SAMPLES)
 
 $(SAMPLES):
-	@python -m entropy.data.make_data\
-		$(RAWDIR)/mdb_$@.parquet\
-		$(CLEANDIR)/entropy_$@.parquet
+	@printf '\nMaking sample $@...\n'
+	@python -m entropy.data.make_data $@
 
 
-.PHONY: analysis analysis_data figures
+.PHONY: rawdata
+rawdata: raw_777 raw_XX7
+
+raw_777:
+	@printf '\nMaking sample 777...\n'
+	@python -m entropy.data.make_data 777 --from-raw
+
+raw_XX7:
+	@printf '\nMaking sample XX7...\n'
+	@python -m entropy.data.make_data XX7 --from-raw
+
+
+
+
+
+
+
+
+
+.PHONY: analysis figures
 
 analysis: analysis_data sumstats_table
-
-analysis_data:
-	@printf '\nProducing analysis data...\n'
-	@python -m entropy.analysis.make_analysis_data
 
 sumstats_table:
 	@printf '\nProducing sumstats table...\n'

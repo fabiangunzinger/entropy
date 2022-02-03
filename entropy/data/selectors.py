@@ -6,27 +6,16 @@ First line in docstring is used in selection table.
 
 import collections
 import functools
-import re
-
-import numpy as np
-import pandas as pd
-
-import entropy.helpers.helpers as hh
+import itertools
 
 
 selector_funcs = []
 sample_counts = collections.Counter()
-FuncWithKwargs = collections.namedtuple("FuncWithKwargs", ["func", "kwargs"])
 
 
-def selector(func=None, **kwargs):
-    """Add function to list of selector functions."""
-
-    def wrapper(func):
-        selector_funcs.append(FuncWithKwargs(func, kwargs))
-        return func
-
-    return wrapper(func) if func else wrapper
+def selector(func):
+    selector_funcs.append(func)
+    return func
 
 
 def counter(func):
@@ -41,10 +30,13 @@ def counter(func):
         description = func.__doc__.splitlines()[0]
         sample_counts.update(
             {
-                description + "@users": df.user_id.nunique(),
-                description + "@accounts": df.account_id.nunique(),
-                description + "@txns": df.id.nunique(),
-                description + "@value": df.amount.abs().sum() / 1e6,
+                description + "@users": df.index.get_level_values("user_id").nunique(),
+                description
+                + "@accounts": len(
+                    set(itertools.chain.from_iterable(df.active_accounts))
+                ),
+                description + "@txns": df.txns_count.sum(),
+                description + "@value": df.txns_value.sum() / 1e6,
             }
         )
         return df
@@ -62,88 +54,70 @@ def add_raw_count(df):
 
 @selector
 @counter
-def current_and_savings_account(df):
-    """One or more current and savings account"""
-    s = df.groupby(["user_id", "account_type"]).size().unstack()
-    cond = s.savings.gt(0) & s.current.gt(0)
+def annual_income(df, min_income=10_000):
+    """Annual income of at least \pounds10k"""
+    cond = df.groupby("user_id").annual_income.min() >= min_income
     users = cond[cond].index
-    return df[df.user_id.isin(users)]
+    return df.loc[users]
+
+
+@selector
+@counter
+def regular_income(df, income_months_ratio=2 / 3):
+    """Income in 2/3 of all observed months"""
+    g = (df.monthly_income > 0).groupby("user_id")
+    cond = g.sum() / g.size() >= income_months_ratio
+    users = cond[cond].index
+    return df.loc[users]
+
+
+@selector
+@counter
+def savings_account(df):
+    """At least one savings account"""
+    cond = df.groupby("user_id").txn_count_sa.max().gt(0)
+    users = cond[cond].index
+    return df.loc[users]
 
 
 @selector
 @counter
 def min_number_of_months(df, min_months=6):
     """At least 6 months of data"""
-    cond = df.groupby("user_id").ym.transform("nunique") >= min_months
-    return df.loc[cond]
-
-
-@selector
-@counter
-def no_missing_months(df):
-    """No gaps in observed months
-
-    Requires that there are no months between first and last observed month for
-    which we observe no transactions.
-    """
-
-    def month_range(date):
-        return (date.max().to_period("M") - date.min().to_period("m")).n + 1
-
-    g = df.groupby("user_id")
-    months_observed = g.ym.transform("nunique")
-    months_range = g.date.transform(month_range)
-    return df.loc[months_observed == months_range]
+    cond = df.groupby("user_id").size() >= min_months
+    users = cond[cond].index
+    return df.loc[users]
 
 
 @selector
 @counter
 def monthly_min_spend(df, min_spend=200):
     """Monthly debits of at least \pounds200"""
-    is_ca_spend = df.tag_group.eq("spend") & df.account_type.eq('current') & df.debit
-    spend = df.amount.where(is_ca_spend, np.nan)
-    cond = (
- 
-        spend.groupby([df.user_id, df.ym]).sum().groupby("user_id").min().ge(min_spend)
-    )
+    cond = df.groupby("user_id").monthly_spend.min() >= min_spend
     users = cond[cond].index
-    return df[df.user_id.isin(users)]
+    return df.loc[users]
 
 
 @selector
 @counter
-def monthly_income_pmts(df, income_months_ratio=2 / 3):
-    """Income in 2/3 of all observed months"""
-
-    def helper(g):
-        num_months_observed = g.ym.nunique()
-        num_months_with_income = g[g.tag_group.eq("income")].ym.nunique()
-        return (num_months_with_income / num_months_observed) >= income_months_ratio
-
-    return df.groupby("user_id").filter(helper)
-
-
-@selector
-@counter
-def annual_income(df, min_income=10_000):
-    """Yearly income of at least \pounds10k"""
-    cond = df.groupby("user_id").income.min() >= min_income
+def monthly_min_ca_txns(df, min_txns=5):
+    """Five or more current account txns per month"""
+    cond = df.groupby("user_id").txn_count_ca.min() >= min_txns
     users = cond[cond].index
-    return df[df.user_id.isin(users)]
+    return df.loc[users]
 
 
 @selector
 @counter
-def demographic_info(df):
+def complete_demographic_info(df):
     """Complete demographic information
 
     Retains only users for which we have full demographic information.
     """
-    cols = ["yob", "female", "region"]
-    missings = df[cols].isna()
-    cond = missings.groupby(df.user_id).sum().sum(1).eq(0)
+    cols = ["age", "female", "region"]
+    cond = df[cols].isna().groupby("user_id").sum().sum(1).eq(0)
     users = cond[cond].index
-    return df[df.user_id.isin(users)]
+    return df.loc[users]
 
 
 @selector
