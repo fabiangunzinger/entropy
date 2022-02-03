@@ -42,10 +42,15 @@ def validate_data(df):
     return df
 
 
-
 @hh.timer
 def aggregate_data(df):
     return pd.concat((func(df) for func in agg.aggregator_funcs), axis=1, join="outer")
+
+
+def write_data(df, filename, **kwargs):
+    filepath = os.path.join(config.AWS_BUCKET, filename)
+    ha.write_parquet(df, filepath, **kwargs)
+    return df
 
 
 @hh.timer
@@ -54,21 +59,34 @@ def main(argv=None):
         argv = sys.argv[1:]
     args = parse_args(argv)
 
-    print("Making sample:", args.sample)
-
-    txn_path = os.path.join(config.AWS_BUCKET, f"txn_{args.sample}.parquet")
-    analysis_path = os.path.join(config.AWS_BUCKET, f"analysis_{args.sample}.parquet")
+    columns = [
+        "Transaction Reference",
+        "User Reference",
+        "Year of Birth",
+        "Postcode",
+        "Derived Gender",
+        "Transaction Date",
+        "Account Reference",
+        "Provider Group Name",
+        "Account Type",
+        "Transaction Description",
+        "Credit Debit",
+        "Amount",
+        "Auto Purpose Tag Name",
+        "Merchant Name",
+        "Latest Recorded Balance",
+        "Account Last Refreshed",
+    ]
 
     df = (
-        hd.read_raw_data(args.sample)
+        hd.read_raw_data(args.sample, columns=columns)
         .pipe(clean_data)
-        .pipe(ha.write_parquet, txn_path)
+        .pipe(write_data, f"txn_{args.sample}.parquet")
         .pipe(aggregate_data)
         .pipe(select_sample)
-        .pipe(ha.write_parquet, analysis_path, index=True)
+        .pipe(write_data, f"analysis_{args.sample}.parquet", index=True)
         .pipe(validate_data)
     )
-    print(df.head())
 
     selection_table = st.make_selection_table(sl.sample_counts)
     st.write_selection_table(selection_table, args.sample)

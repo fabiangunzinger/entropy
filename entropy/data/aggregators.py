@@ -29,6 +29,7 @@ def aggregator(func):
     return func
 
 
+@hh.timer
 @aggregator
 def user_month_info(df):
     return df.groupby(idx_cols).agg(
@@ -39,6 +40,7 @@ def user_month_info(df):
 
 
 @aggregator
+@hh.timer
 def txn_counts_by_account_type(df):
     group_cols = idx_cols + ["account_type"]
     return (
@@ -52,18 +54,24 @@ def txn_counts_by_account_type(df):
 
 
 @aggregator
+@hh.timer
 def monthly_spend(df):
-    """Spend and log spend per user-month."""
+    """Spend and log spend per user-month.
+
+    We ignore log of zero cases since numpy can handle them by returning -inf
+    and users with zero spend months will be dropped during sample selection.
+    """
     df = df.copy()
     is_spend = df.tag_group.eq("spend") & df.debit
     df["amount"] = df.amount.where(is_spend, np.nan)
-
-    return df.groupby(idx_cols).amount.agg(
-        monthly_spend="sum", log_monthly_spend=lambda s: np.log(s.sum())
-    )
+    with np.errstate(divide='ignore'):
+        return df.groupby(idx_cols).amount.agg(
+            monthly_spend="sum", log_monthly_spend=lambda s: np.log(s.sum())
+        )
 
 
 @aggregator
+@hh.timer
 def tag_monthly_spend_prop(df):
     """Spend per tag per user-month as proportion of total monthly spend."""
     df = df.copy()
@@ -193,12 +201,14 @@ def age(df):
 
 
 @aggregator
+@hh.timer
 def female(df):
     """Dummy for whether user is a women."""
     return df.groupby(idx_cols).female.first()
 
 
 @aggregator
+@hh.timer
 def savings_accounts_flows(df):
     """Monthly inflows, outflows, and net-inflows into user's savings accounts.
 

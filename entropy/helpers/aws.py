@@ -25,7 +25,6 @@ def write_csv(df, path, aws_profile=config.AWS_PROFILE, verbose=True, **kwargs):
         df.to_csv(path, index=False, **kwargs)
     if verbose:
         print(f"{path} (of shape {df.shape}) written.")
-    return df
 
 
 def read_parquet(path, aws_profile=config.AWS_PROFILE, **kwargs):
@@ -45,7 +44,6 @@ def write_parquet(df, path, aws_profile=config.AWS_PROFILE, index=False, verbose
         df.to_parquet(path, index=index, **kwargs)
     if verbose:
         print(f"{path} (of shape {df.shape}) written.")
-    return df
 
 
 def get_nspl(**kwargs):

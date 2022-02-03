@@ -33,24 +33,24 @@ def rename_cols(df):
     (e.g `txn_id` is `id`).
     """
     new_names = {
-        "Account Created Date": "account_created",
+        # "Account Created Date": "account_created",
         "Account Reference": "account_id",
         "Derived Gender": "gender",
-        "LSOA": "lsoa",
-        "MSOA": "msoa",
+        # "LSOA": "lsoa",
+        # "MSOA": "msoa",
         "Merchant Name": "merchant",
         "Postcode": "postcode",
         "Provider Group Name": "account_provider",
-        "Salary Range": "salary_range",
+        # "Salary Range": "salary_range",
         "Transaction Date": "date",
         "Transaction Description": "desc",
         "Transaction Reference": "id",
-        "Transaction Updated Flag": "updated_flag",
+        # "Transaction Updated Flag": "updated_flag",
         "User Reference": "user_id",
         "Year of Birth": "yob",
         "Auto Purpose Tag Name": "tag_auto",
-        "Manual Tag Name": "tag_manual",
-        "User Precedence Tag Name": "tag_up",
+        # "Manual Tag Name": "tag_manual",
+        # "User Precedence Tag Name": "tag_up",
         "Latest Recorded Balance": "latest_balance",
     }
     return df.rename(columns=new_names)
@@ -64,20 +64,6 @@ def clean_headers(df):
         df.columns.str.lower().str.replace(r"[\s\.]", "_", regex=True).str.strip()
     )
     return df
-
-
-@cleaner
-@hh.timer
-def drop_unneeded_vars(df):
-    vars = [
-        "lsoa",
-        "msoa",
-        "salary_range",
-        "data_warehouse_date_created",
-        "data_warehouse_date_last_updated",
-        "updated_flag",
-    ]
-    return df.drop(columns=vars)
 
 
 @cleaner
@@ -146,13 +132,13 @@ def sign_amount(df):
 @hh.timer
 def missing_tags_to_nan(df):
     """Converts missing category values to NaN."""
-    mbl = "merchant_business_line"
-    mbl_missing = ["no merchant business line", "unknown merchant"]
-    df[mbl] = df[mbl].cat.remove_categories(mbl_missing)
+    # mbl = "merchant_business_line"
+    # mbl_missing = ["no merchant business line", "unknown merchant"]
+    # df[mbl] = df[mbl].cat.remove_categories(mbl_missing)
     df["merchant"] = df["merchant"].cat.remove_categories(["no merchant"])
-    df["tag_up"] = df["tag_up"].cat.remove_categories(["no tag"])
+    # df["tag_up"] = df["tag_up"].cat.remove_categories(["no tag"])
     df["tag_auto"] = df["tag_auto"].cat.remove_categories(["no tag"])
-    df["tag_manual"] = df["tag_manual"].cat.remove_categories(["no tag"])
+    # df["tag_manual"] = df["tag_manual"].cat.remove_categories(["no tag"])
     return df
 
 
@@ -288,7 +274,7 @@ def drop_duplicates(df):
 def order_and_sort(df):
     """Orders columns and sort values."""
     cols = df.columns
-    first = ["id", "date", "user_id", "amount", "desc", "merchant", "tag_group", "tag"]
+    first = ["date", "user_id", "amount", "desc", "merchant", "tag_group", "tag"]
     user = cols[cols.str.startswith("user") & ~cols.isin(first)]
     account = cols[cols.str.startswith("account") & ~cols.isin(first)]
     txn = cols[~cols.isin(user.append(account)) & ~cols.isin(first)]

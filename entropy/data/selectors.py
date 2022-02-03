@@ -60,15 +60,6 @@ def add_raw_count(df):
 
 @selector
 @counter
-def min_number_of_months(df, min_months=6):
-    """At least 6 months of data"""
-    cond = df.groupby("user_id").size() >= min_months
-    users = cond[cond].index
-    return df.loc[users]
-
-
-@selector
-@counter
 def annual_income(df, min_income=10_000):
     """Annual income of at least \pounds10k"""
     cond = df.groupby("user_id").annual_income.min() >= min_income
@@ -78,7 +69,7 @@ def annual_income(df, min_income=10_000):
 
 @selector
 @counter
-def monthly_income_pmts(df, income_months_ratio=2 / 3):
+def regular_income(df, income_months_ratio=2 / 3):
     """Income in 2/3 of all observed months"""
     g = (df.monthly_income > 0).groupby("user_id")
     cond = g.sum() / g.size() >= income_months_ratio
@@ -88,13 +79,18 @@ def monthly_income_pmts(df, income_months_ratio=2 / 3):
 
 @selector
 @counter
-def demographic_info(df):
-    """Complete demographic information
+def savings_account(df):
+    """At least one savings account"""
+    cond = df.groupby("user_id").txn_count_sa.max().gt(0)
+    users = cond[cond].index
+    return df.loc[users]
 
-    Retains only users for which we have full demographic information.
-    """
-    cols = ["age", "female", "region"]
-    cond = df[cols].isna().groupby("user_id").sum().sum(1).eq(0)
+
+@selector
+@counter
+def min_number_of_months(df, min_months=6):
+    """At least 6 months of data"""
+    cond = df.groupby("user_id").size() >= min_months
     users = cond[cond].index
     return df.loc[users]
 
@@ -119,9 +115,13 @@ def monthly_min_ca_txns(df, min_txns=5):
 
 @selector
 @counter
-def savings_account(df):
-    """At least one savings account"""
-    cond = df.groupby("user_id").txn_count_sa.max().gt(0)
+def demographic_info(df):
+    """Complete demographic information
+
+    Retains only users for which we have full demographic information.
+    """
+    cols = ["age", "female", "region"]
+    cond = df[cols].isna().groupby("user_id").sum().sum(1).eq(0)
     users = cond[cond].index
     return df.loc[users]
 
