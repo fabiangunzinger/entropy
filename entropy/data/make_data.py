@@ -93,9 +93,8 @@ def main(argv=None):
         .pipe(validate_data)
     )
 
-    selection_table = st.make_selection_table(sl.sample_counts).pipe(
-        st.write_selection_table, args.sample
-    )
+    selection_table = st.make_selection_table(sl.sample_counts)
+    st.write_selection_table(selection_table, args.sample)
 
     print(df.head())
     with pd.option_context("max_colwidth", 25):
