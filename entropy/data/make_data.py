@@ -82,11 +82,12 @@ def main(argv=None):
 
     df = (
         (
-            hd.read_raw_data(args.sample, columns=columns).pipe(clean_data)
+            hd.read_raw_data(args.sample, columns=columns)
+            .pipe(clean_data)
+            .pipe(write_data, f"txn_{args.sample}.parquet")
             if args.from_raw
             else hd.read_txn_data(args.sample)
         )
-        .pipe(write_data, f"txn_{args.sample}.parquet")
         .pipe(aggregate_data)
         .pipe(select_sample)
         .pipe(write_data, f"analysis_{args.sample}.parquet", index=True)
