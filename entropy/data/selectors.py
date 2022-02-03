@@ -7,12 +7,6 @@ First line in docstring is used in selection table.
 import collections
 import functools
 import itertools
-import re
-
-import numpy as np
-import pandas as pd
-
-import entropy.helpers.helpers as hh
 
 
 selector_funcs = []
@@ -115,7 +109,7 @@ def monthly_min_ca_txns(df, min_txns=5):
 
 @selector
 @counter
-def demographic_info(df):
+def complete_demographic_info(df):
     """Complete demographic information
 
     Retains only users for which we have full demographic information.
