@@ -1,3 +1,17 @@
+"""
+Produces transactions and analysis data for entropy project.
+
+Analysis data is produced from transactions data, which is produced from raw
+data. Because analysis data is being changed as the analysis progresses while the
+underlying transactions data tends to remain unchanged and takes much longer to
+process, the program by default starts the processing from the txns data. But
+the `--from-raw` option can be passed to first create new transactions data.
+
+"""
+
+
+
+
 import argparse
 import functools
 import os
