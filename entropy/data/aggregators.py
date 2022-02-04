@@ -119,9 +119,13 @@ def income(df):
 def entropy_spend_tag_counts(df):
     """Adds Shannon entropy scores based on tag counts of spend txns."""
     data = df.copy()
-    is_spend = data.tag_group.eq("spend") & data.debit
-    data["tag"] = data.tag.where(is_spend, np.nan)
-    group_cols = idx_cols + ['tag']
+    is_ca_sa_spend = (
+        data.tag_group.eq("spend")
+        & data.account_type.isin(["current", "credit card"])
+        & data.debit
+    )
+    data["tag"] = data.tag.where(is_ca_sa_spend, np.nan)
+    group_cols = idx_cols + ["tag"]
     g = data.groupby(group_cols, observed=True)
     tag_txns = g.size().unstack().fillna(0)
     total_txns = tag_txns.sum(1)
