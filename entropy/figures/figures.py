@@ -37,7 +37,7 @@ def user_chars(df, write=True):
     sns.histplot(data, bins=bins, color=colour, ax=ax[0, 0])
     ax[0, 0].set(xlabel='Age', ylabel='Number of users')
 
-    data = hd.winsorise(g.income.last(), how='upper')
+    data = hd.winsorise(g.annual_income.last(), how='upper')
     sns.histplot(data, color=colour, ax=ax[0, 1])
     ax[0, 1].xaxis.set_major_formatter(mpl.ticker.StrMethodFormatter("{x:,.0f}"))
     ax[0, 1].set(xlabel="Annual income (£)", ylabel="Number of users")

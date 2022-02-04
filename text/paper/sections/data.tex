@@ -142,23 +142,17 @@ sum of earnings, pension income, benefits, and other income.}
 \subsection{Dependent variable}%
 \label{sub:dependent_variable}
 
-There is no single variable that captures an indiviual's monthly savings.
-Instead, we capture savings by looking at account balances and
-flows into savings accounts. Specifically, we focus on the following 
-measures, each defined at the user-month level.
+Our interest is in short and medium-term savings, which makes savings accounts
+the natural vehicle to focus on, and our hypothesis is that chaos makes people
+forget to save, making an indicator of whether or not an individual made a
+savings transaction in a given period is natural. Hence, our dependent variable
+is a binary indicator for whether or not an individual made a payment into any
+of their savings accounts in a perticular period, which we set to a month.
 
-\begin{itemize}
-    \item Mean balance across all savings accounts
+We focus on monthly periods because it is the period into which many people
+partition their financial lives (mainly because many receive their salary once
+per month). 
 
-    \item Mean balance across all savings and current accounts
-
-    \item Total inflows into savings accounts
-
-    \item Net inflows (inflows minuts outflows) into savings accounts
-\end{itemize}
-
-\edit{todo: decide whether to scale inflows by monthly income}
- 
 We calculate savings account inflows as the sum of all credits that are not
 identified as interest payments into a user's savings accounts. We would expect
 that it is particularly non-standing-order transactions into savings accounts
@@ -204,6 +198,9 @@ Spending entropy:
     \item To calculate individual entropy scores, we group spending into 9
         spending categories (SC), based on the classification used by Lloyds
         Banking Group as discussed in \citet{muggleton2020evidence}.
+        Transactions included in the calculation are those classified as one of
+        those spending categories that are debits and were made either from an
+        indivuals current or credit card account.
 
     \item Also following that paper, when calculating $p_i$ we use additive
         smoothing and add one to the numerator and $N_{SC}$ to the denominator

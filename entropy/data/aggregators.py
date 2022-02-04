@@ -64,7 +64,7 @@ def monthly_spend(df):
     df = df.copy()
     is_spend = df.tag_group.eq("spend") & df.debit
     df["amount"] = df.amount.where(is_spend, np.nan)
-    with np.errstate(divide='ignore'):
+    with np.errstate(divide="ignore"):
         return df.groupby(idx_cols).amount.agg(
             monthly_spend="sum", log_monthly_spend=lambda s: np.log(s.sum())
         )
@@ -87,6 +87,7 @@ def tag_monthly_spend_prop(df):
         .fillna(0)
         .pipe(lambda df: df.div(df.sum(1), axis=0))
     )
+
 
 @aggregator
 @hh.timer
@@ -200,7 +201,7 @@ def region_name(df):
 def age(df):
     """Adds user age at time of transaction."""
     df = df.copy()
-    df['age'] = df.date.dt.year - df.yob
+    df["age"] = df.date.dt.year - df.yob
     return df.groupby(idx_cols).age.first()
 
 
@@ -235,12 +236,8 @@ def savings_accounts_flows(df):
             annual_income=income(df).annual_income,
             sa_net_inflows=lambda df: df.sa_inflows - df.sa_outflows,
             sa_scaled_inflows=lambda df: df.sa_inflows / df.annual_income * 12,
-            sa_scaled_outflows=lambda df: df.sa_outflows / df.annual_income *
-            12,
-            sa_scaled_net_inflows=lambda df: df.sa_net_inflows /
-            df.annual_income * 12,
+            sa_scaled_outflows=lambda df: df.sa_outflows / df.annual_income * 12,
+            sa_scaled_net_inflows=lambda df: df.sa_net_inflows / df.annual_income * 12,
         )
         .drop(columns="annual_income")
     )
-
-
