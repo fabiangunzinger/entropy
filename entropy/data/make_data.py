@@ -1,4 +1,5 @@
 import argparse
+import functools
 import os
 import sys
 
@@ -24,23 +25,17 @@ def parse_args(argv):
 
 @hh.timer
 def clean_data(df):
-    for func in cl.cleaner_funcs:
-        df = func(df)
-    return df
+    return functools.reduce(lambda df, f: f(df), cl.cleaner_funcs, df)
 
 
 @hh.timer
 def select_sample(df):
-    for func in sl.selector_funcs:
-        df = func(df)
-    return df
+    return functools.reduce(lambda df, f: f(df), sl.selector_funcs, df)
 
 
 @hh.timer
 def validate_data(df):
-    for func in vl.validator_funcs:
-        func(df)
-    return df
+    return functools.reduce(lambda df, f: f(df), vl.validator_funcs, df)
 
 
 @hh.timer
