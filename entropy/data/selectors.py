@@ -65,7 +65,7 @@ def annual_income(df, min_income=10_000):
 @counter
 def regular_income(df, income_months_ratio=2 / 3):
     """Income in 2/3 of all observed months"""
-    g = (df.monthly_income > 0).groupby("user_id")
+    g = (df.month_income > 0).groupby("user_id")
     cond = g.sum() / g.size() >= income_months_ratio
     users = cond[cond].index
     return df.loc[users]
@@ -91,16 +91,16 @@ def min_number_of_months(df, min_months=6):
 
 @selector
 @counter
-def monthly_min_spend(df, min_spend=200):
-    """Monthly debits of at least \pounds200"""
-    cond = df.groupby("user_id").monthly_spend.min() >= min_spend
+def month_min_spend(df, min_spend=200):
+    """month debits of at least \pounds200"""
+    cond = df.groupby("user_id").month_spend.min() >= min_spend
     users = cond[cond].index
     return df.loc[users]
 
 
 @selector
 @counter
-def monthly_min_ca_txns(df, min_txns=5):
+def month_min_ca_txns(df, min_txns=5):
     """Five or more current account txns per month"""
     cond = df.groupby("user_id").txn_count_ca.min() >= min_txns
     users = cond[cond].index

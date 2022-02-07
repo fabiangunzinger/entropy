@@ -40,13 +40,13 @@ def min_number_of_months(df):
 
 
 @validator
-def monthly_min_spend(df):
-    assert df.monthly_spend.min() >= 200
+def month_min_spend(df):
+    assert df.month_spend.min() >= 200
     return df
 
 
 @validator
-def monthly_min_ca_txns(df):
+def month_min_ca_txns(df):
     assert df.txn_count_ca.min() >= 5
     return df
 
