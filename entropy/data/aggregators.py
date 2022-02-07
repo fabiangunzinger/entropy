@@ -107,9 +107,7 @@ def income(df):
     month_income = df.groupby(idx_cols).amount.sum().mul(-1).rename("month_income")
 
     annual_income = (
-        month_income.groupby(user_year)
-        .transform(scaled_income)
-        .rename("annual_income")
+        month_income.groupby(user_year).transform(scaled_income).rename("annual_income")
     )
 
     return pd.concat([month_income, annual_income], axis=1)
@@ -120,14 +118,11 @@ def income(df):
 def entropy_spend_tag_counts(df):
     """Adds Shannon entropy scores based on tag counts of spend txns."""
     data = df.copy()
-    is_ca_sa_spend = (
-        data.tag_group.eq("spend")
-        & data.account_type.isin(["current", "credit card"])
-        & data.debit
-    )
-    data["tag"] = data.tag.where(is_ca_sa_spend, np.nan)
+    is_spend = data.tag_group.eq("spend") & data.debit
+    data["tag"] = data.tag.where(is_spend, np.nan)
     group_cols = idx_cols + ["tag"]
     g = data.groupby(group_cols, observed=True)
+
     tag_txns = g.size().unstack().fillna(0)
     total_txns = tag_txns.sum(1)
     num_unique_tags = len(tag_txns.columns)
