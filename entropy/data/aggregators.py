@@ -55,7 +55,7 @@ def txn_counts_by_account_type(df):
 
 @aggregator
 @hh.timer
-def monthly_spend(df):
+def month_spend(df):
     """Spend and log spend per user-month.
 
     We ignore log of zero cases since numpy can handle them by returning -inf
@@ -66,14 +66,14 @@ def monthly_spend(df):
     df["amount"] = df.amount.where(is_spend, np.nan)
     with np.errstate(divide="ignore"):
         return df.groupby(idx_cols).amount.agg(
-            monthly_spend="sum", log_monthly_spend=lambda s: np.log(s.sum())
+            month_spend="sum", log_month_spend=lambda s: np.log(s.sum())
         )
 
 
 @aggregator
 @hh.timer
-def tag_monthly_spend_prop(df):
-    """Spend per tag per user-month as proportion of total monthly spend."""
+def tag_month_spend(df):
+    """Spend per tag per user-month as proportion of total month spend."""
     df = df.copy()
     is_spend = df.tag_group.eq("spend") & df.debit
     df["amount"] = df.amount.where(is_spend, np.nan)
@@ -92,7 +92,7 @@ def tag_monthly_spend_prop(df):
 @aggregator
 @hh.timer
 def income(df):
-    """Annual and monthly income.
+    """Annual and month income.
 
     Incomes are multiplied by -1 to get positive numbers (credits are negative
     in dataset). Annual incomes are scaled to 12-month incomes to account for
@@ -104,15 +104,15 @@ def income(df):
     user_year = lambda x: (x[0], x[1].year)
     scaled_income = lambda s: s.sum() / s.size * 12
 
-    monthly_income = df.groupby(idx_cols).amount.sum().mul(-1).rename("monthly_income")
+    month_income = df.groupby(idx_cols).amount.sum().mul(-1).rename("month_income")
 
     annual_income = (
-        monthly_income.groupby(user_year)
+        month_income.groupby(user_year)
         .transform(scaled_income)
         .rename("annual_income")
     )
 
-    return pd.concat([monthly_income, annual_income], axis=1)
+    return pd.concat([month_income, annual_income], axis=1)
 
 
 @aggregator
@@ -215,9 +215,9 @@ def female(df):
 @aggregator
 @hh.timer
 def savings_accounts_flows(df):
-    """Monthly inflows, outflows, and net-inflows into user's savings accounts.
+    """month inflows, outflows, and net-inflows into user's savings accounts.
 
-    Also calculates scaled flows by dividing by users monthly income.
+    Also calculates scaled flows by dividing by users month income.
     """
     df = df.copy()
     is_not_interest_txn = ~df.tag_auto.str.contains("interest", na=False)
