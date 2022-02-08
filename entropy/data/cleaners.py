@@ -232,37 +232,11 @@ def add_tag_group(df):
 
 @cleaner
 @hh.timer
-def clean_description(df):
-    """Cleans up txnd description for better duplicate detection.
-
-    Removes common suffixes such as -vis, -p/p, and - e gbp; all
-    punctuation; multiple x characters, which are used to mask card
-    or account numbers; and extra whitespace. Also splits digits
-    suffixes -- but not prefixes, as these are usually dates -- from
-    sequences of two or more letters (e.g. 'no14' becomes 'no 14',
-    'o2', and '14jan' remain unchanged).
-    """
-    kwargs = dict(repl=" ", regex=True)
-    df["desc_orig"] = df.desc
-    df["desc"] = (
-        df.desc.str.replace(r"-\s(\w\s)?.{2,3}$", **kwargs)
-        .str.replace(fr"[{string.punctuation}]", **kwargs)
-        .str.replace(r"[x]{2,}", **kwargs)
-        .str.replace(r"(?<=[a-zA-Z]{2})(?=\d)", **kwargs)
-        .str.replace(r"\s{2,}", **kwargs)
-        .str.strip()
-    )
-    df["desc"] = df.desc.astype("category")
-    return df
-
-
-@cleaner
-@hh.timer
 def drop_duplicates(df):
     """Drops duplicate transactions.
 
-    A duplicate txn is the second of two txns with identical user and
-    account ids, dates, amounts, and txn descriptions.
+    Retains only the first of all txns for which user_id, account_id,
+    date, amount, and desc are identical.
     """
     df = df.copy()
     cols = ["user_id", "account_id", "date", "amount", "desc"]
