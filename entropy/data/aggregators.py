@@ -209,29 +209,18 @@ def female(df):
 @aggregator
 @hh.timer
 def savings_accounts_flows(df):
-    """month inflows, outflows, and net-inflows into user's savings accounts.
-
-    Also calculates scaled flows by dividing by users month income.
-    """
+    """Monthly savings account inflows."""
     df = df.copy()
-    is_not_interest_txn = ~df.tag_auto.str.contains("interest", na=False)
-    is_savings_account = df.account_type.eq("savings")
-    is_savings_flow = is_not_interest_txn & is_savings_account
-    df["flows"] = df.amount.where(is_savings_flow, np.nan)
-    df["flow_direction"] = df.debit.map({True: "sa_outflows", False: "sa_inflows"})
-    group_cols = idx_cols + ["flow_direction"]
-    return (
-        df.groupby(group_cols)
-        .flows.sum()
-        .abs()
-        .unstack()
-        .fillna(0)
-        .assign(
-            annual_income=income(df).annual_income,
-            sa_net_inflows=lambda df: df.sa_inflows - df.sa_outflows,
-            sa_scaled_inflows=lambda df: df.sa_inflows / df.annual_income * 12,
-            sa_scaled_outflows=lambda df: df.sa_outflows / df.annual_income * 12,
-            sa_scaled_net_inflows=lambda df: df.sa_net_inflows / df.annual_income * 12,
-        )
-        .drop(columns="annual_income")
+    df["amount"] = df.amount.mul(-1)
+    is_sa_inflow = (
+        df.account_type.eq("savings")
+        & df.amount.ge(5)
+        & ~df.debit
+        & ~df.tag_auto.str.contains("interest", na=False)
+        & ~df.desc.str.contains(r"save\s?the\s?change", na=False)
+    )
+    df['amount'] = df.amount.where(is_sa_inflow, 0)
+    return df.groupby(idx_cols).amount.agg(
+        sa_inflows=("sum"),
+        has_sa_inflows=(lambda x: (x.max() > 0).astype(int))
     )
