@@ -105,7 +105,6 @@ def income(df):
     scaled_income = lambda s: s.sum() / s.size * 12
 
     month_income = df.groupby(idx_cols).amount.sum().mul(-1).rename("month_income")
-
     annual_income = (
         month_income.groupby(user_year).transform(scaled_income).rename("annual_income")
     )
