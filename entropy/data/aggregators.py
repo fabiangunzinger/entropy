@@ -68,7 +68,7 @@ def tag_month_spend(df):
         .amount.sum()
         .unstack()
         .fillna(0)
-        .assign(spend_month=lambda df: df.sum(1))
+        .assign(month_spend=lambda df: df.sum(1))
         .apply(hd.winsorise, pct=1, how="upper")
     )
 
