@@ -75,7 +75,14 @@ def validate_data(df):
 
 @hh.timer
 def aggregate_data(df):
-    return pd.concat((func(df) for func in agg.aggregator_funcs), axis=1, join="outer")
+    """Concats all columns and orders columns to R plm standard."""
+    data = (
+        pd.concat((func(df) for func in agg.aggregator_funcs), axis=1, join="outer")
+        .reset_index()
+        .assign(month=lambda df: df.date.dt.month)
+    )
+    return hd.order_columns(data, first=['user_id', 'month', 'date'])
+
 
 
 @hh.timer

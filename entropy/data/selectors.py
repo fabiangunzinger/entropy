@@ -30,7 +30,7 @@ def counter(func):
         description = func.__doc__.splitlines()[0]
         sample_counts.update(
             {
-                description + "@users": df.index.get_level_values("user_id").nunique(),
+                description + "@users": df.user_id.nunique(),
                 description
                 + "@accounts": len(
                     set(itertools.chain.from_iterable(df.active_accounts))
@@ -58,17 +58,17 @@ def annual_income(df, min_income=10_000):
     """Annual income of at least \pounds10k"""
     cond = df.groupby("user_id").annual_income.min() >= min_income
     users = cond[cond].index
-    return df.loc[users]
+    return df[df.user_id.isin(users)]
 
 
 @selector
 @counter
 def regular_income(df, income_months_ratio=2 / 3):
     """Income in 2/3 of all observed months"""
-    g = (df.month_income > 0).groupby("user_id")
+    g = (df.month_income > 0).groupby(df.user_id)
     cond = g.sum() / g.size() >= income_months_ratio
     users = cond[cond].index
-    return df.loc[users]
+    return df[df.user_id.isin(users)]
 
 
 @selector
@@ -77,7 +77,7 @@ def savings_account(df):
     """At least one savings account"""
     cond = df.groupby("user_id").txn_count_sa.max().gt(0)
     users = cond[cond].index
-    return df.loc[users]
+    return df[df.user_id.isin(users)]
 
 
 @selector
@@ -86,16 +86,16 @@ def min_number_of_months(df, min_months=6):
     """At least 6 months of data"""
     cond = df.groupby("user_id").size() >= min_months
     users = cond[cond].index
-    return df.loc[users]
+    return df[df.user_id.isin(users)]
 
 
 @selector
 @counter
 def month_min_spend(df, min_spend=200):
     """month debits of at least \pounds200"""
-    cond = df.groupby("user_id").month_spend.min() >= min_spend
+    cond = df.groupby("user_id").spend_month.min() >= min_spend
     users = cond[cond].index
-    return df.loc[users]
+    return df[df.user_id.isin(users)]
 
 
 @selector
@@ -104,7 +104,7 @@ def month_min_ca_txns(df, min_txns=5):
     """Five or more current account txns per month"""
     cond = df.groupby("user_id").txn_count_ca.min() >= min_txns
     users = cond[cond].index
-    return df.loc[users]
+    return df[df.user_id.isin(users)]
 
 
 @selector
@@ -114,10 +114,10 @@ def complete_demographic_info(df):
 
     Retains only users for which we have full demographic information.
     """
-    cols = ["age", "female", "region"]
-    cond = df[cols].isna().groupby("user_id").sum().sum(1).eq(0)
+    cols = ["age", "female"]
+    cond = df[cols].isna().groupby(df.user_id).sum().sum(1).eq(0)
     users = cond[cond].index
-    return df.loc[users]
+    return df[df.user_id.isin(users)]
 
 
 @selector

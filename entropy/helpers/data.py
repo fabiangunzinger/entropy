@@ -6,6 +6,15 @@ import entropy.helpers.aws as ha
 import entropy.helpers.helpers as hh
 
 
+def order_columns(df, first=None):
+    if first is None:
+        order = sorted(df.columns)
+    else:
+        others = [c for c in df.columns if c not in first]
+        order = first + sorted(others)
+    return df.reindex(order, axis=1)
+
+
 def txns_and_users(df1, df2):
     """Prints comparison of number of txns and users in df1 relative to df2."""
     txns1, users1 = len(df1), df1.user_id.nunique()
