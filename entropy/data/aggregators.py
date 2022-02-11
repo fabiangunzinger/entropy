@@ -9,7 +9,7 @@ import os
 
 import numpy as np
 import pandas as pd
-from scipy.stats import entropy
+from scipy import stats
 import s3fs
 
 from entropy import config
@@ -113,15 +113,12 @@ def entropy_spend_tag_counts(df):
     total_txns = tag_txns.sum(1)
     num_unique_tags = len(tag_txns.columns)
     tag_probs = (tag_txns + 1).div(total_txns + num_unique_tags, axis=0)
-    user_month_entropy = entropy(tag_probs, base=2, axis=1)
+    user_month_entropy = stats.entropy(tag_probs, base=2, axis=1)
 
-    dfe = pd.DataFrame(
-        data=user_month_entropy, index=tag_probs.index, columns=["entropy_sptac"]
+    return pd.DataFrame(
+        {"entropy": user_month_entropy, "entropyz": stats.zscore(user_month_entropy)},
+        index=tag_probs.index,
     )
-    dfe["entropy_sptac_std"] = (
-        dfe.entropy_sptac - dfe.entropy_sptac.mean()
-    ) / dfe.entropy_sptac.std()
-    return dfe
 
 
 @aggregator
