@@ -10,8 +10,6 @@ the `--from-raw` option can be passed to first create new transactions data.
 """
 
 
-
-
 import argparse
 import functools
 import os
@@ -35,6 +33,29 @@ def parse_args(argv):
     parser.add_argument("sample")
     parser.add_argument("--from-raw", action="store_true", help="start from raw data")
     return parser.parse_args(argv)
+
+
+@hh.timer
+def read_raw_data(sample):
+    columns = [
+        "Transaction Reference",
+        "User Reference",
+        "Year of Birth",
+        "Postcode",
+        "Derived Gender",
+        "Transaction Date",
+        "Account Reference",
+        "Provider Group Name",
+        "Account Type",
+        "Transaction Description",
+        "Credit Debit",
+        "Amount",
+        "Auto Purpose Tag Name",
+        "Merchant Name",
+        "Latest Recorded Balance",
+        "Account Last Refreshed",
+    ]
+    return hd.read_raw_data(sample, columns=columns)
 
 
 @hh.timer
@@ -70,28 +91,9 @@ def main(argv=None):
         argv = sys.argv[1:]
     args = parse_args(argv)
 
-    columns = [
-        "Transaction Reference",
-        "User Reference",
-        "Year of Birth",
-        "Postcode",
-        "Derived Gender",
-        "Transaction Date",
-        "Account Reference",
-        "Provider Group Name",
-        "Account Type",
-        "Transaction Description",
-        "Credit Debit",
-        "Amount",
-        "Auto Purpose Tag Name",
-        "Merchant Name",
-        "Latest Recorded Balance",
-        "Account Last Refreshed",
-    ]
-
     df = (
         (
-            hd.read_raw_data(args.sample, columns=columns)
+            read_raw_data(args.sample)
             .pipe(clean_data)
             .pipe(write_data, f"txn_{args.sample}.parquet")
             if args.from_raw
