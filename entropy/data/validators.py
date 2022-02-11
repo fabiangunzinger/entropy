@@ -41,7 +41,7 @@ def min_number_of_months(df):
 
 @validator
 def month_min_spend(df):
-    assert df.month_spend.min() >= 200
+    assert df.spend_month.min() >= 200
     return df
 
 
@@ -53,7 +53,7 @@ def month_min_ca_txns(df):
 
 @validator
 def complete_demographic_info(df):
-    assert df.filter(regex='female|age|region').isna().sum().sum() == 0
+    assert df.filter(regex='female|age').isna().sum().sum() == 0
     return df
 
 

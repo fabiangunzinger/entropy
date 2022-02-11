@@ -29,16 +29,6 @@ def aggregator(func):
     return func
 
 
-@aggregator
-def user_id(df):
-    return df.groupby(idx_cols).user_id.first()
-
-
-@aggregator
-def month_indicator(df):
-    return df.groupby(idx_cols).date.first().dt.month.rename('month')
-
-
 @hh.timer
 @aggregator
 def user_month_info(df):
@@ -65,37 +55,21 @@ def txn_counts_by_account_type(df):
 
 @aggregator
 @hh.timer
-def month_spend(df):
-    """Spend and log spend per user-month.
-
-    We ignore log of zero cases since numpy can handle them by returning -inf
-    and users with zero spend months will be dropped during sample selection.
-    """
-    df = df.copy()
-    is_spend = df.tag_group.eq("spend") & df.debit
-    df["amount"] = df.amount.where(is_spend, np.nan)
-    with np.errstate(divide="ignore"):
-        return df.groupby(idx_cols).amount.agg(
-            month_spend="sum", log_month_spend=lambda s: np.log(s.sum())
-        )
-
-
-@aggregator
-@hh.timer
 def tag_month_spend(df):
-    """Spend per tag per user-month as proportion of total month spend."""
+    """Spend per tag and total spend per user-month."""
     df = df.copy()
     is_spend = df.tag_group.eq("spend") & df.debit
     df["amount"] = df.amount.where(is_spend, np.nan)
     df["tag"] = df.tag.where(is_spend, np.nan)
-    df["tag"] = df.tag.cat.rename_categories(lambda x: "prop_spend_" + x)
+    df["tag"] = df.tag.cat.rename_categories(lambda x: "spend_" + x)
     group_cols = idx_cols + ["tag"]
     return (
         df.groupby(group_cols, observed=True)
         .amount.sum()
         .unstack()
         .fillna(0)
-        .pipe(lambda df: df.div(df.sum(1), axis=0))
+        .assign(spend_month=lambda df: df.sum(1))
+        .apply(hd.winsorise, pct=1, how="upper")
     )
 
 
@@ -110,7 +84,8 @@ def income(df):
     """
     df = df.copy()
     is_income_pmt = df.tag_group.eq("income") & ~df.debit
-    df["amount"] = df.amount.where(is_income_pmt, np.nan)
+    df["amount"] = df.amount.where(is_income_pmt, 0)
+
     user_year = lambda x: (x[0], x[1].year)
     scaled_income = lambda s: s.sum() / s.size * 12
 
@@ -119,7 +94,9 @@ def income(df):
         month_income.groupby(user_year).transform(scaled_income).rename("annual_income")
     )
 
-    return pd.concat([month_income, annual_income], axis=1)
+    return pd.concat([month_income, annual_income], axis=1).apply(
+        hd.winsorise, pct=1, how="upper"
+    )
 
 
 @aggregator
@@ -137,7 +114,14 @@ def entropy_spend_tag_counts(df):
     num_unique_tags = len(tag_txns.columns)
     tag_probs = (tag_txns + 1).div(total_txns + num_unique_tags, axis=0)
     user_month_entropy = entropy(tag_probs, base=2, axis=1)
-    return pd.Series(user_month_entropy, index=tag_probs.index).rename("entropy_sptac")
+
+    dfe = pd.DataFrame(
+        data=user_month_entropy, index=tag_probs.index, columns=["entropy_sptac"]
+    )
+    dfe["entropy_sptac_std"] = (
+        dfe.entropy_sptac - dfe.entropy_sptac.mean()
+    ) / dfe.entropy_sptac.std()
+    return dfe
 
 
 @aggregator
@@ -169,9 +153,7 @@ def savings_accounts_flows(df):
         & ~df.tag_auto.str.contains("interest", na=False)
         & ~df.desc.str.contains(r"save\s?the\s?change", na=False)
     )
-    df['amount'] = df.amount.where(is_sa_inflow, 0)
+    df["amount"] = df.amount.where(is_sa_inflow, 0)
     return df.groupby(idx_cols).amount.agg(
-        sa_inflows=("sum"),
-        has_sa_inflows=(lambda x: (x.max() > 0).astype(int))
+        sa_inflows=("sum"), has_sa_inflows=(lambda x: (x.max() > 0).astype(int))
     )
-
