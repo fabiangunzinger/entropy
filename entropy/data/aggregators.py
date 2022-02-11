@@ -29,6 +29,16 @@ def aggregator(func):
     return func
 
 
+@aggregator
+def user_id(df):
+    return df.groupby(idx_cols).user_id.first()
+
+
+@aggregator
+def month_indicator(df):
+    return df.groupby(idx_cols).date.first().dt.month.rename('month')
+
+
 @hh.timer
 @aggregator
 def user_month_info(df):
@@ -224,3 +234,4 @@ def savings_accounts_flows(df):
         sa_inflows=("sum"),
         has_sa_inflows=(lambda x: (x.max() > 0).astype(int))
     )
+
