@@ -97,7 +97,7 @@ def min_number_of_months(df, min_months=6):
 def month_min_spend(df, min_spend=200):
     """Monthly debits of at least \pounds200"""
     cond = (
-        df.groupby("user_id").spend_month.apply(lambda x: x.min(skipna=False))
+        df.groupby("user_id").month_spend.apply(lambda x: x.min(skipna=False))
         >= min_spend
     )
     users = cond[cond].index

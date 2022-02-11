@@ -41,7 +41,7 @@ def min_number_of_months(df):
 
 @validator
 def month_min_spend(df):
-    assert df.spend_month.min() >= 200
+    assert df.month_spend.min() >= 200
     return df
 
 
