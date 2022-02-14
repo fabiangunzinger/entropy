@@ -31,12 +31,12 @@ def counter(func):
         sample_counts.update(
             {
                 description + "@users": df.user_id.nunique(),
+                description + "@user_months": len(df),
                 description
                 + "@accounts": len(
                     set(itertools.chain.from_iterable(df.active_accounts))
                 ),
                 description + "@txns": df.txns_count.sum(),
-                description + "@value": df.txns_value.sum() / 1e6,
             }
         )
         return df

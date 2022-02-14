@@ -6,31 +6,35 @@ from entropy import config
 
 def make_selection_table(dict):
     """Create sample selection table for data appendix."""
-    df = pd.DataFrame(dict.items(), columns=['step', 'counts'])
-    df[['step', 'metric']] = df.step.str.split('@', expand=True)
+    df = pd.DataFrame(dict.items(), columns=["step", "counts"])
+    df[["step", "metric"]] = df.step.str.split("@", expand=True)
 
-    df = (df.groupby(['step', 'metric'], sort=False)
-          .counts.sum()
-          .unstack('metric')
-          .rename_axis(columns=None)
-          .reset_index())
+    df = (
+        df.groupby(["step", "metric"], sort=False)
+        .counts.sum()
+        .unstack("metric")
+        .rename_axis(columns=None)
+        .reset_index()
+    )
 
-    ints = ['users', 'accounts', 'txns']
+    ints = ['users', 'user_months', 'accounts', 'txns']
     df[ints] = df[ints].applymap('{:,.0f}'.format)
-    floats = ['value']
-    df[floats] = df[floats].applymap('{:,.1f}'.format)
 
-    df.columns = ['', 'Users', 'Accounts', 'Transactions', 'Value (\pounds M)']
+    df.columns = [
+        "",
+        "Users",
+        "User-months",
+        "Accounts",
+        "Transactions",
+    ]
     return df
 
 
 def write_selection_table(table, sample):
     """Export sample selection table in Latex format."""
-    filename = f'sample_selection_{sample}.tex'
+    filename = f"sample_selection_{sample}.tex"
     filepath = os.path.join(config.TABDIR, filename)
-    latex_table = table.to_latex(index=False, escape=False, column_format='lrrrr')
-    with pd.option_context('max_colwidth', None):
-        with open(filepath, 'w') as f:
+    latex_table = table.to_latex(index=False, escape=False, column_format="lrrrr")
+    with pd.option_context("max_colwidth", None):
+        with open(filepath, "w") as f:
             f.write(latex_table)
-
-
