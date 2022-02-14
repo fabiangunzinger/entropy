@@ -1,0 +1,45 @@
+% !TEX root = ../entropy.tex
+
+\section{Data}%
+\label{sec:data}
+
+
+Data issues:
+
+\citet{bourquin2020effects} argue that because some of the accounts in the data
+will be joint accounts, units of observations should be tought of as
+"households" rather than "users". We do not agree that this is the most prudent
+approach. The validity of thinking of units as households depends on the
+proportion of users in the data who add joint accounts and on the proportion of
+transactions -- out of a user's total number of transactions -- additionally observed as a
+result. Given that the sample is skewed towards younger individuals we think it
+is unlikely that a majority of them has added joint accounts. Furthermore, it
+seems reasonable to assume that in most cases, joint accounts are mainly used
+for common household expenditures similar that are similar to those of a single
+user (albeit in higher amounts), and are thus unlikely to alter the observed
+spending profile much. Thus, we think of units of observations as individuals,
+not households. 
+
+Some accounts might be business accounts. Using versions of the algorightms
+used by \citet{bourquin2020effects} to identify such accounts showed, however,
+that such accounts only make up a tiny percentage of overall accounts and would
+not influence our results. We thus do not exclude them.
+
+
+Preprocessing steps
+(provide detailes and links to relevant code files)
+\begin{itemize}
+    \item Duplicates handling.
+    \item We trim all variables at the 1-percent level on the upper end of the
+        distribution for variables that take non-negative values only and on
+        both ends of the distribution for all other variables. We trim
+        (replace outliers with missing values) rather than winsorise (replace
+        outliers with the cutoff percentile value) because we believe that
+        outliers result from errors in the data rather than represent genuine
+        information.
+    \item Actually, we don't do either of the above. With the harsher selection
+        methods, the statistics are very reasonable, which, if anything, would
+        suggest using winsorizing. However,
+        [this](https://blogs.sas.com/content/iml/2017/02/08/winsorization-good-bad-and-ugly.html)
+        article convincingly argues that we shouldn't do that in our case.
+\end{itemize}
