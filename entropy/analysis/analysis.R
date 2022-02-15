@@ -76,8 +76,44 @@ stargazer(
   notes.append = FALSE,
   notes.label = "",
   notes = 'Note: ... *p<0.1; **p<0.05; ***p<0.01.',
-  font.size = 'normal',
+  # font.size = 'footnotesize',
   out=file.path(TABDIR, 'main_results.tex')
 )
 
 
+# extensions
+
+stargazer(
+  m1, m2, m3, m4,
+  type = 'text',
+  title='Main results',
+  covariate.labels = c(
+    'Entropy',
+    'Month spend',
+    'Month income',
+    'Spend communication',
+    'Spend services',
+    'Spend finance',
+    'Spend motor',
+    'Spend travel',
+    'Spend hobbies',
+    'Spend household',
+    'Spend retail',
+    'Spend other'
+  ),
+  keep.stat = c('n', 'rsq'),
+  no.space = TRUE,
+  dep.var.labels.include = FALSE,
+  dep.var.caption = "Dependent variable: has transfers into savings account",
+  omit = '^month\\d+$',
+  add.lines = list(
+    c('Individual fixed effects', 'Yes', 'Yes', 'Yes', 'Yes'),
+    c('Month fixed effects', 'Yes', 'Yes', 'Yes', 'Yes')
+  ),
+  notes.align = 'l',
+  notes.append = FALSE,
+  notes.label = "",
+  notes = 'Note: ... *p<0.1; **p<0.05; ***p<0.01.',
+  # font.size = 'footnotesize',
+  out=file.path(TABDIR, 'main_results.tex')
+)
