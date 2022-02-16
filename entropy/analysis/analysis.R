@@ -1,4 +1,7 @@
+
 Sys.setenv(AWS_PROFILE='3di', AWS_DEFAULT_REGION='eu-west-2')
+setwd('~/dev/projects/entropy/entropy/analysis')
+source('helpers.R')
 
 library(arrow)
 library(aws.s3)
@@ -8,30 +11,10 @@ library(modelsummary)
 library(plm)
 library(stargazer)
 
-
 TABDIR = '/Users/fgu/dev/projects/entropy/output/tables' 
 
 
-read_analysis_data <- function() {
-  fn = 'analysis_777.parquet'
-  bucket = 's3://3di-project-entropy'
-  fp = file.path(bucket, fn)
-  data = aws.s3::s3read_using(arrow::read_parquet, object=fp)
-  return(setDT(data, keep.rownames = TRUE))
-}
-
-read_analysis_data <- function() {
-  fn = 'analysis_XX7.csv'
-  bucket = 's3://3di-project-entropy'
-  fp = file.path(bucket, fn)
-  data = aws.s3::s3read_using(data.table::fread, object=fp)
-}
-
 df = read_analysis_data()
-df$month <- factor(df$month)
-
-head(df)
-
 
 m1 <- plm(has_sa_inflows ~ entropyz + month,
           data=df, index = c('user_id'))
@@ -46,7 +29,7 @@ m4 <- plm(has_sa_inflows ~ entropyz + month_income + spend_communication + spend
           data=df, index = c('user_id'))
 
 stargazer(
-  m1, m2, m3, m4, m0,
+  m1, m2, m3, m4,
   type = 'text',
   title='Main results',
   covariate.labels = c(
@@ -63,6 +46,7 @@ stargazer(
     'Spend retail',
     'Spend other'
   ),
+  report = 'vct',
   keep.stat = c('n', 'rsq'),
   no.space = TRUE,
   dep.var.labels.include = FALSE,
