@@ -3,50 +3,50 @@ Sys.setenv(AWS_PROFILE='3di', AWS_DEFAULT_REGION='eu-west-2')
 library(arrow)
 library(aws.s3)
 library(data.table)
-library(stargazer)
+library(fixest)
+library(modelsummary)
 library(plm)
+library(stargazer)
+
 
 TABDIR = '/Users/fgu/dev/projects/entropy/output/tables' 
 
 
 read_analysis_data <- function() {
-  fn = 'analysis_XX7.parquet'
+  fn = 'analysis_777.parquet'
   bucket = 's3://3di-project-entropy'
   fp = file.path(bucket, fn)
   data = aws.s3::s3read_using(arrow::read_parquet, object=fp)
   return(setDT(data, keep.rownames = TRUE))
 }
 
-df = read_analysis_data()
+read_analysis_data <- function() {
+  fn = 'analysis_XX7.csv'
+  bucket = 's3://3di-project-entropy'
+  fp = file.path(bucket, fn)
+  data = aws.s3::s3read_using(data.table::fread, object=fp)
+}
 
+df = read_analysis_data()
 df$month <- factor(df$month)
 
+head(df)
+
+
 m1 <- plm(has_sa_inflows ~ entropyz + month,
-          data=df,
-          index = c('user_id'),
-          model = 'within',
-          )
+          data=df, index = c('user_id'))
 
 m2 <- plm(has_sa_inflows ~ entropyz + month_spend + month,
-          data=df,
-          index = c('user_id'),
-          model = 'within',
-)
+          data=df, index = c('user_id'))
 
 m3 <- plm(has_sa_inflows ~ entropyz + month_spend + month_income + month,
-          data=df,
-          index = c('user_id'),
-          model = 'within',
-)
+          data=df, index = c('user_id'))
 
 m4 <- plm(has_sa_inflows ~ entropyz + month_income + spend_communication + spend_services + spend_finance + spend_motor + spend_travel + spend_hobbies + spend_household + spend_retail + spend_other_spend + month,
-          data=df,
-          index = c('user_id'),
-          model = 'within',
-)
+          data=df, index = c('user_id'))
 
 stargazer(
-  m1, m2, m3, m4,
+  m1, m2, m3, m4, m0,
   type = 'text',
   title='Main results',
   covariate.labels = c(
@@ -76,6 +76,7 @@ stargazer(
   notes.append = FALSE,
   notes.label = "",
   notes = 'Note: ... *p<0.1; **p<0.05; ***p<0.01.',
+  label = 'tab:main_results',
   # font.size = 'footnotesize',
   out=file.path(TABDIR, 'main_results.tex')
 )
@@ -83,37 +84,13 @@ stargazer(
 
 # extensions
 
-stargazer(
-  m1, m2, m3, m4,
-  type = 'text',
-  title='Main results',
-  covariate.labels = c(
-    'Entropy',
-    'Month spend',
-    'Month income',
-    'Spend communication',
-    'Spend services',
-    'Spend finance',
-    'Spend motor',
-    'Spend travel',
-    'Spend hobbies',
-    'Spend household',
-    'Spend retail',
-    'Spend other'
-  ),
-  keep.stat = c('n', 'rsq'),
-  no.space = TRUE,
-  dep.var.labels.include = FALSE,
-  dep.var.caption = "Dependent variable: has transfers into savings account",
-  omit = '^month\\d+$',
-  add.lines = list(
-    c('Individual fixed effects', 'Yes', 'Yes', 'Yes', 'Yes'),
-    c('Month fixed effects', 'Yes', 'Yes', 'Yes', 'Yes')
-  ),
-  notes.align = 'l',
-  notes.append = FALSE,
-  notes.label = "",
-  notes = 'Note: ... *p<0.1; **p<0.05; ***p<0.01.',
-  # font.size = 'footnotesize',
-  out=file.path(TABDIR, 'main_results.tex')
+models = list(
+  'Unclustered' = feols(has_sa_inflows ~ entropyz + month_income + spend_communication + spend_services + spend_finance + spend_motor + spend_travel + spend_hobbies + spend_household + spend_retail + spend_other_spend | user_id + month,
+                        data=df),
+  
+  'Clustered' = feols(has_sa_inflows ~ entropyz + month_income + spend_communication + spend_services + spend_finance + spend_motor + spend_travel + spend_hobbies + spend_household + spend_retail + spend_other_spend | user_id + month, "cluster",
+                      data=df)
 )
+
+modelplot(models)
+

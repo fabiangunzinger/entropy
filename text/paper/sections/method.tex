@@ -133,10 +133,12 @@ user-month; distribution of user-month entropy scores.}
 We estimate models of the form: 
 
 \begin{equation}
-    I(s)_{i,t} = \alpha_i + \lambda_t + \beta H_{i,t} + x^\prime_{i,t} \delta +
+    s_{i,t} = \alpha_i + \lambda_t + \beta H_{i,t} + x^\prime_{i,t} \delta +
     \epsilon_{i,t},
 \end{equation}
 
-where $I(s)_{i,t}$ is an indicator variable equal to one if individual $i$ made
+where $s_{i,t}$ is an indicator variable equal to one if individual $i$ made
 one or more transfers to any of their savings account in month $t$ and zero
-otherwise. $X_{i,t}$ is a vector of control variables.
+otherwise, $H_{it}$ is $i$'s spending entropy in month $t$,
+$x_{i,t}$ a vector of control variables, $\alpha_i$ an individual fixed effect, $\lambda_t$ a calendar
+month fixed effect, and $\epsilon_{i, t}$ the error term.
