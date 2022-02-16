@@ -1,10 +1,7 @@
-
 Sys.setenv(AWS_PROFILE='3di', AWS_DEFAULT_REGION='eu-west-2')
 setwd('~/dev/projects/entropy/entropy/analysis')
 source('helpers.R')
 
-library(arrow)
-library(aws.s3)
 library(data.table)
 library(fixest)
 library(modelsummary)
