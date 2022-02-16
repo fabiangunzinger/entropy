@@ -81,15 +81,7 @@ def aggregate_data(df):
         .reset_index()
         .assign(month=lambda df: df.date.dt.month)
     )
-    return hd.order_columns(data, first=['user_id', 'month', 'date'])
-
-
-
-@hh.timer
-def write_data(df, filename, **kwargs):
-    filepath = os.path.join(config.AWS_BUCKET, filename)
-    ha.write_parquet(df, filepath, **kwargs)
-    return df
+    return hd.order_columns(data, first=["user_id", "month", "date"])
 
 
 @hh.timer
@@ -98,19 +90,16 @@ def main(argv=None):
         argv = sys.argv[1:]
     args = parse_args(argv)
 
-    df = (
-        (
-            read_raw_data(args.sample)
-            .pipe(clean_data)
-            .pipe(write_data, f"txn_{args.sample}.parquet")
-            if args.from_raw
-            else hd.read_txn_data(args.sample)
-        )
-        .pipe(aggregate_data)
-        .pipe(select_sample)
-        .pipe(write_data, f"analysis_{args.sample}.parquet", index=True)
-        .pipe(validate_data)
-    )
+    if args.from_raw:
+        txn_data = read_raw_data(args.sample).pipe(clean_data)
+        fp = os.path.join(config.AWS_BUCKET, f"txn_{args.sample}.parquet")
+        ha.write_parquet(txn_data, fp)
+    else:
+        txn_data = hd.read_txn_data(args.sample)
+
+    analysis_data = aggregate_data(txn_data).pipe(select_sample).pipe(validate_data)
+    fp = os.path.join(config.AWS_BUCKET, f"analysis_{args.sample}.csv")
+    ha.write_csv(analysis_data, fp)
 
     selection_table = st.make_selection_table(sl.sample_counts)
     st.write_selection_table(selection_table, args.sample)
