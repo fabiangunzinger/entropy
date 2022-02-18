@@ -95,7 +95,7 @@ def main(argv=None):
         fp = os.path.join(config.AWS_BUCKET, f"txn_{args.sample}.parquet")
         ha.write_parquet(txn_data, fp)
         fp = os.path.join(config.AWS_BUCKET, f"txn_{args.sample}.csv")
-        ha.write_csv(txn_data.fp)
+        ha.write_csv(txn_data, fp)
     else:
         txn_data = hd.read_txn_data(args.sample)
 
