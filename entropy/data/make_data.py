@@ -100,6 +100,8 @@ def main(argv=None):
         txn_data = hd.read_txn_data(args.sample)
 
     analysis_data = aggregate_data(txn_data).pipe(select_sample).pipe(validate_data)
+    fp = os.path.join(config.AWS_BUCKET, f"analysis_{args.sample}.parquet")
+    ha.write_parquet(analysis_data, fp)
     fp = os.path.join(config.AWS_BUCKET, f"analysis_{args.sample}.csv")
     ha.write_csv(analysis_data, fp)
 

@@ -113,7 +113,7 @@ def entropy_spend_tag_counts(df):
     total_txns = tag_txns.sum(1)
     num_unique_tags = len(tag_txns.columns)
     tag_probs = (tag_txns + 1).div(total_txns + num_unique_tags, axis=0)
-    user_month_entropy = stats.entropy(tag_probs, base=2, axis=1)
+    user_month_entropy = stats.entropy(tag_probs, base=2, axis=1) / np.log2(num_unique_tags)
 
     return pd.DataFrame(
         {"entropy": user_month_entropy, "entropyz": stats.zscore(user_month_entropy)},
