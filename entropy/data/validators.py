@@ -22,8 +22,8 @@ def no_missing_values(df):
 
 
 @validator
-def annual_income(df, lower=10_000):
-    assert df.annual_income.min() >= lower
+def year_income(df, lower=10_000):
+    assert df.year_income.min() >= lower
     return df
 
 

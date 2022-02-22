@@ -54,10 +54,10 @@ def add_raw_count(df):
 
 @selector
 @counter
-def annual_income(df, min_income=10_000):
+def year_income(df, min_income=10_000):
     """Annual income of at least \pounds10k"""
     cond = (
-        df.groupby("user_id").annual_income.apply(lambda x: x.min(skipna=False))
+        df.groupby("user_id").year_income.apply(lambda x: x.min(skipna=False))
         >= min_income
     )
     users = cond[cond].index
