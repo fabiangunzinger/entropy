@@ -6,12 +6,12 @@ import entropy.helpers.aws as ha
 import entropy.helpers.helpers as hh
 
 
-def order_columns(df, first=None):
+def order_columns(df, first=None, others_alpha=False):
     if first is None:
         order = sorted(df.columns)
     else:
         others = [c for c in df.columns if c not in first]
-        order = first + sorted(others)
+        order = first + sorted(others) if others_alpha else first + others
     return df.reindex(order, axis=1)
 
 
