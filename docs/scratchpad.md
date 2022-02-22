@@ -1,5 +1,52 @@
 # Entropy scratchpad
 
+## Savings
+
+- see nest2021supporting intro for latest figures on why short-term savings
+  matter (1/4 of uk aduls can't come up with £300)
+
+- Can think of short-term savings as saving for goal and emergency savings
+
+- We cannot distinguish the two
+
+- So, our focus is on short-term savings (sts)
+
+- Is there serious research into drivers of short-term savings?
+
+
+
+Immediate steps:
+
+    - If there is, control for all factors found important to build model of
+    what determines sts.
+
+    - If not, build model based on reports (can, aspen, etc)
+
+    - Check whether entropy has effect in addition
+    
+    - Aim of paper: determine what factors contribute to sts, and whether
+    entropy is one of these factors.
+
+
+
+Paper frame:
+
+- Is entropy a predictor of sts?
+
+
+
+Outcomes:
+
+- SA outflows
+
+- Investments 
+
+
+
+
+
+
+
 ## What do I want to do?
 
 From the start, my main motivation for using the MDB data has been to better

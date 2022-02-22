@@ -3,6 +3,31 @@
 \section{Data}%
 \label{sec:data}
 
+\subsection{Data preprocessing}%
+\label{sub:data_preprocessing}
+
+Preprocessing steps
+(provide detailes and links to relevant code files)
+\begin{itemize}
+    \item Duplicates handling.
+    \item We trim all variables at the 1-percent level on the upper end of the
+        distribution for variables that take non-negative values only and on
+        both ends of the distribution for all other variables. We trim
+        (replace outliers with missing values) rather than winsorise (replace
+        outliers with the cutoff percentile value) because we believe that
+        outliers result from errors in the data rather than represent genuine
+        information.
+    \item Actually, we don't do either of the above. With the harsher selection
+        methods, the statistics are very reasonable, which, if anything, would
+        suggest using winsorizing. However,
+        [this](https://blogs.sas.com/content/iml/2017/02/08/winsorization-good-bad-and-ugly.html)
+        article convincingly argues that we shouldn't do that in our case.
+\end{itemize}
+
+
+\subsection{Variabel description}%
+\label{sub:variabel_description}
+
 %todo: ggplot figure and add explanatory note
 \begin{figure}[H]
     \caption{Demographic characteristics of Money Dashboard users}
@@ -15,8 +40,15 @@
     \end{center}
 \end{figure}
 
+Exploration of control variables here (e.g. like jpmorgan2019weathering for
+income stability)
 
-Data issues:
+
+
+
+
+\subsection{Data issues}%
+\label{sub:data_issues}
 
 \citet{bourquin2020effects} argue that because some of the accounts in the data
 will be joint accounts, units of observations should be tought of as
@@ -37,24 +69,6 @@ used by \citet{bourquin2020effects} to identify such accounts showed, however,
 that such accounts only make up a tiny percentage of overall accounts and would
 not influence our results. We thus do not exclude them.
 
-
-Preprocessing steps
-(provide detailes and links to relevant code files)
-\begin{itemize}
-    \item Duplicates handling.
-    \item We trim all variables at the 1-percent level on the upper end of the
-        distribution for variables that take non-negative values only and on
-        both ends of the distribution for all other variables. We trim
-        (replace outliers with missing values) rather than winsorise (replace
-        outliers with the cutoff percentile value) because we believe that
-        outliers result from errors in the data rather than represent genuine
-        information.
-    \item Actually, we don't do either of the above. With the harsher selection
-        methods, the statistics are very reasonable, which, if anything, would
-        suggest using winsorizing. However,
-        [this](https://blogs.sas.com/content/iml/2017/02/08/winsorization-good-bad-and-ugly.html)
-        article convincingly argues that we shouldn't do that in our case.
-\end{itemize}
 
 
 \section{Entropy}%
@@ -109,7 +123,6 @@ probability distribution of the random variable. It is calcualted as:
 % logarithm varies by application and determines the units of $I(E)$. Base 2
 % means that information is expressed in bits. The natural logarithm, another
 % popular choice, expresses information in \textit{nats}.
-
 
 
 

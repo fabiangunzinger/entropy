@@ -8,10 +8,27 @@ library(patchwork)
 FIGDIR = '/Users/fgu/dev/projects/entropy/output/figures' 
 
 
+
+# Transactions by day of week ------------------------------------------------------
+
+dt = read_txn_data('777')
+
+day_order <- c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
+
+p <- ggplot(dt, aes(factor(weekdays(as.Date(dt$date)), level = day_order))) +
+  geom_bar() +
+  labs(
+    x = 'Day of week',
+    y = 'Number of transactions'
+  ) & theme_minimal()
+
+ggsave(file.path(FIGDIR, 'dow_txns.png'))
+
+
+
+# Entropy and components -----------------------------------------------------------
+
 dt = read_analysis_data()
-
-
-## entropy histogram
 
 p1 <- ggplot(dt, aes(txns_count)) +
   geom_histogram(binwidth=5) +
@@ -39,5 +56,6 @@ p3 <- ggplot(dt, aes(entropy)) +
 
 p1 + p2 + p3 & theme_minimal()
 ggsave(file.path(FIGDIR, 'entropy_hists.png'))
+# look into using height and width params
 
 

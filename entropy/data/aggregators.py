@@ -55,13 +55,14 @@ def txn_counts_by_account_type(df):
 
 @aggregator
 @hh.timer
-def tag_month_spend(df):
+def month_spend(df):
     """Spend per tag and total spend per user-month."""
     df = df.copy()
     is_spend = df.tag_group.eq("spend") & df.debit
     df["amount"] = df.amount.where(is_spend, np.nan)
     df["tag"] = df.tag.where(is_spend, np.nan)
     df["tag"] = df.tag.cat.rename_categories(lambda x: "spend_" + x)
+    df['credit'] = df.account_type.eq('credit')
     group_cols = idx_cols + ["tag"]
     return (
         df.groupby(group_cols, observed=True)
@@ -113,7 +114,9 @@ def entropy_spend_tag_counts(df):
     total_txns = tag_txns.sum(1)
     num_unique_tags = len(tag_txns.columns)
     tag_probs = (tag_txns + 1).div(total_txns + num_unique_tags, axis=0)
-    user_month_entropy = stats.entropy(tag_probs, base=2, axis=1) / np.log2(num_unique_tags)
+    user_month_entropy = stats.entropy(tag_probs, base=2, axis=1) / np.log2(
+        num_unique_tags
+    )
 
     return pd.DataFrame(
         {"entropy": user_month_entropy, "entropyz": stats.zscore(user_month_entropy)},
@@ -140,17 +143,31 @@ def female(df):
 @aggregator
 @hh.timer
 def savings_accounts_flows(df):
-    """Monthly savings account inflows."""
+    """Monthly savings account inflows and dummy for savings habit."""
     df = df.copy()
     df["amount"] = df.amount.mul(-1)
     is_sa_inflow = (
         df.account_type.eq("savings")
-        & df.amount.ge(5)
         & ~df.debit
+        & df.amount.ge(5)
         & ~df.tag_auto.str.contains("interest", na=False)
         & ~df.desc.str.contains(r"save\s?the\s?change", na=False)
     )
     df["amount"] = df.amount.where(is_sa_inflow, 0)
-    return df.groupby(idx_cols).amount.agg(
+
+    data = df.groupby(idx_cols).amount.agg(
         sa_inflows=("sum"), has_sa_inflows=(lambda x: (x.max() > 0).astype(int))
     )
+
+    data["reg_sa_inflows"] = (
+        data.groupby("user_id")
+        .has_sa_inflows.rolling(window=12, min_periods=1)
+        .sum()
+        .ge(10)
+        .astype(int)
+        .droplevel(0)
+    )
+    return data
+
+
+

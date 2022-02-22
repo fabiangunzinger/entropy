@@ -1,11 +1,11 @@
 % !TEX root = ../entropy.tex
 
-\section{Method}%
-\label{sec:method}
+\section{Methods}%
+\label{sec:methods}
 
 
-\subsection{Dataset description}
-\label{sub:dataset_description}
+\paragraph{Dataset description}
+\label{par:dataset_description}
 
 We use data from Money Dashboard (MDB), a financial management app that allows
 its users to link accounts from different banks to obtain an integrated view of
@@ -34,8 +34,8 @@ not address this.\footnote{For an example of how re-weighing can be used to
 mitigate the non-representative issue, see \citet{bourquin2020effects}.}
 
 
-\subsection{Preprocessing and sample selection}%
-\label{sub:preprocessing_and_sample_selection}
+\paragraph{Preprocessing and sample selection}%
+\label{par:preprocessing_and_sample_selection}
 
 We restrict our sample to users for whom we can observe a regular income, can
 be reasonably sure that they have added all their bank account to MDB, and for
@@ -50,8 +50,8 @@ Appendix~\ref{sec:data}.
 \input{\tabdir/sample_selection_XX7.tex}
 \end{table}
 
-\subsection{Variable description}%
-\label{sub:dependent_variable}
+\paragraph{Variable description}%
+\label{par:dependent_variable}
 
 \paragraph{Outcome variable:}%
 \label{par:outcome_variable_}
@@ -62,6 +62,15 @@ that are not identified as interest payments or automated "save the change"
 transfers. While standing order transactions are unlikely to be related to
 entropy in the short-run, we do not exclude such transactions since, best we
 can tell, the only account for a small fraction of total transactions.
+
+
+\citet{mps2018building} finds that saving habit is often more important than
+amount saved. On individual level, has saving habit dummy as outcome. Could
+also use 12-month rolling window.
+
+
+
+
 
 \paragraph{Variable of interest:}%
 \label{par:variable_of_interest_}
@@ -87,7 +96,16 @@ analagous.}
 \end{equation}
 
 where $p_i$ is the probability that an individual makes a purchase in spending
-category $i$, and $log$ is the base 2 logarithm. The higher the value of
+category $i$, and $log$ is the base 2 logarithm.
+
+\edit{We normalise $H$ by $log(N_{SC})$, the entropy of completely random shopping
+    behaviour, so that it takes value between 0 and 1.\footnote{$log(N_{SC})$ is
+    the probability of a completely random shopping pattern because for in this
+case, for $N_{SC}$ different spending categories, we would have $p_i = 1 /
+N_{SC}$ for each category $i$ so that $H = -N_{SC}p_ilog(p_i) = -log(p_i) =
+log(N_{SC})$.}}
+
+The higher the value of
 entropy, the less predictable an individuals spending pattern.
 
 To calculate entropy scores, we group spending into 9 spending categories (SC)
@@ -117,19 +135,105 @@ transactions in each category.
     transactions per user-month, breakdown of spending transactions into
 spending categories; breakdown of number of spending categories spent on in
 user-month; distribution of user-month entropy scores.}
-
 \end{figure}
 
-\subsection{Summary statistics}%
-\label{sub:summary_statistics}
+
+
+\paragraph{Shopping-time based entropy}%
+\label{par:shopping_time_based_entropy}
+
+We calculate entropy based on the probability of $(day of week, merchant)$
+tuples, where we follow \citet{guidotti2015behavioral} and bin \textit{day of
+week} into \textit{weekends} and \textit{weekday}, to reduce excessive
+fluctuations. Because banks tend to process weekend transactions on Monday, as shows in
+Figure~\ref{fig:dow_txns}, we cannot distinguish transactions made on Saturdays
+or Sundays from those made on Mondays, and thus classify all of them as weekend
+transactions.
+
+\begin{figure}[H]
+    \center \newcommand\width{.7\textwidth} \caption{Transactions by day of week}
+    \label{fig:dow_txns}
+    \includegraphics[width=\width]{\figdir/dow_txns.png}
+    \fignote{\width}{Number of transactions by day of week, based on a 1/1000
+    sample of the full data. Shows that banks process most weekend
+transactions on Mondays.}
+\end{figure}
+
+
+\paragraph{Control variables}%
+\label{par:control_variables}
+
+We classify potential determinants of savings behaviour into \textit{financial behaviours},
+\textit{financial planning}, and \textit{individual or household
+characteristics}, a classification frequently used in policy research on
+the financial wellbeing \citep{can2019improving,cfpb2017financial, mps2018building}.
+
+
+
+
+
+Financial behaviour
+
+
+\begin{itemize}
+    \item Regular savings, dummy for 10 out of last 12 months
+
+    \item Share of spend with credit
+
+    \item Month total and category spend
+\end{itemize}
+
+Planning
+\begin{itemize}
+    \item Regular login, dummy for 1 / month in 10 out of last 12 months
+\end{itemize}
+
+Individual and household characteristics
+\begin{itemize}
+    \item Gender
+
+    \item Age
+
+    \item Urban
+
+    \item Region
+
+    \item Month income
+
+    \item Regular income, dummy for 10 out of last 12 months
+
+    \item Income current month, dummy for month income > 0
+
+    \item Has children, imperfect
+
+    \item Received benefits
+
+    \item Receives pension
+
+    \item Housing tenure: mortgage, rent, other (owning outright implied)
+
+    \item Takes out (payday) loan
+
+    \item Total balance
+
+    \item Balance / average monthly spend
+\end{itemize}
+
+
+
+
+
+
+
+\paragraph{Summary statistics}%
+\label{par:summary_statistics}
 % \begin{table}[H]
 % \caption{Summary statistics}\label{tab:sumstats}
 % \input{\tabdir/sumstats.tex}
 % \end{table}
 
-
-\subsection{Model specification}%
-\label{sub:model_specification}
+\paragraph{Model specification}%
+\label{par:model_specification}
 
 We estimate models of the form: 
 
