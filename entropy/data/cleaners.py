@@ -3,13 +3,16 @@ Functions to clean raw MDB transaction data.
 
 """
 
+import os
 import re
 import string
 
 import numpy as np
 import pandas as pd
 
+from entropy import config
 import entropy.data.txn_classifications as tc
+import entropy.helpers.aws as ha
 import entropy.helpers.helpers as hh
 
 
@@ -75,9 +78,9 @@ def drop_first_and_last_month(df):
     the month, which would bias monthly entropy scores downwards (if we only
     observe a single txn, entropy would be 0).
     """
-    ym = df.date.dt.to_period('m')
-    first_month = ym.groupby(df.user_id).transform('min')
-    last_month = ym.groupby(df.user_id).transform('max')
+    ym = df.date.dt.to_period("m")
+    first_month = ym.groupby(df.user_id).transform("min")
+    last_month = ym.groupby(df.user_id).transform("max")
     return df[ym.between(first_month, last_month, inclusive="neither")]
 
 
@@ -241,6 +244,42 @@ def drop_duplicates(df):
     df = df.copy()
     cols = ["user_id", "account_id", "date", "amount", "desc"]
     return df.drop_duplicates(subset=cols)
+
+
+@cleaner
+@hh.timer
+def add_logins(df, **kwargs):
+    """Adds number of monthly logins."""
+
+    def read_daily_logins(**kwargs):
+        fp = "s3://3di-data-mdb/raw/20200630_UserLoginsForNeedham.csv"
+        df = ha.read_csv(fp, names=["user_id", "date"], parse_dates=["date"], **kwargs)
+        df["date"] = df.date.dt.round("d")
+        df["logins"] = 1
+        return df.groupby(["user_id", "date"]).logins.sum().reset_index()
+
+    logins = read_daily_logins(**kwargs)
+    df = df.merge(logins, on=["user_id", "date"], how="left", validate="m:1")
+    df["logins"] = df.logins.fillna(0)
+    return df
+
+
+@cleaner
+@hh.timer
+def add_region(df):
+    """Adds region name."""
+
+    columns = ["pcsector", "region_name", "is_urban"]
+    fp = "s3://3di-data-ons/nspl/NSPL_AUG_2020_UK/clean/lookup.csv"
+    try:
+        regions = ha.read_csv(fp, usecols=columns).rename(
+            columns={"pcsector": "postcode"}
+        )
+    except FileNotFoundError:
+        print("NSPL lookup table not found.")
+    return regions
+
+    return df.merge(regions, how="left", on="postcode", validate="m:1")
 
 
 @cleaner

@@ -279,6 +279,12 @@ def loans(df):
 
 @aggregator
 @hh.timer
+def region(df):
+    """Region and urban dummy."""
+    return df.groupby(idx_cols)[['region', 'is_urban']].first()
+
+@aggregator
+@hh.timer
 def month_spend(df):
     """Spend per tag and total spend per user-month."""
     df = df.copy()

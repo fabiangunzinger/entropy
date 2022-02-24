@@ -49,6 +49,12 @@ def read_analysis_data(sample='XX7', **kwargs):
     return ha.read_parquet(fp, **kwargs)
 
 
+@hh.timer
+def read_logins(**kwargs):
+    fp = "s3://3di-data-mdb/raw/20200630_UserLoginsForNeedham.csv"
+    return ha.read_csv(fp, names=["user_id", "date"], parse_dates=["date"], **kwargs)
+
+
 def trim(series, pct=1, how="both"):
     """Replaces series values outside of specified percentile on both sides with nan.
 
