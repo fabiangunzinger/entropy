@@ -281,7 +281,7 @@ def loans(df):
 @hh.timer
 def region(df):
     """Region and urban dummy."""
-    return df.groupby(idx_cols)[['region', 'is_urban']].first()
+    return df.groupby(idx_cols)[['region_name', 'is_urban']].first()
 
 @aggregator
 @hh.timer
