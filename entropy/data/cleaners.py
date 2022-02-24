@@ -277,7 +277,6 @@ def add_region(df):
         )
     except FileNotFoundError:
         print("NSPL lookup table not found.")
-    return regions
 
     return df.merge(regions, how="left", on="postcode", validate="m:1")
 
