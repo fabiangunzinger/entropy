@@ -57,3 +57,9 @@ def complete_demographic_info(df):
     return df
 
 
+@validator
+def uniform_month_distribution(df):
+    stats = ["min", "25%", "50%", "75%", "max"]
+    assert all(df.month.describe()[stats] == [1, 3, 6, 9, 12])
+    return df
+
