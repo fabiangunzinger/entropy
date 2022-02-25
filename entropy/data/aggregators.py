@@ -283,6 +283,7 @@ def region(df):
     """Region and urban dummy."""
     return df.groupby(idx_cols)[['region_name', 'is_urban']].first()
 
+
 @aggregator
 @hh.timer
 def month_spend(df):

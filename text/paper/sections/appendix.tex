@@ -37,7 +37,12 @@ Financial behaviour
 \begin{itemize}
     \item Regular savings, dummy for 10 out of last 12 months
 
-    \item Share of spend paid with credit card
+    \item Proportion of purchases paid with credit card. This is only about 6
+        percent in our final sample, whereas it is 12 percent in the full
+        sample.\footnote{Across the UK, the proportion of credit pard purchases
+            is about 17 percent in a typical month \citep{ukfinance2021card}.
+            The proportion in our data is likely lower because the sample is
+        skewed towards more affluent individuals.}
 
     \item Month total and category spend (category spend for robustness)
 \end{itemize}
@@ -60,7 +65,9 @@ Individual and household characteristics
 
     \item Region
 
-    \item Month income
+    \item Month income, winsorised at top 1 percent-level.
+
+    \item Year income, winsorised at the 1 percent level.
 
     \item Regular income, dummy for 10 out of last 12 months
 

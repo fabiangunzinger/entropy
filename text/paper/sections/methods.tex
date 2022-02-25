@@ -137,6 +137,42 @@ spending categories; breakdown of number of spending categories spent on in
 user-month; distribution of user-month entropy scores.}
 \end{figure}
 
+\paragraph{Auto tag entropy}%
+\label{par:auto_tag_entropy}
+
+\begin{itemize}
+    \item Use apriori algorithm
+
+    \item minsup: minimum number of baskets a pattern is required to appear
+        (else it's dropped)
+
+    \item In our context: baseket is collection of auto tags with positive txsn
+        counts in a user month, while pattern is pattern of such auto tags.
+
+    \item Patterns also called 'representative baskets'.
+
+    \item Algorithm steps (adapted from guidotti2015behavioural)
+
+        \begin{itemize}
+            \item Identify all patterns (representative baskets)
+
+            \item Discard representative baskets that appear in fewer than
+                minsup months we observe for a user. 
+
+            \item Assign representative basked to each of the user's months.
+
+            \item Calculate probabilities of observing a representative basked
+                based on occurrences across all of a user's month. E.g. user
+                with 5 months of data with representative baskets [1, 1, 2, 3,
+                4] has representative basket probabilitis 2/5 for repr basket
+                1, and 1/5 for repr baskets 2-4.
+
+            \item Calculate user-leven entropy based on probabilities.
+        \end{itemize}
+\end{itemize}
+
+
+
 
 
 \paragraph{Shopping-time based entropy}%
@@ -159,6 +195,16 @@ transactions.
 transactions on Mondays.}
 \end{figure}
 
+We drop the about 25 percent of transactions for which we cannot identify a
+merchant. The alternative would be leaving these transactions in the sample and
+treating ``unknown merchant'' as a single merchant. But for user-months for
+which the merchant is unknown for all transactions, this would lead to an
+entropy score of 0, which is undesireable.
+
+
+
+
+% for sequence-dependent entropy, look into krumme2013predictability
 
 \paragraph{Summary statistics}%
 \label{par:summary_statistics}
