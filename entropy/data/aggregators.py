@@ -302,3 +302,68 @@ def month_spend(df):
         .assign(month_spend=lambda df: df.sum(1))
         .apply(hd.winsorise, pct=1, how="upper")
     )
+
+
+def _entropy_counts(df, cat, wknd=False):
+    """Spend txns count for each cat by user-month.
+
+    Args:
+      df: A txn-level daframe.
+      cat: A column from df to be used for categorising spending transactions.
+      wknd: A Boolean indicating whether spend txns should be categorised
+        by (cat, wknd), if True, or by (cat), if False, where wknd is a dummy
+        indicating whether a txn is dated as a Sa, So, or Mo.
+    Returns:
+      A DataFrame with user-month rows, category columns, and count values.
+    """
+    is_cat_observed_spend = df.tag_group.eq("spend") & df.debit & df[cat].notna()
+    df = df.loc[is_cat_observed_spend].copy()
+    if wknd:
+        is_wknd = df.date.dt.dayofweek.isin([5, 6, 0]).astype(str)
+        df[cat] = df[cat].astype(str) + is_wknd
+    group_cols = idx_cols + [cat]
+    return df.groupby(group_cols, observed=True).size().unstack().fillna(0)
+
+
+def _entropy(df, smooth=False):
+    """Returns row-wise entropy scores based on counts.
+
+    Args:
+      df: A DataFrame with entity rows, category columns, and count values.
+      smoothed: A Boolean value indicating whether to apply additive smoothing
+        to the counts in df before calculating probabilities.
+    Returns:
+      A series with entropy scores for each row.
+    """
+    row_totals = df.sum(1)
+    num_unique = len(df.columns)
+    if smooth:
+        probs = (df + 1).div(row_totals + num_unique, axis=0)
+    else:
+        probs = (df).div(row_totals, axis=0)
+    e = stats.entropy(probs, base=2, axis=1)
+    return pd.Series(e, index=df.index)
+
+
+@aggregator
+@hh.timer
+def count_based_entropy_scores(df):
+    """Add count-based entropy measures."""
+    cats = ["tag", "tag_auto", "merchant"]
+    scores = []
+    for cat in cats:
+        scores.extend(
+            [
+                _entropy(_entropy_counts(df, cat, wknd=False)).rename(f"entropy_{cat}"),
+                _entropy(_entropy_counts(df, cat, wknd=True)).rename(
+                    f"entropy_{cat}_wknd"
+                ),
+                _entropy(_entropy_counts(df, cat, wknd=False), smooth=True).rename(
+                    f"entropy_{cat}_smooth"
+                ),
+                _entropy(_entropy_counts(df, cat, wknd=True), smooth=True).rename(
+                    f"entropy_{cat}_wknd_smooth"
+                ),
+            ]
+        )
+    return pd.concat(scores, axis=1)
