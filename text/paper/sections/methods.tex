@@ -71,7 +71,6 @@ also use 12-month rolling window.
 
 
 
-
 \paragraph{Variable of interest:}%
 \label{par:variable_of_interest_}
 Our variable of interest is spending entropy, a measure of how predictable an
@@ -136,6 +135,28 @@ transactions in each category.
 spending categories; breakdown of number of spending categories spent on in
 user-month; distribution of user-month entropy scores.}
 \end{figure}
+
+
+Issues from imperfect labelling of MDB data:
+\begin{itemize}
+
+    \item Transaction tagging in the MDB data is imperfect: about 20 percent of
+        transactions have no tag.
+
+    \item This creates two issues for entropy calculation.
+
+    \item First, entropy scores of high-entropy individuals are biased
+        downwards - relatively more than those of low-entropy individuals.
+        Reason: missing tags are not random: more common transactions such as
+        groceries or take-away purchases are more likely to be tagged ...
+
+    \item All zero count-cases: ... Solution: require minimum number of txns in
+        two different labels (for all categories we use to calculate entropy). Two to avoid 0 entropy cases that are unlikely to
+        be genuine but probably artefacts of missing labelling.
+        
+\end{itemize}
+
+
 
 \paragraph{Auto tag entropy}%
 \label{par:auto_tag_entropy}

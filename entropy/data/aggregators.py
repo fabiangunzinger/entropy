@@ -55,6 +55,21 @@ def txn_counts_by_account_type(df):
 
 @aggregator
 @hh.timer
+def category_counts(df):
+    """Counts number of unique spend categories for entropy category variables."""
+    df = df.copy()
+    cat_vars = ["tag", "tag_auto", "merchant"]
+    is_spend = df.tag_group.eq("spend") & df.debit
+    for var in cat_vars:
+        df[var] = df[var].where(is_spend, np.nan)
+    g = df.groupby(idx_cols)
+    return pd.concat(
+        (g[var].nunique().rename(f"nunique_{var}") for var in cat_vars), axis=1
+    )
+
+
+@aggregator
+@hh.timer
 def prop_credit(df):
     """Proportion of month spend paid by credit card."""
     df = df.copy()
@@ -110,7 +125,6 @@ def income(df):
         mt_inc.groupby(user_year)
         .transform(scaled_inc)
         .rename("year_income")
-        .div(1000)
         .pipe(hd.winsorise, pct=1, how="upper")
     )
 
@@ -331,11 +345,13 @@ def _counts(df, cat, wknd=False):
     return df.groupby(group_cols, observed=True).size().unstack().fillna(0)
 
 
-def _entropy(df, smooth=False):
+def _entropy(df, normalised=True, smooth=False):
     """Returns row-wise entropy scores based on counts.
 
     Args:
       df: A DataFrame with entity rows, category columns, and count values.
+      normalised: A Boolean value indicating whether to divide entorpy by
+        max entropy.
       smoothed: A Boolean value indicating whether to apply additive smoothing
         to the counts in df before calculating probabilities.
     Returns:
@@ -348,6 +364,8 @@ def _entropy(df, smooth=False):
     else:
         probs = (df).div(row_totals, axis=0)
     e = stats.entropy(probs, base=2, axis=1)
+    if normalised:
+        e = e / np.log2(num_unique)
     return pd.Series(e, index=df.index)
 
 
@@ -364,4 +382,6 @@ def count_based_entropy_scores(df):
                 _entropy(_counts(df, cat, wknd=True)).rename(f"entropy_{cat}_wknd"),
             ]
         )
+
+    
     return pd.concat(scores, axis=1)
