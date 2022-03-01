@@ -146,7 +146,7 @@ def complete_demographic_info(df):
 
     Retains only users for which we have full demographic information.
     """
-    cols = ["age", "female"]
+    cols = ["age", "female", 'is_urban']
     cond = df[cols].isna().groupby(df.user_id).sum().sum(1).eq(0)
     users = cond[cond].index
     return df[df.user_id.isin(users)]
