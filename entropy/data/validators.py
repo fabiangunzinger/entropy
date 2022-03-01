@@ -22,8 +22,8 @@ def no_missing_values(df):
 
 
 @validator
-def year_income(df, lower=10_000):
-    assert df.year_income.min() >= lower
+def year_income(df, min_income=10_000):
+    assert df.year_income.min() >= (min_income / 1000)
     return df
 
 
@@ -40,8 +40,8 @@ def min_number_of_months(df):
 
 
 @validator
-def month_min_spend(df):
-    assert df.month_spend.min() >= 200
+def month_min_spend(df, min_spend=200):
+    assert df.month_spend.min() >= (min_spend / 1000)
     return df
 
 
