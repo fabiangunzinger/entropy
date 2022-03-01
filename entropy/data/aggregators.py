@@ -283,7 +283,7 @@ def loans(df):
 @hh.timer
 def region(df):
     """Region and urban dummy."""
-    return df.groupby(idx_cols)[['region_name', 'is_urban']].first()
+    return df.groupby(idx_cols)[["region_name", "is_urban"]].first()
 
 
 @aggregator
@@ -310,7 +310,7 @@ def month_spend(df):
     )
 
 
-def _entropy_counts(df, cat, wknd=False):
+def _counts(df, cat, wknd=False):
     """Spend txns count for each cat by user-month.
 
     Args:
@@ -360,16 +360,8 @@ def count_based_entropy_scores(df):
     for cat in cats:
         scores.extend(
             [
-                _entropy(_entropy_counts(df, cat, wknd=False)).rename(f"entropy_{cat}"),
-                _entropy(_entropy_counts(df, cat, wknd=True)).rename(
-                    f"entropy_{cat}_wknd"
-                ),
-                _entropy(_entropy_counts(df, cat, wknd=False), smooth=True).rename(
-                    f"entropy_{cat}_smooth"
-                ),
-                _entropy(_entropy_counts(df, cat, wknd=True), smooth=True).rename(
-                    f"entropy_{cat}_wknd_smooth"
-                ),
+                _entropy(_counts(df, cat, wknd=False)).rename(f"entropy_{cat}"),
+                _entropy(_counts(df, cat, wknd=True)).rename(f"entropy_{cat}_wknd"),
             ]
         )
     return pd.concat(scores, axis=1)
