@@ -78,7 +78,7 @@ def income(df):
     """Income variables.
 
     Incomes are multiplied by -1 to get positive numbers (credits are negative
-    in dataset).
+    in dataset), and expressed in '000s to ease coefficient comparison.
 
     `month_income` is sum of income payment in a given month.
 
@@ -102,6 +102,7 @@ def income(df):
         df.groupby(idx_cols)
         .amount.sum()
         .rename("month_income")
+        .div(1000)
         .pipe(hd.winsorise, pct=1, how="upper")
     )
 
@@ -109,6 +110,7 @@ def income(df):
         mt_inc.groupby(user_year)
         .transform(scaled_inc)
         .rename("year_income")
+        .div(1000)
         .pipe(hd.winsorise, pct=1, how="upper")
     )
 
@@ -287,7 +289,10 @@ def region(df):
 @aggregator
 @hh.timer
 def month_spend(df):
-    """Spend per tag and total spend per user-month."""
+    """Spend per tag and total spend per user-month.
+
+    Expressed in '000s to ease coefficient comparison.
+    """
     df = df.copy()
     is_spend = df.tag_group.eq("spend") & df.debit
     df["amount"] = df.amount.where(is_spend, np.nan)
@@ -300,6 +305,7 @@ def month_spend(df):
         .unstack()
         .fillna(0)
         .assign(month_spend=lambda df: df.sum(1))
+        .div(1000)
         .apply(hd.winsorise, pct=1, how="upper")
     )
 
