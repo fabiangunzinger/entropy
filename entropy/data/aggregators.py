@@ -380,6 +380,10 @@ def count_based_entropy_scores(df):
             [
                 _entropy(_counts(df, cat, wknd=False)).rename(f"entropy_{cat}"),
                 _entropy(_counts(df, cat, wknd=True)).rename(f"entropy_{cat}_wknd"),
+                _entropy(_counts(df, cat, wknd=False),
+                         smooth=True).rename(f"entropy_{cat}_smooth"),
+                _entropy(_counts(df, cat, wknd=True),
+                         smooth=True).rename(f"entropy_{cat}_wknd_smooth"),
             ]
         )
 
