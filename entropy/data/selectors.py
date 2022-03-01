@@ -104,7 +104,7 @@ def month_min_spend(df, min_spend=200):
     """
     cond = (
         df.groupby("user_id").month_spend.apply(lambda x: x.min(skipna=False))
-        >= min_spend / 1000
+        >= (min_spend / 1000)
     )
     users = cond[cond].index
     return df[df.user_id.isin(users)]
