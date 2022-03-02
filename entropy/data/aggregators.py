@@ -146,30 +146,6 @@ def income(df):
 
 @aggregator
 @hh.timer
-def entropy_spend_tag_counts(df):
-    """Adds Shannon entropy scores based on tag counts of spend txns."""
-    data = df.copy()
-    is_spend = data.tag_group.eq("spend") & data.debit
-    data["tag"] = data.tag.where(is_spend, np.nan)
-    group_cols = idx_cols + ["tag"]
-    g = data.groupby(group_cols, observed=True)
-
-    tag_txns = g.size().unstack().fillna(0)
-    total_txns = tag_txns.sum(1)
-    num_unique_tags = len(tag_txns.columns)
-    tag_probs = (tag_txns + 1).div(total_txns + num_unique_tags, axis=0)
-    user_month_entropy = stats.entropy(tag_probs, base=2, axis=1) / np.log2(
-        num_unique_tags
-    )
-
-    return pd.DataFrame(
-        {"entropy": user_month_entropy, "entropyz": stats.zscore(user_month_entropy)},
-        index=tag_probs.index,
-    )
-
-
-@aggregator
-@hh.timer
 def age(df):
     """Adds user age at time of transaction."""
     df = df.copy()
@@ -324,7 +300,7 @@ def month_spend(df):
     )
 
 
-def _counts(df, cat, wknd=False):
+def _entropy_counts(df, cat, wknd=False):
     """Spend txns count for each cat by user-month.
 
     Args:
@@ -345,12 +321,12 @@ def _counts(df, cat, wknd=False):
     return df.groupby(group_cols, observed=True).size().unstack().fillna(0)
 
 
-def _entropy(df, normalised=True, smooth=False):
-    """Returns row-wise entropy scores based on counts.
+def _entropy_scores(df, normalise=False, standardise=False, smooth=False):
+    """Returns row-wise Shannon entropy scores based on counts.
 
     Args:
       df: A DataFrame with entity rows, category columns, and count values.
-      normalised: A Boolean value indicating whether to divide entorpy by
+      normalise: A Boolean value indicating whether to divide entorpy by
         max entropy.
       smoothed: A Boolean value indicating whether to apply additive smoothing
         to the counts in df before calculating probabilities.
@@ -364,9 +340,24 @@ def _entropy(df, normalised=True, smooth=False):
     else:
         probs = (df).div(row_totals, axis=0)
     e = stats.entropy(probs, base=2, axis=1)
-    if normalised:
+    if normalise:
         e = e / np.log2(num_unique)
+    if standardise:
+        e = (e - e.mean()) / e.std()
     return pd.Series(e, index=df.index)
+
+
+def _entropy_name(cat, wknd, smooth, standardise):
+    name = f"entropy_{cat}"
+    if wknd or smooth or standardise:
+        name += "_"
+    if wknd:
+        name += "_w"
+    if smooth:
+        name += "s"
+    if standardise:
+        name += "st"
+    return name
 
 
 @aggregator
@@ -376,16 +367,13 @@ def count_based_entropy_scores(df):
     cats = ["tag", "tag_auto", "merchant"]
     scores = []
     for cat in cats:
-        scores.extend(
-            [
-                _entropy(_counts(df, cat, wknd=False)).rename(f"entropy_{cat}"),
-                _entropy(_counts(df, cat, wknd=True)).rename(f"entropy_{cat}_wknd"),
-                _entropy(_counts(df, cat, wknd=False),
-                         smooth=True).rename(f"entropy_{cat}_smooth"),
-                _entropy(_counts(df, cat, wknd=True),
-                         smooth=True).rename(f"entropy_{cat}_wknd_smooth"),
-            ]
-        )
-
-    
+        for wknd in [True, False]:
+            for smooth in [True, False]:
+                for standardise in [True, False]:
+                    name = _entropy_name(cat, wknd, smooth, standardise)
+                    counts = _entropy_counts(df, cat, wknd=wknd)
+                    score = _entropy_scores(
+                        counts, standardise=standardise, smooth=smooth
+                    ).rename(name)
+                    scores.append(score)
     return pd.concat(scores, axis=1)
