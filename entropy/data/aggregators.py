@@ -353,7 +353,7 @@ def _entropy_name(cat, wknd, smooth, standardise):
     if smooth:
         name += "s"
     if standardise:
-        name += "st"
+        name += "z"
     return name
 
 
