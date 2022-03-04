@@ -247,16 +247,13 @@ def housing_payments(df):
 
 @aggregator
 @hh.timer
-def loans(df):
-    """Dummies for receiving and repaying unsecured or payday loans."""
+def loan_funds_and_repayments(df):
+    """Dummies for receiving and repaying loans."""
     df = df.copy()
-    is_personal_loan = df.tag_auto.str.match(r"^(personal|unsecured) loan")
-    is_payday_loan = df.tag_auto.str.match(r"^payday loan")
+    is_loan = df.tag_auto.str.match(r'(personal|unsecured|payday) loan')
     df["loan"] = "other"
-    df["loan"] = np.where(is_personal_loan & df.debit, "loan_repmt", df.loan)
-    df["loan"] = np.where(is_personal_loan & ~df.debit, "loan_funds", df.loan)
-    df["loan"] = np.where(is_payday_loan & df.debit, "pdloan_repmt", df.loan)
-    df["loan"] = np.where(is_payday_loan & ~df.debit, "pdloan_funds", df.loan)
+    df["loan"] = np.where(is_loan & df.debit, "loan_repmt", df.loan)
+    df["loan"] = np.where(is_loan & ~df.debit, "loan_funds", df.loan)
     group_cols = idx_cols + ["loan"]
     return (
         df.groupby(group_cols, observed=True)
