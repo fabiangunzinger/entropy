@@ -297,6 +297,18 @@ def month_spend(df):
     )
 
 
+@aggregator
+@hh.timer
+def bank_charges(df):
+    """Dummy for whether overdraft fees were paid."""
+    df = df.copy()
+    pattern = r'(?:od|o/d|overdraft).*(?:fee|interest)'
+    is_charge = df.desc.str.contains(pattern) & df.debit
+    df['id'] = df.id.where(is_charge, np.nan)
+    return df.groupby(idx_cols).id.count().gt(0).astype(int)
+
+
+
 def _entropy_counts(df, cat, wknd=False):
     """Spend txns count for each cat by user-month.
 
@@ -374,3 +386,5 @@ def count_based_entropy_scores(df):
                     ).rename(name)
                     scores.append(score)
     return pd.concat(scores, axis=1)
+
+
