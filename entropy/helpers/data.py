@@ -110,10 +110,9 @@ def breakdown(df, group_var, group_var_value, component_var, metric="value", net
     )
 
 
-def colname_subset(df, pattern):
-    """Returns names of all columns that contain pattern."""
-    columns = df.columns
-    return list(columns[columns.str.contains(pattern)])
+def pat_in_col(df, pat, col):
+    """Returns rows for which col contains pattern."""
+    return df[df[col].str.contains(pat, na=False)]
 
 
 def user_period_data(df, user_id, period):

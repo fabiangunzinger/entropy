@@ -1,5 +1,22 @@
 # Entropy scratchpad
 
+Thoughts on entropy calculations.
+
+- Basket-revealed (BRV) entropy used in guidotti2015behavioural has serious
+  limitations, too. An individual who purchases one particular item on each of
+  their shops but apart from that purchases all different items so that each
+  item appears only once across all shops would have entropy of zero, even
+  though their behaviour would be extremely irregular.
+
+- Calculating a BRV measure for MDB that takes into account similarity of
+  counts would be very complicated. The BRV measure akin to that used in
+  guidotti2015behavioural would be to ignore counts and just focus on the
+  categories with positive counts (akin to a product being bought, they ignore
+  quantity bought). This doesn't make sense with LBG categories, where most
+  categories have positive counts. It would make more sense with auto tags,
+  where there would be more variation.
+
+
 ## Savings
 
 - see nest2021supporting intro for latest figures on why short-term savings

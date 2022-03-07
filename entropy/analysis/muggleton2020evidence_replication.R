@@ -17,7 +17,8 @@ dt = read_analysis_data()
 names(dt)
 
 
-# Global settings ------------------------------------------------------------------
+
+# Settings -------------------------------------------------------------------------
 
 TABDIR = '/Users/fgu/dev/projects/entropy/output/tables'
 
@@ -67,14 +68,16 @@ hh_chars = c(
 controls = c(fin_behav, planning, hh_chars)
 
 setFixest_fml(
-  ..entropy = 'entropy_tag_sst'
+  ..entropy = c('entropy_tag_sst', 'entropy_tag_st')
 )
 
+
+# Analysis -------------------------------------------------------------------------
 
 # FE specifications
 etable(
   fixest::feols(xpd(
-    has_sa_inflows ~ ..entropy + ..controls | csw0(user_id, month),
+    has_sa_inflows ~ + ..entropy + ..controls | csw0(user_id, month),
     ..controls = controls), data=dt
   ), 
   title = 'FE specifications', 
@@ -133,3 +136,15 @@ etable(
   label = 'tab:reg_csw0',
   replace = T
 )
+
+
+# Between vs within variation
+entropy <- entropy_tag
+a = dt[, .(g_mean = mean(entropy_tag), g_sd = sd(entropy_tag)), user_id]
+within_var = mean(a$g_sd)
+between_var = sd(a$g_mean)
+total_var = sd(dt[[entropy]])
+print(total_var)
+print(within_var)
+print(between_var)
+print(within_var / between_var)
