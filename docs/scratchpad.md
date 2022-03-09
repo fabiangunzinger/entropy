@@ -1,5 +1,30 @@
 # Entropy scratchpad
 
+
+- Keep exploring ml methods
+
+
+- To what extent does the way people allocate their spending determine
+  financial outcomes? Allocation varies over time and across individuals. Two
+  ways to assess spend allocation. Within a given period (i.e. characterise a
+  single distribution - using Shannon entropy), and across time (characterise
+  similarity/divergence across for each user, using Jensen-Shannon
+  divergence?).
+
+- For now, focus on the former. We find a consistent effect. But what are we
+  measuring?
+
+
+
+
+
+
+- We want to study whether the distribution of categories along which people
+  spend their money is predictive of their financial outcomes. Really? No, we
+  want to study the regularity with which people spend their money.
+
+
+
 Thoughts on entropy calculations.
 
 - Basket-revealed (BRV) entropy used in guidotti2015behavioural has serious
