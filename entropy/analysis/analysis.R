@@ -211,32 +211,9 @@ muggleton_controls = c(
   'year_income'
 )
 
-
-exog = list(
-  tag = c('entropy_tag_sz', 'entropy_tag_z'),
-  merchant = c('entropy_merchant_sz', 'entropy_merchant_z')
-)
-
-for (var in names(exog)) {
-  etable(
-    fixest::feols(xpd(
-      id ~ + sw(exog[[var]]) + ..controls | sw0(user_id + month),
-      ..controls = muggleton_controls), data=dt
-    ),
-    title = 'Muggleton et al. (2020) replication',
-    order = c('Entropy', '!(Intercept)'),
-    # tex = T,
-    # file=file.path(TABDIR, 'reg_muggleton2020_replication.tex'),
-    fontsize = 'normal',
-    label = glue('tab:muggleton2020_replication_{var}'),
-    replace = T
-  )
-}
-
-
 etable(
   fixest::feols(xpd(
-    id ~ + sw(entropy_merchant_sz, entropy_merchant_z) + ..controls | sw0(user_id + month),
+    id ~ + sw(entropy_tag_sz, entropy_tag_z) + ..controls | sw0(user_id + month),
     ..controls = muggleton_controls), data=dt
   ),
   title = 'Muggleton et al. (2020) replication',
