@@ -312,11 +312,12 @@ def _entropy_counts(df, cat, wknd=False):
     """Spend txns count for each cat by user-month.
 
     Args:
-      df: A txn-level daframe.
-      cat: A column from df to be used for categorising spending transactions.
-      wknd: A Boolean indicating whether spend txns should be categorised
-        by (cat, wknd), if True, or by (cat), if False, where wknd is a dummy
-        indicating whether a txn is dated as a Sa, So, or Mo.
+    df: A txn-level daframe.
+    cat: A column from df to be used for categorising spending transactions.
+    wknd: A Boolean indicating whether spend txns should be categorised
+      by (cat, wknd), if True, or by (cat), if False, where wknd is a dummy
+      indicating whether a txn is dated as a Sa, So, or Mo.
+
     Returns:
       A DataFrame with user-month rows, category columns, and count values.
     """
@@ -333,11 +334,12 @@ def _entropy_scores(df, normalise=False, standardise=False, smooth=False):
     """Returns row-wise Shannon entropy scores based on counts.
 
     Args:
-      df: A DataFrame with entity rows, category columns, and count values.
-      normalise: A Boolean value indicating whether to divide entorpy by
-        max entropy.
-      smoothed: A Boolean value indicating whether to apply additive smoothing
-        to the counts in df before calculating probabilities.
+    df: A DataFrame with entity rows, category columns, and count values.
+    normalise: A Boolean value indicating whether to divide entorpy by
+      max entropy.
+    smoothed: A Boolean value indicating whether to apply additive smoothing
+      to the counts in df before calculating probabilities.
+
     Returns:
       A series with entropy scores for each row.
     """

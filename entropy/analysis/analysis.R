@@ -69,63 +69,6 @@ setFixest_dict(c(
 ))
 
 
-# Muggleton et al. (2020) replication ---------------------------------------------
-
-# Replicating tables S20 (without FE) and S40 (with FE) in muggleton2020evidence
-
-muggleton_controls = c(
-  'spend_communication',
-  'spend_finance',
-  'spend_hobbies',
-  'spend_household',
-  'spend_other_spend',
-  'spend_motor',
-  'spend_retail',
-  'spend_services',
-  'spend_travel',
-  'female',
-  'age',
-  'year_income'
-)
-
-
-exog = list(
-  tag = c('entropy_tag_sz', 'entropy_tag_z'),
-  merchant = c('entropy_merchant_sz', 'entropy_merchant_z')
-)
-
-for (var in names(exog)) {
-  etable(
-    fixest::feols(xpd(
-      id ~ + sw(exog[[var]]) + ..controls | sw0(user_id + month),
-      ..controls = muggleton_controls), data=dt
-    ),
-    title = 'Muggleton et al. (2020) replication',
-    order = c('Entropy', '!(Intercept)'),
-    # tex = T,
-    # file=file.path(TABDIR, 'reg_muggleton2020_replication.tex'),
-    fontsize = 'normal',
-    label = glue('tab:muggleton2020_replication_{var}'),
-    replace = T
-  )
-}
-
-
-etable(
-  fixest::feols(xpd(
-    id ~ + sw(entropy_merchant_sz, entropy_merchant_z) + ..controls | sw0(user_id + month),
-    ..controls = muggleton_controls), data=dt
-  ),
-  title = 'Muggleton et al. (2020) replication',
-  order = c('Entropy', '!(Intercept)'),
-  # tex = T,
-  # file=file.path(TABDIR, 'reg_muggleton2020_replication.tex'),
-  fontsize = 'normal',
-  label = 'tab:muggleton2020_replication',
-
-  replace = T
-)
-
 
 
 # Effect on sa inflows -------------------------------------------------------------------------
@@ -158,6 +101,23 @@ setFixest_fml(
 # FE specifications
 etable(
   fixest::feols(xpd(
+    has_sa_inflows ~ ..entropy + ..controls | csw0(user_id, month),
+    ..controls = controls), data=dt
+  ), 
+  title = 'FE specifications', 
+  # tex = T,
+  # file=file.path(TABDIR, 'reg_sw0.tex'),
+  fontsize = 'tiny',
+  label = 'tab:reg_fe',
+  replace = T,
+  order = c('!Entropy')
+)
+
+
+
+# FE specifications
+etable(
+  fixest::feols(xpd(
     has_sa_inflows ~ + ..entropy + ..controls | csw0(user_id, month),
     ..controls = controls), data=dt
   ), 
@@ -171,7 +131,7 @@ etable(
 )
 
 
-kj# Controls added one-by-one
+# Controls added one-by-one
 etable(
   fixest::feols(has_sa_inflows ~ ..entropy + sw0(
     # fin behaviour
@@ -230,3 +190,62 @@ print(total_var)
 print(within_var)
 print(between_var)
 print(within_var / between_var)
+
+
+# Muggleton et al. (2020) replication ---------------------------------------------
+
+# Replicating tables S20 (without FE) and S40 (with FE) in muggleton2020evidence
+
+muggleton_controls = c(
+  'spend_communication',
+  'spend_finance',
+  'spend_hobbies',
+  'spend_household',
+  'spend_other_spend',
+  'spend_motor',
+  'spend_retail',
+  'spend_services',
+  'spend_travel',
+  'female',
+  'age',
+  'year_income'
+)
+
+
+exog = list(
+  tag = c('entropy_tag_sz', 'entropy_tag_z'),
+  merchant = c('entropy_merchant_sz', 'entropy_merchant_z')
+)
+
+for (var in names(exog)) {
+  etable(
+    fixest::feols(xpd(
+      id ~ + sw(exog[[var]]) + ..controls | sw0(user_id + month),
+      ..controls = muggleton_controls), data=dt
+    ),
+    title = 'Muggleton et al. (2020) replication',
+    order = c('Entropy', '!(Intercept)'),
+    # tex = T,
+    # file=file.path(TABDIR, 'reg_muggleton2020_replication.tex'),
+    fontsize = 'normal',
+    label = glue('tab:muggleton2020_replication_{var}'),
+    replace = T
+  )
+}
+
+
+etable(
+  fixest::feols(xpd(
+    id ~ + sw(entropy_merchant_sz, entropy_merchant_z) + ..controls | sw0(user_id + month),
+    ..controls = muggleton_controls), data=dt
+  ),
+  title = 'Muggleton et al. (2020) replication',
+  order = c('Entropy', '!(Intercept)'),
+  # tex = T,
+  # file=file.path(TABDIR, 'reg_muggleton2020_replication.tex'),
+  fontsize = 'normal',
+  label = 'tab:muggleton2020_replication',
+  
+  replace = T
+)
+
