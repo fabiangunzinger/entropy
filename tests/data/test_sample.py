@@ -1,24 +1,21 @@
 import pandas as pd
 import pytest
 
-from entropy.data import cleaners
-import fixtures
+import entropy.data.cleaners as cl
+from tests.data.fixtures import mdb1
 
 
-def test_drop_last_month_passes():
+def test_drop_first_and_last_month_passes(mdb1):
 
-    df = pd.DataFrame({
-        'date': pd.to_datetime(['2020-01-11', '2020-02-12', '2020-03-13']),
-        'amount': [11.1, 22.2, 33.3],
-        'desc': ['costa coffee', 'waitrose', 'pure gym']
-    })
+    actual = cl.drop_first_and_last_month(mdb1)
 
-    actual = cleaners.drop_last_month(df)
-
-    expected = pd.DataFrame({
-        'date': pd.to_datetime(['2020-01-11', '2020-02-12']),
-        'amount': [11.1, 22.2],
-        'desc': ['costa coffee', 'waitrose']
-    })
+    expected = pd.DataFrame(
+        {
+            "user_id": [1],
+            "date": pd.to_datetime(["2020-02-12"]),
+            "amount": [22.2],
+            "desc": ["waitrose"],
+        }, index=[1]
+    )
 
     pd.testing.assert_frame_equal(actual, expected)
