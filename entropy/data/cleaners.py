@@ -135,13 +135,8 @@ def sign_amount(df):
 @hh.timer
 def missing_tags_to_nan(df):
     """Converts missing category values to NaN."""
-    # mbl = "merchant_business_line"
-    # mbl_missing = ["no merchant business line", "unknown merchant"]
-    # df[mbl] = df[mbl].cat.remove_categories(mbl_missing)
     df["merchant"] = df["merchant"].cat.remove_categories(["no merchant"])
-    # df["tag_up"] = df["tag_up"].cat.remove_categories(["no tag"])
     df["tag_auto"] = df["tag_auto"].cat.remove_categories(["no tag"])
-    # df["tag_manual"] = df["tag_manual"].cat.remove_categories(["no tag"])
     return df
 
 
@@ -249,7 +244,7 @@ def drop_duplicates(df):
 @cleaner
 @hh.timer
 def add_logins(df, **kwargs):
-    """Adds number of monthly logins."""
+    """Adds number of daily logins."""
 
     def read_daily_logins(**kwargs):
         fp = "s3://3di-data-mdb/raw/20200630_UserLoginsForNeedham.csv"
@@ -268,7 +263,6 @@ def add_logins(df, **kwargs):
 @hh.timer
 def add_region(df):
     """Adds region name."""
-
     columns = ["pcsector", "region_name", "is_urban"]
     fp = "s3://3di-data-ons/nspl/NSPL_AUG_2020_UK/clean/lookup.csv"
     try:
@@ -287,18 +281,18 @@ def is_sa_flow(df):
     """Dummy for whether txn is in- or outflow of savings account."""
     is_sa_flow = (
         df.account_type.eq("savings")
-        & df.amount.ge(5)
+        & df.amount.abs().ge(5)
         & ~df.tag_auto.str.contains("interest", na=False)
         & ~df.desc.str.contains(r"save\s?the\s?change", na=False)
     )
-    df['is_sa_flow'] = is_sa_flow.astype(int)
+    df["is_sa_flow"] = is_sa_flow.astype(int)
     return df
 
 
 @cleaner
 @hh.timer
 def year_month_indicator(df):
-    df['ym'] = df.date.dt.to_period('m')
+    df["ym"] = df.date.dt.to_period("m")
     return df
 
 
