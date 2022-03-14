@@ -53,26 +53,39 @@ Appendix~\ref{sec:data}.
 \paragraph{Variable description}%
 \label{par:dependent_variable}
 
-\paragraph{Outcome variable:}%
+\paragraph{Measuring savings}%
 \label{par:outcome_variable_}
-Our outcome variable is a binary indicator for whether or not a user has made
-any payments into their savings accounts in a given month. We classify as
-payments into savings accounts all savings account credits of \pounds5 or more
-that are not identified as interest payments or automated "save the change"
-transfers. While standing order transactions are unlikely to be related to
-entropy in the short-run, we do not exclude such transactions since, best we
-can tell, the only account for a small fraction of total transactions.
 
 
-\citet{mps2018building} finds that saving habit is often more important than
-amount saved. On individual level, has saving habit dummy as outcome. Could
-also use 12-month rolling window.
+Different savings measures
+\begin{itemize}
+
+    \item New inflows into savings accounts.
+
+        We classify as payments into savings
+        accounts all savings account credits of \pounds5 or more that are not
+        identified as interest payments or automated "save the change"
+        transfers (similarly for debits).\footnote{While standing order transactions are unlikely to be
+        related to entropy in the short-run, we do not exclude such
+    transactions since, best we can tell, the only account for a small fraction
+of total transactions.} 
+
+    \item Dummy positive inflows into savings accounts.
+
+    \citet{mps2018building} finds that saving habit is often more important
+    than amount saved.
+
+\end{itemize}
+
 
 Additional outcomes:
 \begin{itemize}
     \item Has overdraft fees (to see whether we can also reverse
         muggleton2020evidence result).
 \end{itemize}
+
+
+
 
 Notes on measuring savings:
 \begin{itemize}
@@ -186,7 +199,7 @@ Issues from imperfect labelling of MDB data:
 
 
 
-\paragraph{Auto tag entropy}%
+\paragraph{Auto tag entropy}
 \label{par:auto_tag_entropy}
 
 \begin{itemize}
@@ -224,7 +237,7 @@ Issues from imperfect labelling of MDB data:
 
 
 
-\paragraph{Shopping-time based entropy}%
+\paragraph{Shopping-time based entropy}
 \label{par:shopping_time_based_entropy}
 
 We calculate entropy based on the probability of $(day of week, merchant)$

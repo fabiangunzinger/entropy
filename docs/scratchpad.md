@@ -3,16 +3,15 @@
 
 Strands of intestigation - papers
 
-- Impact spend profile on savings (and other financial outcomes?) above and beyond conventional factors - also think of this as developing and understanding well one feature of the next paper.
+- Impact of spending profile on financial outcomes
 
-- Predict months with zero sa inflows, using different ml models (ML
-  application of data, publish in applied ml journal)
+    - Traditional
 
-- Does entropy capture levels of stress in people's lifes?
+        - Does spend profile (entropy) correlate with events in peoples lives
+        (event studies) can we interpret it as stress? Is there another measure
+        we can interpret as stress/chaos?
 
-- Classify users into types of spenders and savers using clustering analysis,
-  then see whether types have different financial outcomes.
-
+    - ML classification
 
 
 
@@ -211,7 +210,7 @@ What is really in the way?
 
 
 
-## Entropy and savings
+## Notes on muggleton2020evidence mechanisms and literature
 
 - muggleton2020evidence (ME) seem to conflate chaotic behaviour and chaotic
   environments. 
