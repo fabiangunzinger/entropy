@@ -283,6 +283,21 @@ def add_region(df):
 
 @cleaner
 @hh.timer
+def is_sa_flow(df):
+    """Dummy for whether txn is in- or outflow of savings account."""
+    is_sa_flow = (
+        df.account_type.eq("savings")
+        & df.amount.ge(5)
+        & ~df.tag_auto.str.contains("interest", na=False)
+        & ~df.desc.str.contains(r"save\s?the\s?change", na=False)
+    )
+    df['is_sa_flow'] = is_sa_flow.astype(int)
+    return df
+
+
+
+@cleaner
+@hh.timer
 def order_and_sort(df):
     """Orders columns and sort values."""
     cols = df.columns
