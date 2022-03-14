@@ -8,7 +8,7 @@ FIGDATA := s3://3di-project-entropy/entropy_XX7.parquet
 .PHONY: pptest
 .PHONY: test
 test:
-	python -m pytest
+	python -m pytest --cov=entropy
 
 
 .PHONY: data
