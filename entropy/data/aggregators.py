@@ -163,31 +163,39 @@ def female(df):
 @aggregator
 @hh.timer
 def savings_accounts_flows(df):
-    """Monthly savings account inflows and dummy for savings habit."""
-    df = df.copy()
-    df["amount"] = df.amount.mul(-1)
-    is_sa_inflow = (
-        df.account_type.eq("savings")
-        & ~df.debit
-        & df.amount.ge(5)
-        & ~df.tag_auto.str.contains("interest", na=False)
-        & ~df.desc.str.contains(r"save\s?the\s?change", na=False)
-    )
-    df["amount"] = df.amount.where(is_sa_inflow, 0)
+    """Saving accounts flows variables.
 
-    data = df.groupby(idx_cols).amount.agg(
-        sa_inflows=("sum"), has_sa_inflows=(lambda x: (x.max() > 0).astype(int))
-    )
+    Calculates in, out, and netflows, and dummies for whether there were
+    any inflows and whether there are regular inflows (defined as inflows in 10 out of last 12 months).
 
-    data["has_reg_sa_inflows"] = (
-        data.groupby("user_id")
-        .has_sa_inflows.rolling(window=12, min_periods=1)
+    Args:
+    df: Txn DataFrame.
+
+    Returns:
+    Series with user-month index and calculated variables.
+    """
+    sa_flows = df.amount.where(df.is_sa_flow == 1, 0)
+    in_out = df.debit.map({True: "sa_inflows", False: "sa_outflows"})
+    group_vars = [df.user_id, df.ym, in_out]
+
+    return (
+        sa_flows.groupby(group_vars)
         .sum()
-        .ge(10)
-        .astype(int)
-        .droplevel(0)
+        .abs()
+        .unstack()
+        .assign(
+            sa_netflows=lambda df: df.sa_inflows - df.sa_outflows,
+            has_sa_inflows=lambda df: (df.sa_inflows > 0).astype(int),
+            has_reg_sa_inflows=lambda df: (
+                df.groupby("user_id")
+                .has_sa_inflows.rolling(window=12, min_periods=1)
+                .sum()
+                .ge(10)
+                .astype(int)
+                .droplevel(0)
+            ),
+        )
     )
-    return data
 
 
 @aggregator
