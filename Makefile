@@ -1,6 +1,7 @@
 SHELL = /bin/sh
 
 SAMPLES := 777 XX7
+SAMPLES := X77
 FIGDATA := s3://3di-project-entropy/entropy_XX7.parquet
 
 
@@ -25,6 +26,9 @@ raw_777:
 	@printf '\nMaking sample 777...\n'
 	@python -m entropy.data.make_data 777 --from-raw
 
+raw_X77:
+	@printf '\nMaking sample X77...\n'
+	@python -m entropy.data.make_data X77 --from-raw
 raw_XX7:
 	@printf '\nMaking sample XX7...\n'
 	@python -m entropy.data.make_data XX7 --from-raw
