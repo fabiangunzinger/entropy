@@ -291,6 +291,14 @@ def is_sa_flow(df):
 
 @cleaner
 @hh.timer
+def is_salary_pmt(df):
+    """Dummy for whether txn is salary payment."""
+    df["is_salary_pmt"] = df.tag_auto.str.contains("salary") & ~df.debit
+    return df
+
+
+@cleaner
+@hh.timer
 def year_month_indicator(df):
     df["ym"] = df.date.dt.to_period("m")
     return df
