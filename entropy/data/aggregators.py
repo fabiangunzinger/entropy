@@ -258,7 +258,7 @@ def housing_payments(df):
 def loan_funds_and_repayments(df):
     """Dummies for receiving and repaying loans."""
     df = df.copy()
-    is_loan = df.tag_auto.str.match(r'(personal|unsecured|payday) loan')
+    is_loan = df.tag_auto.str.match(r"(personal|unsecured|payday) loan")
     df["loan"] = "other"
     df["loan"] = np.where(is_loan & df.debit, "loan_repmt", df.loan)
     df["loan"] = np.where(is_loan & ~df.debit, "loan_funds", df.loan)
@@ -310,10 +310,10 @@ def month_spend(df):
 def overdraft_fees(df):
     """Dummy for whether overdraft fees were paid."""
     df = df.copy()
-    pattern = r'(?:od|o/d|overdraft).*(?:fee|interest)'
+    pattern = r"(?:od|o/d|overdraft).*(?:fee|interest)"
     is_charge = df.desc.str.contains(pattern) & df.debit
-    df['id'] = df.id.where(is_charge, np.nan)
-    return df.groupby(idx_cols).id.count().gt(0).astype(int).rename('has_od_fees')
+    df["id"] = df.id.where(is_charge, np.nan)
+    return df.groupby(idx_cols).id.count().gt(0).astype(int).rename("has_od_fees")
 
 
 def _entropy_counts(df, cat, wknd=False):
@@ -395,5 +395,3 @@ def count_based_entropy_scores(df):
                     ).rename(name)
                     scores.append(score)
     return pd.concat(scores, axis=1)
-
-
