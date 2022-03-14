@@ -295,6 +295,12 @@ def is_sa_flow(df):
     return df
 
 
+@cleaner
+@hh.timer
+def year_month_indicator(df):
+    df['ym'] = df.date.dt.to_period('m')
+    return df
+
 
 @cleaner
 @hh.timer
