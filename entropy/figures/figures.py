@@ -47,7 +47,7 @@ def user_chars(df, write=True):
     ax[1, 0].set(xlabel='Number of users', ylabel='Region')
 
     gender_names = {1: "Female", 0: "Male"}
-    data = g.female.first().map(gender_names).value_counts()
+    data = g.is_female.first().map(gender_names).value_counts()
     data.plot(kind="bar", color=colour, rot=0, ax=ax[1, 1])
     ax[1, 1].set(xlabel="Gender", ylabel="Number of users")
 

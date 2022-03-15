@@ -79,8 +79,6 @@ def aggregate_data(df):
     return (
         pd.concat((func(df) for func in agg.aggregator_funcs), axis=1, join="outer")
         .reset_index()
-        .assign(month=lambda df: df.date.dt.month)
-        .pipe(hd.order_columns, first=["user_id", "month", "date"])
     )
 
 
@@ -91,7 +89,8 @@ def main(argv=None):
     args = parse_args(argv)
 
     if args.from_raw:
-        txn_data = read_raw_data(args.sample).pipe(clean_data)
+        raw_data = read_raw_data(args.sample)
+        txn_data = clean_data(raw_data)
         fp = os.path.join(config.AWS_BUCKET, f"txn_{args.sample}.parquet")
         ha.write_parquet(txn_data, fp)
         fp = os.path.join(config.AWS_BUCKET, f"txn_{args.sample}.csv")
@@ -99,7 +98,8 @@ def main(argv=None):
     else:
         txn_data = hd.read_txn_data(args.sample)
 
-    analysis_data = aggregate_data(txn_data).pipe(select_sample)
+    agg_data = aggregate_data(txn_data)
+    analysis_data = select_sample(agg_data)
     fp = os.path.join(config.AWS_BUCKET, f"analysis_{args.sample}.parquet")
     ha.write_parquet(analysis_data, fp)
     fp = os.path.join(config.AWS_BUCKET, f"analysis_{args.sample}.csv")

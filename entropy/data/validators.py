@@ -53,7 +53,7 @@ def month_min_ca_txns(df):
 
 @validator
 def complete_demographic_info(df):
-    assert df.filter(regex='female|age').isna().sum().sum() == 0
+    assert df.filter(regex='is_female|age').isna().sum().sum() == 0
     return df
 
 

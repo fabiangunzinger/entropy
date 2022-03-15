@@ -59,7 +59,7 @@ def category_counts(df):
     """Counts number of unique spend categories for entropy category variables."""
     df = df.copy()
     cat_vars = ["tag", "tag_auto", "merchant"]
-    is_spend = df.tag_group.eq("spend") & df.debit
+    is_spend = df.tag_group.eq("spend") & df.is_debit
     for var in cat_vars:
         df[var] = df[var].where(is_spend, np.nan)
     g = df.groupby(idx_cols)
@@ -73,7 +73,7 @@ def category_counts(df):
 def prop_credit(df):
     """Proportion of month spend paid by credit card."""
     df = df.copy()
-    is_spend = df.tag_group.eq("spend") & df.debit
+    is_spend = df.tag_group.eq("spend") & df.is_debit
     df["amount"] = df.amount.where(is_spend, np.nan)
     df["credit"] = np.where(df.account_type.eq("credit card"), "cc", "other")
     group_cols = idx_cols + ["credit"]
@@ -107,7 +107,7 @@ def income(df):
     current calendar month.
     """
     df = df.copy()
-    is_income_pmt = df.tag_group.eq("income") & ~df.debit
+    is_income_pmt = df.tag_group.eq("income") & ~df.is_debit
     df["amount"] = df.amount.where(is_income_pmt, 0).mul(-1)
 
     user_year = lambda x: (x[0], x[1].year)
@@ -149,7 +149,7 @@ def income(df):
 def age(df):
     """Adds user age at time of transaction."""
     df = df.copy()
-    df["age"] = df.date.dt.year - df.yob
+    df["age"] = df.date.dt.year - df.birth_year
     return df.groupby(idx_cols).age.first()
 
 
@@ -157,7 +157,7 @@ def age(df):
 @hh.timer
 def female(df):
     """Dummy for whether user is a women."""
-    return df.groupby(idx_cols).female.first()
+    return df.groupby(idx_cols).is_female.first()
 
 
 @aggregator
@@ -175,7 +175,7 @@ def savings_accounts_flows(df):
     Series with user-month index and calculated variables.
     """
     sa_flows = df.amount.where(df.is_sa_flow == 1, 0)
-    in_out = df.debit.map({True: "sa_inflows", False: "sa_outflows"})
+    in_out = df.is_debit.map({True: "sa_inflows", False: "sa_outflows"})
     group_vars = [df.user_id, df.ym, in_out]
 
     return (
@@ -214,7 +214,7 @@ def benefits(df):
 def pension(df):
     """Dummy for whether user receives pension in current month."""
     df = df.copy()
-    age = df.date.dt.year - df.yob
+    age = df.date.dt.year - df.birth_year
     is_pension = df.tag.eq("pensions") & age.ge(60)
     df["amount"] = df.amount.where(is_pension, 0)
     return df.groupby(idx_cols).amount.sum().lt(0).astype(int).rename("has_pension")
@@ -260,8 +260,8 @@ def loan_funds_and_repayments(df):
     df = df.copy()
     is_loan = df.tag_auto.str.match(r"(personal|unsecured|payday) loan")
     df["loan"] = "other"
-    df["loan"] = np.where(is_loan & df.debit, "loan_repmt", df.loan)
-    df["loan"] = np.where(is_loan & ~df.debit, "loan_funds", df.loan)
+    df["loan"] = np.where(is_loan & df.is_debit, "loan_repmt", df.loan)
+    df["loan"] = np.where(is_loan & ~df.is_debit, "loan_funds", df.loan)
     group_cols = idx_cols + ["loan"]
     return (
         df.groupby(group_cols, observed=True)
@@ -289,7 +289,7 @@ def month_spend(df):
     Expressed in '000s to ease coefficient comparison.
     """
     df = df.copy()
-    is_spend = df.tag_group.eq("spend") & df.debit
+    is_spend = df.tag_group.eq("spend") & df.is_debit
     df["amount"] = df.amount.where(is_spend, np.nan)
     df["tag"] = df.tag.where(is_spend, np.nan)
     df["tag"] = df.tag.cat.rename_categories(lambda x: "spend_" + x)
@@ -311,7 +311,7 @@ def overdraft_fees(df):
     """Dummy for whether overdraft fees were paid."""
     df = df.copy()
     pattern = r"(?:od|o/d|overdraft).*(?:fee|interest)"
-    is_charge = df.desc.str.contains(pattern) & df.debit
+    is_charge = df.desc.str.contains(pattern) & df.is_debit
     df["id"] = df.id.where(is_charge, np.nan)
     return df.groupby(idx_cols).id.count().gt(0).astype(int).rename("has_od_fees")
 
@@ -329,7 +329,7 @@ def _entropy_counts(df, cat, wknd=False):
     Returns:
       A DataFrame with user-month rows, category columns, and count values.
     """
-    is_cat_observed_spend = df.tag_group.eq("spend") & df.debit & df[cat].notna()
+    is_cat_observed_spend = df.tag_group.eq("spend") & df.is_debit & df[cat].notna()
     df = df.loc[is_cat_observed_spend].copy()
     if wknd:
         is_wknd = df.date.dt.dayofweek.isin([5, 6, 0]).astype(str)

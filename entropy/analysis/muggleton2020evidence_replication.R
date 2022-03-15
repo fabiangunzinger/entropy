@@ -62,7 +62,7 @@ controls_fe = c(
 
 controls = c(
   controls_fe,
-  'female',
+  'is_female',
   'age',
   'year_income'
 )
