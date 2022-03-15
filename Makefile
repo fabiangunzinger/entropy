@@ -1,6 +1,6 @@
 SHELL = /bin/sh
 
-SAMPLES := 777 XX7
+SAMPLES := 777 X77 XX7
 FIGDATA := s3://3di-project-entropy/entropy_XX7.parquet
 
 
@@ -19,33 +19,18 @@ $(SAMPLES):
 
 
 .PHONY: rawdata
-rawdata: raw_777 raw_XX7
+rawdata: raw_777 raw_X77 raw_XX7
 
 raw_777:
 	@printf '\nMaking sample 777...\n'
 	@python -m entropy.data.make_data 777 --from-raw
 
+raw_X77:
+	@printf '\nMaking sample X77...\n'
+	@python -m entropy.data.make_data X77 --from-raw
+
 raw_XX7:
 	@printf '\nMaking sample XX7...\n'
 	@python -m entropy.data.make_data XX7 --from-raw
 
-
-
-
-
-
-
-
-
-.PHONY: analysis figures
-
-analysis: analysis_data sumstats_table
-
-sumstats_table:
-	@printf '\nProducing sumstats table...\n'
-	@python -m entropy.analysis.sumstats_table
-
-.PHONY: figures
-figures:
-	@python -m entropy.figures.figures $(FIGDATA)
 
