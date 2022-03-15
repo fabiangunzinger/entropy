@@ -1,11 +1,6 @@
 SHELL = /bin/sh
 
-<<<<<<< HEAD
-SAMPLES := 777 XX7
-SAMPLES := X77
-=======
 SAMPLES := 777 X77 XX7
->>>>>>> 867f2cb86050976f404b47696737963bc4df0243
 FIGDATA := s3://3di-project-entropy/entropy_XX7.parquet
 
 
