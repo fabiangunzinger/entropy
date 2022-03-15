@@ -17,15 +17,15 @@ def make_selection_table(dict):
         .reset_index()
     )
 
-    ints = ['users', 'user_months', 'accounts', 'txns']
-    df[ints] = df[ints].applymap('{:,.0f}'.format)
+    int_cols = ['users', 'user_months', 'txns', 'txns_volume']
+    df[int_cols] = df[int_cols].applymap('{:,.0f}'.format)
 
     df.columns = [
         "",
         "Users",
         "User-months",
-        "Accounts",
-        "Transactions",
+        "Txns",
+        "Txns (m\pounds)",
     ]
     return df
 

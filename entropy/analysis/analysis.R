@@ -63,7 +63,7 @@ setFixest_dict(c(
   spend_retail = 'Spend retail',
   spend_services = 'Spend services',
   spend_travel = 'Spend travel',
-  female = 'Female',
+  is_female = 'Female',
   age = 'Age',
   year_income = 'Year income'
 ))
@@ -206,7 +206,7 @@ muggleton_controls = c(
   'spend_retail',
   'spend_services',
   'spend_travel',
-  'female',
+  'is_female',
   'age',
   'year_income'
 )

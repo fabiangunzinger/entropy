@@ -4,7 +4,8 @@
 \label{sec:methods}
 
 
-\paragraph{Dataset description}
+
+\subsection{Dataset description}
 \label{par:dataset_description}
 
 We use data from Money Dashboard (MDB), a financial management app that allows
@@ -34,7 +35,8 @@ not address this.\footnote{For an example of how re-weighing can be used to
 mitigate the non-representative issue, see \citet{bourquin2020effects}.}
 
 
-\paragraph{Preprocessing and sample selection}%
+
+\subsection{Preprocessing and sample selection}%
 \label{par:preprocessing_and_sample_selection}
 
 We restrict our sample to users for whom we can observe a regular income, can
@@ -50,12 +52,10 @@ Appendix~\ref{sec:data}.
 \input{\tabdir/sample_selection_XX7.tex}
 \end{table}
 
-\paragraph{Variable description}%
-\label{par:dependent_variable}
 
-\paragraph{Measuring savings}%
+
+\subsection{Savings}
 \label{par:outcome_variable_}
-
 
 Different savings measures
 \begin{itemize}
@@ -111,7 +111,23 @@ Notes on measuring savings:
 
 \end{itemize}
 
-\paragraph{Variable of interest:}%
+
+
+\subsection{Spending}
+\label{par:spending}
+
+
+
+\subsection{Overdraft fees}
+\label{par:overdraft_fees}
+
+
+
+
+
+
+
+\subsection{Spending profile}%
 \label{par:variable_of_interest_}
 Our variable of interest is spending entropy, a measure of how predictable an
 individual's spending pattern is at a given point in time, which we interpret
@@ -199,7 +215,7 @@ Issues from imperfect labelling of MDB data:
 
 
 
-\paragraph{Auto tag entropy}
+\subsection{Auto tag entropy}
 \label{par:auto_tag_entropy}
 
 \begin{itemize}
@@ -237,7 +253,7 @@ Issues from imperfect labelling of MDB data:
 
 
 
-\paragraph{Shopping-time based entropy}
+\subsection{Shopping-time based entropy}
 \label{par:shopping_time_based_entropy}
 
 We calculate entropy based on the probability of $(day of week, merchant)$
@@ -268,14 +284,14 @@ entropy score of 0, which is undesireable.
 
 % for sequence-dependent entropy, look into krumme2013predictability
 
-\paragraph{Summary statistics}%
+\subsection{Summary statistics}%
 \label{par:summary_statistics}
 % \begin{table}[H]
 % \caption{Summary statistics}\label{tab:sumstats}
 % \input{\tabdir/sumstats.tex}
 % \end{table}
 
-\paragraph{Model specification}%
+\subsection{Model specification}%
 \label{par:model_specification}
 
 We estimate models of the form: 

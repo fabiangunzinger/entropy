@@ -50,7 +50,7 @@ def rename_cols(df):
         "Transaction Reference": "id",
         # "Transaction Updated Flag": "updated_flag",
         "User Reference": "user_id",
-        "Year of Birth": "yob",
+        "Year of Birth": "birth_year",
         "Auto Purpose Tag Name": "tag_auto",
         # "Manual Tag Name": "tag_manual",
         # "User Precedence Tag Name": "tag_up",
@@ -111,7 +111,7 @@ def gender_to_female(df):
     Uses float type becuase bool type doesn't handle na values well.
     """
     mapping = {"f": 1, "m": 0, "u": np.nan}
-    df["female"] = df.gender.map(mapping).astype("float32")
+    df["is_female"] = df.gender.map(mapping).astype("float32")
     return df.drop(columns="gender")
 
 
@@ -119,7 +119,7 @@ def gender_to_female(df):
 @hh.timer
 def credit_debit_to_debit(df):
     """Replaces credit_debit variable with credit dummy."""
-    df["debit"] = df.credit_debit.eq("debit")
+    df["is_debit"] = df.credit_debit.eq("debit")
     return df.drop(columns="credit_debit")
 
 
@@ -127,7 +127,7 @@ def credit_debit_to_debit(df):
 @hh.timer
 def sign_amount(df):
     """Makes credits negative."""
-    df["amount"] = df.amount.where(df.debit, df.amount.mul(-1))
+    df["amount"] = df.amount.where(df.is_debit, df.amount.mul(-1))
     return df
 
 
@@ -212,7 +212,7 @@ def tag_corrections(df):
 
     # reclassify 'interest income' as finance spend if txn is a debit
     # these are mostly overdraft fees
-    mask = df.tag_auto.eq("interest income") & df.debit
+    mask = df.tag_auto.eq("interest income") & df.is_debit
     df.loc[mask, "tag"] = "finance"
 
     return df
@@ -279,13 +279,12 @@ def add_region(df):
 @hh.timer
 def is_sa_flow(df):
     """Dummy for whether txn is in- or outflow of savings account."""
-    is_sa_flow = (
+    df['is_sa_flow'] = (
         df.account_type.eq("savings")
         & df.amount.abs().ge(5)
         & ~df.tag_auto.str.contains("interest", na=False)
         & ~df.desc.str.contains(r"save\s?the\s?change", na=False)
     )
-    df["is_sa_flow"] = is_sa_flow.astype(int)
     return df
 
 
@@ -293,7 +292,7 @@ def is_sa_flow(df):
 @hh.timer
 def is_salary_pmt(df):
     """Dummy for whether txn is salary payment."""
-    df["is_salary_pmt"] = df.tag_auto.str.contains("salary") & ~df.debit
+    df["is_salary_pmt"] = df.tag_auto.str.contains("salary") & ~df.is_debit
     return df
 
 

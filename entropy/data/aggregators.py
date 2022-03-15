@@ -29,20 +29,25 @@ def aggregator(func):
     return func
 
 
-@hh.timer
 @aggregator
-def user_month_info(df):
-    return df.groupby(idx_cols).agg(
-        active_accounts=("account_id", "unique"),
-        txns_count=("id", "nunique"),
-        txns_value=("amount", lambda s: s.abs().sum()),
-    )
+@hh.timer
+def txn_count(df):
+    group_cols = [df.user_id, df.ym]
+    return df.groupby(group_cols).id.size().rename("txns_count")
+
+
+@aggregator
+@hh.timer
+def txn_volume(df):
+    group_cols = [df.user_id, df.ym]
+    abs_amount = df.amount.abs()
+    return abs_amount.groupby(group_cols).sum().rename("txns_volume")
 
 
 @aggregator
 @hh.timer
 def txn_counts_by_account_type(df):
-    group_cols = idx_cols + ["account_type"]
+    group_cols = [df.user_id, df.ym, df.account_type]
     return (
         df.groupby(group_cols, observed=True)
         .size()
@@ -56,15 +61,15 @@ def txn_counts_by_account_type(df):
 @aggregator
 @hh.timer
 def category_counts(df):
-    """Counts number of unique spend categories for entropy category variables."""
-    df = df.copy()
+    is_spend = df.tag_group.eq("spend") & df.is_debit
     cat_vars = ["tag", "tag_auto", "merchant"]
-    is_spend = df.tag_group.eq("spend") & df.debit
-    for var in cat_vars:
-        df[var] = df[var].where(is_spend, np.nan)
-    g = df.groupby(idx_cols)
-    return pd.concat(
-        (g[var].nunique().rename(f"nunique_{var}") for var in cat_vars), axis=1
+    group_cols = [df.user_id, df.ym]
+    return (
+        df[cat_vars]
+        .where(is_spend, np.nan)
+        .groupby(group_cols)
+        .nunique()
+        .rename(columns=lambda x: "nunique_" + x)
     )
 
 
@@ -72,19 +77,15 @@ def category_counts(df):
 @hh.timer
 def prop_credit(df):
     """Proportion of month spend paid by credit card."""
-    df = df.copy()
-    is_spend = df.tag_group.eq("spend") & df.debit
-    df["amount"] = df.amount.where(is_spend, np.nan)
-    df["credit"] = np.where(df.account_type.eq("credit card"), "cc", "other")
-    group_cols = idx_cols + ["credit"]
-    return (
-        df.groupby(group_cols)
-        .amount.sum()
-        .unstack()
-        .fillna(0)
-        .assign(prop_credit=lambda df: df.cc / df.sum(1))
-        .drop(columns=["cc", "other"])
-    )
+    group_cols = [df.user_id, df.ym]
+
+    is_spend = df.tag_group.eq("spend") & df.is_debit
+    spend = df.amount.where(is_spend, np.nan).groupby(group_cols).sum()
+
+    is_cc_spend = is_spend & df.account_type.eq("credit card")
+    cc_spend = df.amount.where(is_cc_spend, np.nan).groupby(group_cols).sum()
+
+    return cc_spend.div(spend).rename("prop_credit")
 
 
 @aggregator
@@ -106,30 +107,30 @@ def income(df):
     `has_month_income` is a dummy indicating whether user received income in
     current calendar month.
     """
-    df = df.copy()
-    is_income_pmt = df.tag_group.eq("income") & ~df.debit
-    df["amount"] = df.amount.where(is_income_pmt, 0).mul(-1)
+    is_income_pmt = df.tag_group.eq("income") & ~df.is_debit
+    amount = df.amount.where(is_income_pmt, 0).mul(-1)
 
-    user_year = lambda x: (x[0], x[1].year)
-    scaled_inc = lambda s: s.sum() / s.size * 12
+    group_cols = [df.user_id, df.ym]
 
-    mt_inc = (
-        df.groupby(idx_cols)
-        .amount.sum()
+    month_income = (
+        amount.groupby(group_cols)
+        .sum()
         .rename("month_income")
         .div(1000)
         .pipe(hd.winsorise, pct=1, how="upper")
     )
 
-    yr_inc = (
-        mt_inc.groupby(user_year)
+    user_year = lambda x: (x[0], x[1].year)
+    scaled_inc = lambda s: s.sum() / s.size * 12
+    year_income = (
+        month_income.groupby(user_year)
         .transform(scaled_inc)
         .rename("year_income")
         .pipe(hd.winsorise, pct=1, how="upper")
     )
 
-    has_reg_inc = (
-        mt_inc.gt(0)
+    has_reg_income = (
+        month_income.gt(0)
         .groupby("user_id")
         .rolling(window=12, min_periods=1)
         .sum()
@@ -139,25 +140,26 @@ def income(df):
         .rename("has_regular_income")
     )
 
-    has_mt_inc = mt_inc.gt(0).astype(int).rename("has_month_income")
+    has_mt_income = month_income.gt(0).astype(int).rename("has_month_income")
 
-    return pd.concat([mt_inc, yr_inc, has_reg_inc, has_mt_inc], axis=1)
+    return pd.concat([month_income, year_income, has_reg_income, has_mt_income], axis=1)
 
 
 @aggregator
 @hh.timer
 def age(df):
     """Adds user age at time of transaction."""
-    df = df.copy()
-    df["age"] = df.date.dt.year - df.yob
-    return df.groupby(idx_cols).age.first()
+    group_cols = [df.user_id, df.ym]
+    age = df.date.dt.year - df.birth_year
+    return age.groupby(group_cols).first().rename("age")
 
 
 @aggregator
 @hh.timer
 def female(df):
     """Dummy for whether user is a women."""
-    return df.groupby(idx_cols).female.first()
+    group_cols = [df.user_id, df.ym]
+    return df.groupby(group_cols).is_female.first()
 
 
 @aggregator
@@ -175,7 +177,7 @@ def savings_accounts_flows(df):
     Series with user-month index and calculated variables.
     """
     sa_flows = df.amount.where(df.is_sa_flow == 1, 0)
-    in_out = df.debit.map({True: "sa_inflows", False: "sa_outflows"})
+    in_out = df.is_debit.map({True: "sa_inflows", False: "sa_outflows"})
     group_vars = [df.user_id, df.ym, in_out]
 
     return (
@@ -202,28 +204,34 @@ def savings_accounts_flows(df):
 @hh.timer
 def benefits(df):
     """Dummy indicating (non-family) benefit receipt."""
-    df = df.copy()
-    p = r"^(?!family).*benefits"
-    is_benefit = df.tag_auto.str.match(p, na=False)
-    df["amount"] = df.amount.where(is_benefit, 0)
-    return df.groupby(idx_cols).amount.sum().lt(0).astype(int).rename("has_benefits")
+    tags = [
+        'benefits',
+        'job seekers benefits',
+        'other benefits',
+        'incapacity benefits'
+    ]
+    is_benefit = df.tag_auto.isin(tags)
+    benefits = df.amount.where(is_benefit, 0)
+    group_cols = [df.user_id, df.ym]
+    return benefits.groupby(group_cols).sum().lt(0).astype(int).rename("has_benefits")
+
 
 
 @aggregator
 @hh.timer
 def pension(df):
     """Dummy for whether user receives pension in current month."""
-    df = df.copy()
-    age = df.date.dt.year - df.yob
+    age = df.date.dt.year - df.birth_year
     is_pension = df.tag.eq("pensions") & age.ge(60)
-    df["amount"] = df.amount.where(is_pension, 0)
-    return df.groupby(idx_cols).amount.sum().lt(0).astype(int).rename("has_pension")
+    pensions = df.amount.where(is_pension, 0)
+    group_cols = [df.user_id, df.ym]
+    return pensions.groupby(group_cols).sum().lt(0).astype(int).rename("has_pension")
 
 
 @aggregator
 @hh.timer
-def housing_payments(df):
-    """Dummies for mortgage or rent payments.
+def has_rent_payments(df):
+    """Dummies for rent payments.
 
     Classifying "mortgage or rent" auto tags as mortgages since data inspectio
     suggests that this is accurate for majority of cases.
@@ -231,25 +239,39 @@ def housing_payments(df):
     Cases where user makes both rent and mortgage payment in same month account
     for less than 2.5% of test dataset, so ignoring this issue.
     """
-    df = df.copy()
-    df["housing"] = np.where(
-        df.tag_auto.str.match(r"rent", na=False),
-        "rent",
-        np.where(
-            df.tag_auto.str.match(r"^mortgage (or rent|payment)$", na=False),
-            "mortgage",
-            "other",
-        ),
-    )
-    df["housing"] = df.housing.astype("category")
-    group_cols = idx_cols + ["housing"]
+    group_cols = [df.user_id, df.ym]
+    tags = ['rent']
+    is_rent_pmt = df.tag_auto.isin(tags)
+    rent_pmts = df.id.where(is_rent_pmt, np.nan)
     return (
-        df.groupby(group_cols, observed=True)
-        .size()
-        .unstack()
-        .fillna(0)
-        .drop(columns="other")
-        .rename(columns=lambda x: "has_" + x + "_pmt")
+        rent_pmts.groupby(group_cols)
+        .count()
+        .gt(0)
+        .astype(int)
+        .rename("has_rent_payment")
+    )
+
+
+
+@aggregator
+@hh.timer
+def has_mortgage_payments(df):
+    """Dummies for mortgage payments.
+
+        Classifying "mortgage or rent" auto tags as mortgages since data inspectio
+        suggests that this is accurate for majority of cases.
+    Cases where user makes both rent and mortgage payment in same month account for less than 2.5% of test dataset, so ignoring this issue.
+    """
+    group_cols = [df.user_id, df.ym]
+    tags = ['mortgage or rent', 'mortgage payment']
+    is_mortgage_pmt = df.tag_auto.isin(tags)
+    mortgage_pmts = df.id.where(is_mortgage_pmt, np.nan)
+    return (
+        mortgage_pmts.groupby(group_cols)
+        .count()
+        .gt(0)
+        .astype(int)
+        .rename("has_mortgage_payment")
     )
 
 
@@ -257,28 +279,43 @@ def housing_payments(df):
 @hh.timer
 def loan_funds_and_repayments(df):
     """Dummies for receiving and repaying loans."""
-    df = df.copy()
-    is_loan = df.tag_auto.str.match(r"(personal|unsecured|payday) loan")
-    df["loan"] = "other"
-    df["loan"] = np.where(is_loan & df.debit, "loan_repmt", df.loan)
-    df["loan"] = np.where(is_loan & ~df.debit, "loan_funds", df.loan)
-    group_cols = idx_cols + ["loan"]
-    return (
-        df.groupby(group_cols, observed=True)
-        .size()
-        .unstack()
-        .drop(columns="other")
-        .fillna(0)
+    group_cols = [df.user_id, df.ym]
+    loan_tags = [
+        "personal loan",
+        "unsecured loan funds",
+        "payday loan",
+        "unsecured loan repayment",
+        "payday loan funds",
+        "secured loan repayment",
+    ]
+    is_loan = df.tag_auto.isin(loan_tags)
+
+    loan_funds = (
+        df.id.where(is_loan & ~df.is_debit, np.nan)
+        .groupby(group_cols)
+        .count()
         .gt(0)
         .astype(int)
+        .rename("has_loan_funds")
     )
+
+    loan_repayment = (
+        df.id.where(is_loan & df.is_debit)
+        .groupby(group_cols)
+        .count()
+        .gt(0)
+        .astype(int)
+        .rename("has_loan_repmt")
+    )
+    return pd.concat([loan_funds, loan_repayment], axis=1)
 
 
 @aggregator
 @hh.timer
 def region(df):
     """Region and urban dummy."""
-    return df.groupby(idx_cols)[["region_name", "is_urban"]].first()
+    group_cols = [df.user_id, df.ym]
+    return df.groupby(group_cols)[["region_name", "is_urban"]].first()
 
 
 @aggregator
@@ -288,15 +325,13 @@ def month_spend(df):
 
     Expressed in '000s to ease coefficient comparison.
     """
-    df = df.copy()
-    is_spend = df.tag_group.eq("spend") & df.debit
-    df["amount"] = df.amount.where(is_spend, np.nan)
-    df["tag"] = df.tag.where(is_spend, np.nan)
-    df["tag"] = df.tag.cat.rename_categories(lambda x: "spend_" + x)
-    group_cols = idx_cols + ["tag"]
+    is_spend = df.tag_group.eq("spend") & df.is_debit
+    spend = df.amount.where(is_spend, np.nan)
+    tag = df.tag.where(is_spend, np.nan).cat.rename_categories(lambda x: "spend_" + x)
+    group_cols = [df.user_id, df.ym, tag]
     return (
-        df.groupby(group_cols, observed=True)
-        .amount.sum()
+        spend.groupby(group_cols, observed=True)
+        .sum()
         .unstack()
         .fillna(0)
         .assign(month_spend=lambda df: df.sum(1))
@@ -309,18 +344,18 @@ def month_spend(df):
 @hh.timer
 def overdraft_fees(df):
     """Dummy for whether overdraft fees were paid."""
-    df = df.copy()
     pattern = r"(?:od|o/d|overdraft).*(?:fee|interest)"
-    is_charge = df.desc.str.contains(pattern) & df.debit
-    df["id"] = df.id.where(is_charge, np.nan)
-    return df.groupby(idx_cols).id.count().gt(0).astype(int).rename("has_od_fees")
+    is_od_fee = df.desc.str.contains(pattern) & df.is_debit
+    od_fees = df.id.where(is_od_fee, np.nan)
+    group_cols = [df.user_id, df.ym]
+    return od_fees.groupby(group_cols).count().gt(0).astype(int).rename("has_od_fees")
 
 
 def _entropy_counts(df, cat, wknd=False):
     """Spend txns count for each cat by user-month.
 
     Args:
-    df: A txn-level daframe.
+    df: A txn-level dataframe.
     cat: A column from df to be used for categorising spending transactions.
     wknd: A Boolean indicating whether spend txns should be categorised
       by (cat, wknd), if True, or by (cat), if False, where wknd is a dummy
@@ -329,21 +364,21 @@ def _entropy_counts(df, cat, wknd=False):
     Returns:
       A DataFrame with user-month rows, category columns, and count values.
     """
-    is_cat_observed_spend = df.tag_group.eq("spend") & df.debit & df[cat].notna()
+    is_cat_observed_spend = df.tag_group.eq("spend") & df.is_debit & df[cat].notna()
     df = df.loc[is_cat_observed_spend].copy()
     if wknd:
         is_wknd = df.date.dt.dayofweek.isin([5, 6, 0]).astype(str)
         df[cat] = df[cat].astype(str) + is_wknd
-    group_cols = idx_cols + [cat]
+    group_cols = [df.user_id, df.ym] + [cat]
     return df.groupby(group_cols, observed=True).size().unstack().fillna(0)
 
 
-def _entropy_scores(df, normalise=False, standardise=False, smooth=False):
+def _entropy_scores(df, norm=False, zscore=False, smooth=False):
     """Returns row-wise Shannon entropy scores based on counts.
 
     Args:
     df: A DataFrame with entity rows, category columns, and count values.
-    normalise: A Boolean value indicating whether to divide entorpy by
+    norm: A Boolean value indicating whether to divide entorpy by
       max entropy.
     smoothed: A Boolean value indicating whether to apply additive smoothing
       to the counts in df before calculating probabilities.
@@ -358,40 +393,34 @@ def _entropy_scores(df, normalise=False, standardise=False, smooth=False):
     else:
         probs = (df).div(row_totals, axis=0)
     e = stats.entropy(probs, base=2, axis=1)
-    if normalise:
+    if norm:
         e = e / np.log2(num_unique)
-    if standardise:
+    if zscore:
         e = (e - e.mean()) / e.std()
     return pd.Series(e, index=df.index)
 
 
-def _entropy_name(cat, wknd, smooth, standardise):
-    name = f"entropy_{cat}"
-    if wknd or smooth or standardise:
-        name += "_"
-    if wknd:
-        name += "w"
-    if smooth:
-        name += "s"
-    if standardise:
-        name += "z"
-    return name
-
-
 @aggregator
 @hh.timer
-def count_based_entropy_scores(df):
-    """Add count-based entropy measures."""
+def cat_count_based_entropy(df):
     cats = ["tag", "tag_auto", "merchant"]
     scores = []
     for cat in cats:
-        for wknd in [True, False]:
-            for smooth in [True, False]:
-                for standardise in [True, False]:
-                    name = _entropy_name(cat, wknd, smooth, standardise)
-                    counts = _entropy_counts(df, cat, wknd=wknd)
-                    score = _entropy_scores(
-                        counts, standardise=standardise, smooth=smooth
-                    ).rename(name)
-                    scores.append(score)
+        counts = _entropy_counts(df, cat)
+        scores.extend(
+            [
+                _entropy_scores(counts, smooth=False, zscore=False).rename(
+                    f"entropy_{cat}"
+                ),
+                _entropy_scores(counts, smooth=False, zscore=True).rename(
+                    f"entropy_{cat}_z"
+                ),
+                _entropy_scores(counts, smooth=True, zscore=False).rename(
+                    f"entropy_{cat}_s"
+                ),
+                _entropy_scores(counts, smooth=True, zscore=True).rename(
+                    f"entropy_{cat}_sz"
+                ),
+            ]
+        )
     return pd.concat(scores, axis=1)
