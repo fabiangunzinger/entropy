@@ -2,12 +2,52 @@ setwd('~/dev/projects/entropy/entropy/analysis')
 source('helpers.R')
 
 library(ggplot2)
+library(lubridate)
 library(patchwork)
 
 
 FIGDIR = '/Users/fgu/dev/projects/entropy/output/figures' 
+SAMPLE = '777'
 
 
+# Savings --------------------------------------------------------------------------
+
+dt = read_txn_data(SAMPLE)
+head(dt)
+
+
+savings <- dt[is_sa_flow == 1 & debit == FALSE]
+txns_label <- 'Number of transactions'
+
+g <- ggplot(savings)
+
+p1 <- g +
+  geom_bar(aes(month(date, label = T))) +
+  labs(
+    x = 'Month of year',
+    y = txns_label
+  )
+
+p2 <- g +
+  geom_bar(aes(day(date))) +
+  labs(
+    x = 'Day of month',
+    y = txns_label
+  )
+
+amounts <- savings[, .N, -amount][order(-N)][1:10]
+p3 <- ggplot(amounts) +
+  geom_bar(aes(N, reorder(factor(amount), N)), stat = 'identity') +
+  labs(
+    x = txns_label,
+    y = 'Amount'
+  )
+
+p1 + p2 + p3 + plot_layout(ncol = 2) & theme_minimal()
+
+savings[, diff := diff(date), user_id]
+
+savings[, diff := shift(date), user_id]
 
 # Transactions by day of week ------------------------------------------------------
 
