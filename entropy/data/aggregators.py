@@ -168,7 +168,8 @@ def savings_accounts_flows(df):
     """Saving accounts flows variables.
 
     Calculates in, out, and netflows, and dummies for whether there were
-    any inflows and whether there are regular inflows (defined as inflows in 10 out of last 12 months).
+    any inflows and whether there are regular inflows (defined as inflows
+    in 10 out of last 12 months).
 
     Args:
     df: Txn DataFrame.
@@ -177,9 +178,11 @@ def savings_accounts_flows(df):
     Series with user-month index and calculated variables.
     """
     sa_flows = df.amount.where(df.is_sa_flow == 1, 0)
-    in_out = df.is_debit.map({True: "sa_inflows", False: "sa_outflows"})
+    # category type needed so groupby sums in and outflow even if unobserved
+    in_out = df.is_debit.map({True: "sa_inflows", False: "sa_outflows"}).astype(
+        "category"
+    )
     group_vars = [df.user_id, df.ym, in_out]
-
     return (
         sa_flows.groupby(group_vars)
         .sum()
@@ -204,17 +207,11 @@ def savings_accounts_flows(df):
 @hh.timer
 def benefits(df):
     """Dummy indicating (non-family) benefit receipt."""
-    tags = [
-        'benefits',
-        'job seekers benefits',
-        'other benefits',
-        'incapacity benefits'
-    ]
+    tags = ["benefits", "job seekers benefits", "other benefits", "incapacity benefits"]
     is_benefit = df.tag_auto.isin(tags)
     benefits = df.amount.where(is_benefit, 0)
     group_cols = [df.user_id, df.ym]
     return benefits.groupby(group_cols).sum().lt(0).astype(int).rename("has_benefits")
-
 
 
 @aggregator
@@ -240,7 +237,7 @@ def has_rent_payments(df):
     for less than 2.5% of test dataset, so ignoring this issue.
     """
     group_cols = [df.user_id, df.ym]
-    tags = ['rent']
+    tags = ["rent"]
     is_rent_pmt = df.tag_auto.isin(tags)
     rent_pmts = df.id.where(is_rent_pmt, np.nan)
     return (
@@ -250,7 +247,6 @@ def has_rent_payments(df):
         .astype(int)
         .rename("has_rent_payment")
     )
-
 
 
 @aggregator
@@ -263,7 +259,7 @@ def has_mortgage_payments(df):
     Cases where user makes both rent and mortgage payment in same month account for less than 2.5% of test dataset, so ignoring this issue.
     """
     group_cols = [df.user_id, df.ym]
-    tags = ['mortgage or rent', 'mortgage payment']
+    tags = ["mortgage or rent", "mortgage payment"]
     is_mortgage_pmt = df.tag_auto.isin(tags)
     mortgage_pmts = df.id.where(is_mortgage_pmt, np.nan)
     return (
