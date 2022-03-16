@@ -17,8 +17,10 @@ def make_selection_table(dict):
         .reset_index()
     )
 
-    int_cols = ['users', 'user_months', 'txns', 'txns_volume']
+    int_cols = ['users', 'user_months', 'txns']
     df[int_cols] = df[int_cols].applymap('{:,.0f}'.format)
+    float_cols = ['txns_volume']
+    df[float_cols] = df[float_cols].applymap('{:,.2f}'.format)
 
     df.columns = [
         "",
