@@ -43,7 +43,7 @@ def read_raw_data(sample='XX7', ftype='parquet', **kwargs):
     Dataframe with sample raw data.
     """
     fp = f"s3://3di-data-mdb/raw/mdb_{sample}.{ftype}"
-    return ha.read_parquet(fp, **kwargs)
+    return (ha.read_parquet if ftype == 'parquet' else ha.read_csv)(fp, **kwargs)
 
 
 @hh.timer
