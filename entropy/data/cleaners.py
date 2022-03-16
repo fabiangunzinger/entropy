@@ -36,24 +36,22 @@ def rename_cols(df):
     (e.g `txn_id` is `id`).
     """
     new_names = {
-        # "Account Created Date": "account_created",
+        "Account Created Date": "account_created",
         "Account Reference": "account_id",
         "Derived Gender": "gender",
-        # "LSOA": "lsoa",
-        # "MSOA": "msoa",
         "Merchant Name": "merchant",
         "Postcode": "postcode",
         "Provider Group Name": "account_provider",
-        # "Salary Range": "salary_range",
+        "Salary Range": "salary_range",
         "Transaction Date": "date",
         "Transaction Description": "desc",
         "Transaction Reference": "id",
-        # "Transaction Updated Flag": "updated_flag",
+        "Transaction Updated Flag": "updated_flag",
         "User Reference": "user_id",
         "Year of Birth": "birth_year",
         "Auto Purpose Tag Name": "tag_auto",
-        # "Manual Tag Name": "tag_manual",
-        # "User Precedence Tag Name": "tag_up",
+        "Manual Tag Name": "tag_manual",
+        "User Precedence Tag Name": "tag_up",
         "Latest Recorded Balance": "latest_balance",
     }
     return df.rename(columns=new_names)
@@ -241,8 +239,8 @@ def drop_duplicates(df):
     return df.drop_duplicates(subset=cols)
 
 
-@cleaner
-@hh.timer
+# @cleaner
+# @hh.timer
 def add_logins(df, **kwargs):
     """Adds number of daily logins."""
 
