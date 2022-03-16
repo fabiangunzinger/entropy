@@ -178,16 +178,14 @@ def savings_accounts_flows(df):
     Series with user-month index and calculated variables.
     """
     sa_flows = df.amount.where(df.is_sa_flow == 1, 0)
-    # category type needed so groupby sums in and outflow even if unobserved
-    in_out = df.is_debit.map({True: "sa_inflows", False: "sa_outflows"}).astype(
-        "category"
-    )
+    in_out = df.is_debit.map({True: "sa_inflows", False: "sa_outflows"})
     group_vars = [df.user_id, df.ym, in_out]
     return (
         sa_flows.groupby(group_vars)
         .sum()
         .abs()
         .unstack()
+        .fillna(0)
         .assign(
             sa_netflows=lambda df: df.sa_inflows - df.sa_outflows,
             has_sa_inflows=lambda df: (df.sa_inflows > 0).astype(int),
