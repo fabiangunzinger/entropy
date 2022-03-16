@@ -52,10 +52,11 @@ def read_raw_data(sample):
         "Amount",
         "Auto Purpose Tag Name",
         "Merchant Name",
+        "Merchant Business Line",
         "Latest Recorded Balance",
         "Account Last Refreshed",
     ]
-    return hd.read_raw_data(sample, columns=columns)
+    return hd.read_raw_data(sample, ftype='csv', columns=columns)
 
 
 @hh.timer
@@ -104,7 +105,7 @@ def main(argv=None):
     ha.write_parquet(analysis_data, fp)
     fp = os.path.join(config.AWS_BUCKET, f"analysis_{args.sample}.csv")
     ha.write_csv(analysis_data, fp)
-    validate_data(analysis_data)
+    # validate_data(analysis_data)
 
     selection_table = st.make_selection_table(sl.sample_counts)
     st.write_selection_table(selection_table, args.sample)

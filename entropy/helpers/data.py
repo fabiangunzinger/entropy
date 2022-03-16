@@ -32,8 +32,17 @@ def inspect(df, nrows=2):
 
 
 @hh.timer
-def read_raw_data(sample='XX7', **kwargs):
-    fp = f"s3://3di-data-mdb/raw/mdb_{sample}.parquet"
+def read_raw_data(sample='XX7', ftype='parquet', **kwargs):
+    """Read MDB raw data.
+
+    Args:
+    sample: Data sample to read, one of {'777', 'X77', 'XX7'}.
+    ftype: One of {'csv', 'parquet'}.
+
+    Returns:
+    Dataframe with sample raw data.
+    """
+    fp = f"s3://3di-data-mdb/raw/mdb_{sample}.{ftype}"
     return ha.read_parquet(fp, **kwargs)
 
 
