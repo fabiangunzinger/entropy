@@ -75,8 +75,6 @@ def main(argv=None):
         txn_data = clean_data(raw_data)
         fp = os.path.join(config.AWS_BUCKET, f"txn_{args.sample}.parquet")
         ha.write_parquet(txn_data, fp)
-        fp = os.path.join(config.AWS_BUCKET, f"txn_{args.sample}.csv")
-        ha.write_csv(txn_data, fp)
     else:
         txn_data = hd.read_txn_data(args.sample)
 
@@ -84,8 +82,6 @@ def main(argv=None):
     analysis_data = select_sample(agg_data)
     fp = os.path.join(config.AWS_BUCKET, f"analysis_{args.sample}.parquet")
     ha.write_parquet(analysis_data, fp)
-    fp = os.path.join(config.AWS_BUCKET, f"analysis_{args.sample}.csv")
-    ha.write_csv(analysis_data, fp)
     validate_data(analysis_data)
 
     selection_table = st.make_selection_table(sl.sample_counts)
