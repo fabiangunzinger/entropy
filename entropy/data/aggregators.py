@@ -346,8 +346,8 @@ def overdraft_fees(df):
     return od_fees.groupby(group_cols).count().gt(0).astype(int).rename("has_od_fees")
 
 
-def _entropy_counts(df, cat, wknd=False):
-    """Spend txns count for each cat by user-month.
+def _entropy_base_values(df, cat, stat='size', wknd=False):
+    """Spend txns count or value for each cat by user-month.
 
     Args:
     df: A txn-level dataframe.
@@ -365,18 +365,18 @@ def _entropy_counts(df, cat, wknd=False):
         is_wknd = df.date.dt.dayofweek.isin([5, 6, 0]).astype(str)
         df[cat] = df[cat].astype(str) + is_wknd
     group_cols = [df.user_id, df.ym] + [cat]
-    return df.groupby(group_cols, observed=True).size().unstack().fillna(0)
+    return df.groupby(group_cols, observed=True).amount.agg(stat).unstack().fillna(0)
 
 
 def _entropy_scores(df, norm=False, zscore=False, smooth=False):
-    """Returns row-wise Shannon entropy scores based on counts.
+    """Returns row-wise Shannon entropy scores based on base values.
 
     Args:
     df: A DataFrame with entity rows, category columns, and count values.
     norm: A Boolean value indicating whether to divide entorpy by
       max entropy.
     smoothed: A Boolean value indicating whether to apply additive smoothing
-      to the counts in df before calculating probabilities.
+      to the base values in df before calculating probabilities.
 
     Returns:
       A series with entropy scores for each row.
@@ -397,25 +397,29 @@ def _entropy_scores(df, norm=False, zscore=False, smooth=False):
 
 @aggregator
 @hh.timer
-def cat_count_based_entropy(df):
+def cat_based_entropy(df):
+    """Calculate entropy based on category txn base values."""
     cats = ["tag", "tag_auto", "merchant"]
     scores = []
     for cat in cats:
-        counts = _entropy_counts(df, cat)
-        scores.extend(
-            [
-                _entropy_scores(counts, smooth=False, zscore=False).rename(
-                    f"entropy_{cat}"
-                ),
-                _entropy_scores(counts, smooth=False, zscore=True).rename(
-                    f"entropy_{cat}_z"
-                ),
-                _entropy_scores(counts, smooth=True, zscore=False).rename(
-                    f"entropy_{cat}_s"
-                ),
-                _entropy_scores(counts, smooth=True, zscore=True).rename(
-                    f"entropy_{cat}_sz"
-                ),
-            ]
-        )
+        for stat in ['size', 'sum']:
+            base_values = _entropy_base_values(df, cat, stat=stat)
+            scores.extend(
+                [
+                    _entropy_scores(base_values, smooth=False, norm=False).rename(
+                        f"entropy_{cat}_{stat}"
+                    ),
+                    _entropy_scores(base_values, smooth=False, norm=True).rename(
+                        f"entropy_{cat}_{stat}_n"
+                    ),
+                    _entropy_scores(base_values, smooth=True, norm=False).rename(
+                        f"entropy_{cat}_{stat}_s"
+                    ),
+                    _entropy_scores(base_values, smooth=True, norm=True).rename(
+                        f"entropy_{cat}_{stat}_sn"
+                    ),
+                ]
+            )
     return pd.concat(scores, axis=1)
+
+
