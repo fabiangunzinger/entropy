@@ -391,6 +391,8 @@ def _entropy_scores(df, norm=False, zscore=False, smooth=False):
     if norm:
         e = e / np.log2(num_unique)
     if zscore:
+        print('mean', e.mean())
+        print('std', e.std())
         e = (e - e.mean()) / e.std()
     return pd.Series(e, index=df.index)
 
@@ -403,6 +405,7 @@ def cat_based_entropy(df):
     scores = []
     for cat in cats:
         for stat in ['size', 'sum']:
+            print(cat, stat)
             base_values = _entropy_base_values(df, cat, stat=stat)
             scores.extend(
                 [
