@@ -11,14 +11,6 @@ library(plm)
 library(purrr)
 library(stargazer)
 
-
-# Load data ------------------------------------------------------------------------
-
-dt = read_analysis_data()
-names(dt)
-
-
-
 # Settings -------------------------------------------------------------------------
 
 TABDIR = '/Users/fgu/dev/projects/entropy/output/tables'
@@ -51,9 +43,6 @@ setFixest_dict(c(
   entropy_merchant_z = "Entropy (merchant-based)",
   entropy_merchant_sz = "Entropy (merchant-based, smooth)",
   
-  user_id = 'User id',
-  month = 'Calendar month',
-  
   spend_communication = 'Spend communication',
   spend_finance = 'Spend finance',
   spend_hobbies = 'Spend hobbies',
@@ -63,122 +52,101 @@ setFixest_dict(c(
   spend_retail = 'Spend retail',
   spend_services = 'Spend services',
   spend_travel = 'Spend travel',
+  prop_credit = 'Credit spend',
+  month_spend = 'Month spend',
+
+  is_urban = 'Urban',
   is_female = 'Female',
   age = 'Age',
-  year_income = 'Year income'
+  year_income = 'Year income',
+  month_income = 'Month income (\'000)',
+  has_regular_income = 'Regular income',
+  has_month_income = 'Has income in month',
+  has_loan_repmt = 'Loan repayment',
+  
+  user_id = 'User id',
+  ym = 'Calendar month'
 ))
 
 
+# Load data ------------------------------------------------------------------------
+
+dt = read_analysis_data()
+names(dt)
 
 
-# Effect on sa inflows -------------------------------------------------------------------------
+# Effect of entropy on savings -----------------------------------------------------
 
-# Variables
-
+endog = 'has_sa_inflows'
+exog = c('entropy_tag_sz', 'entropy_tag_z')
 fin_behav = c(
   'has_reg_sa_inflows',
   'prop_credit',
   'month_spend'
 )
-
 planning = c()
-
 hh_chars = c(
   'is_urban',
   'month_income',
   'has_regular_income',
   'has_month_income',
-  'loan_repmt'
+  'has_loan_repmt'
 )
-
 controls = c(fin_behav, planning, hh_chars)
 
-setFixest_fml(
-  ..entropy = c('entropy_tag_z', 'entropy_tag_sz')
-)
-
 
 # FE specifications
 etable(
-  fixest::feols(xpd(
-    has_sa_inflows ~ ..entropy + ..controls | csw0(user_id, month),
-    ..controls = controls), data=dt
+  fixest::feols(
+    xpd(
+      ..endog ~ ..exog + ..controls | csw0(user_id, ym),
+      ..endog = endog,
+      ..controls = controls,
+      ..exog = exog
+    ),
+    data=dt
   ), 
   title = 'FE specifications', 
-  # tex = T,
-  # file=file.path(TABDIR, 'reg_sw0.tex'),
-  fontsize = 'tiny',
-  label = 'tab:reg_fe',
-  replace = T,
-  order = c('!Entropy')
-)
-
-
-
-# FE specifications
-etable(
-  fixest::feols(xpd(
-    has_sa_inflows ~ + ..entropy + ..controls | csw0(user_id, month),
-    ..controls = controls), data=dt
-  ), 
-  title = 'FE specifications', 
-  # tex = T,
-  # file=file.path(TABDIR, 'reg_sw0.tex'),
-  fontsize = 'tiny',
-  label = 'tab:reg_fe',
-  replace = T,
-  order = c('!Entropy')
-)
-
-
-# Controls added one-by-one
-etable(
-  fixest::feols(has_sa_inflows ~ ..entropy + sw0(
-    # fin behaviour
-    has_reg_sa_inflows,
-    prop_credit,
-    month_spend,
-    # planning (not yet implemented)
-    # hh characteristics
-    is_urban,
-    month_income,
-    has_regular_income,
-    has_month_income,
-    loan_repmt,
-    pdloan_repmt
-  ) | user_id + month, data=dt, vcov = 'cluster'),
-  title = 'Controls included one-by-one', 
-  # tex = T,
-  # file=file.path(TABDIR, 'reg_sw0.tex'),
-  fontsize = 'tiny',
-  label = 'tab:reg_sw0',
+  order = c('!(Intercept)'),
+  tex = T,
+  file=file.path(TABDIR, 'reg_entropy_savings_fe.tex'),
+  fontsize = 'footnotesize',
+  label = 'tab:reg_entropy_savings_fe',
   replace = T
 )
 
-# Controls added cumulatively
+
+# controls added one-by-one
 etable(
-  fixest::feols(has_sa_inflows ~ ..entropy + csw0(
-    # fin behaviour
-    has_reg_sa_inflows,
-    prop_credit, 
-    month_spend,
-    # planning (not yet implemented)
-    # hh characteristics
-    is_urban,
-    month_income,
-    has_regular_income,
-    has_month_income,
-    loan_repmt,
-    pdloan_repmt
-  ) | user_id + month, data=dt, vcov = 'cluster'), 
-  title = 'Controls included cumulatively', 
-  # tex = T,
-  # file=file.path(TABDIR, 'reg_csw0.tex'),
-  fontsize = 'tiny',
-  label = 'tab:reg_csw0',
+  fixest::feols(
+    xpd(
+      ..endog ~ ..exog
+        + sw0(
+          # fin behav
+          has_reg_sa_inflows,
+          prop_credit,
+          month_spend,
+          # hh chars
+          is_urban,
+          month_income,
+          has_regular_income,
+          has_month_income,
+          has_loan_repmt
+        )
+      | user_id + ym,
+      ..endog = endog,
+      ..controls = controls,
+      ..exog = exog
+    ),
+    data=dt
+  ), 
+  title = 'FE specifications', 
+  tex = T,
+  file=file.path(TABDIR, 'reg_entropy_savings_obo.tex'),
+  fontsize = 'footnotesize',
+  label = 'tab:reg_entropy_savings_obo',
   replace = T
 )
-
 
 # Between vs within variation
 entropy <- entropy_tag
@@ -192,9 +160,7 @@ print(between_var)
 print(within_var / between_var)
 
 
-# Muggleton et al. (2020) replication ---------------------------------------------
-
-# Replicating tables S20 (without FE) and S40 (with FE) in muggleton2020evidence
+# Effect of entropy on overdraft fees ----------------------------------------------
 
 muggleton_controls = c(
   'spend_communication',
@@ -212,17 +178,17 @@ muggleton_controls = c(
 )
 
 etable(
-  fixest::feols(xpd(
-    id ~ + sw(entropy_tag_sz, entropy_tag_z) + ..controls | sw0(user_id + month),
-    ..controls = muggleton_controls), data=dt
+  fixest::feols(
+    xpd(
+      has_od_fees ~ + sw(entropy_tag_sz, entropy_tag_z) + ..controls | sw0(user_id + ym),
+      ..controls = muggleton_controls), data=dt
   ),
-  title = 'Muggleton et al. (2020) replication',
+  title = 'Effect of entropy on overdraft fees',
   order = c('Entropy', '!(Intercept)'),
-  # tex = T,
-  # file=file.path(TABDIR, 'reg_muggleton2020_replication.tex'),
-  fontsize = 'normal',
-  label = 'tab:muggleton2020_replication',
-  
+  tex = T,
+  file=file.path(TABDIR, 'reg_entropy_odfees.tex'),
+  fontsize = 'scriptsize',
+  label = 'tab:reg_entropy_odfees',
   replace = T
 )
 

@@ -7,17 +7,28 @@ library(patchwork)
 
 
 FIGDIR = '/Users/fgu/dev/projects/entropy/output/figures' 
-SAMPLE = '777'
+SAMPLE = 'X77'
 
 
 # Savings --------------------------------------------------------------------------
 
 dt = read_txn_data(SAMPLE)
-head(dt)
+
+# savings txns of users in final sample
+dta = read_analysis_data(SAMPLE)
+final_sample <- unique(dta$user_id)
+dt <- dt[user_id %in% final_sample,]
+savings <- dt[is_sa_flow == 1 & is_debit == FALSE]
+setorderv(savings, c('user_id', 'date'))
+
+# Number of days since last savings txns (remove outliers)
+savings[, date_diff := difftime(date, shift(date), units = 'days'), user_id]
+savings <- savings[, .SD[(date_diff < quantile(date_diff, probs = .95, na.rm = T)) & (date_diff > 1)]]
+summary(savings)
 
 
-savings <- dt[is_sa_flow == 1 & debit == FALSE]
 txns_label <- 'Number of transactions'
+
 
 g <- ggplot(savings)
 
@@ -43,11 +54,20 @@ p3 <- ggplot(amounts) +
     y = 'Amount'
   )
 
-p1 + p2 + p3 + plot_layout(ncol = 2) & theme_minimal()
+p4 <- g +
+  geom_bar(aes(factor(date_diff))) +
+  labs(
+    x = 'Days since last savings txns',
+    y = txns_label
+  )
 
-savings[, diff := diff(date), user_id]
 
-savings[, diff := shift(date), user_id]
+p1 + p2 + p3 + p4 + plot_layout(ncol = 2) & theme_minimal()
+
+
+dd <- savings[, .(user_id, date, amount, desc, account_id, date_diff)]
+
+
 
 # Transactions by day of week ------------------------------------------------------
 

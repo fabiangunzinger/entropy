@@ -1,0 +1,131 @@
+---
+title: "Savings behaviour"
+author: "Fabian Gunzinger"
+date: "16/03/2022"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd('~/dev/projects/entropy/entropy/analysis')
+source('helpers.R')
+
+library(ggplot2)
+library(lubridate)
+library(patchwork)
+
+
+FIGDIR = '/Users/fgu/dev/projects/entropy/output/figures' 
+SAMPLE = 'X77'
+
+# load data
+dt = read_txn_data(SAMPLE)
+```
+
+Create savings data for users in final sample (as well as a dataset with key variables for convenient inspection).
+
+```{r}
+# savings txns of users in final sample
+dta = read_analysis_data(SAMPLE)
+final_sample <- unique(dta$user_id)
+dt <- dt[user_id %in% final_sample,]
+savings <- dt[is_sa_flow == 1 & is_debit == FALSE]
+setorderv(savings, c('user_id', 'date'))
+
+```
+
+
+## Savings frequency
+
+How frequently do users transfer money into their savings accounts?
+
+```{r}
+savings[, date_diff := difftime(date, shift(date), units = 'days'), .(user_id)]
+savings <- savings[, .SD[date_diff < quantile(date_diff, probs = .95, na.rm = T)]]
+setcolorder(savings, c('user_id', 'date', 'account_id', 'date_diff'))
+
+p1 <- ggplot(savings) + 
+  geom_bar(aes(factor(date_diff)))
+```
+
+The pattern is roughly what we'd expect, with spikes on a weekly, biweekly, and monthly basis.
+
+What is puzzling is the rather high number of txns that happen less than a week after the last one, and the large number of txns that happen on the same day.
+
+Accounting for transfers to multiple accounts.
+
+```{r}
+savings[, date_diff2 := difftime(date, shift(date), units = 'days'), .(user_id, account_id)]
+savings <- savings[, .SD[date_diff2 < quantile(date_diff2, probs = .95, na.rm = T)]]
+setcolorder(savings, c('user_id', 'date', 'account_id', 'date_diff', 'date_diff2'))
+
+p2 <- ggplot(savings) + 
+  geom_bar(aes(factor(date_diff2)))
+```
+
+Accounting for potential duplicates (txns of same amount)
+
+```{r}
+savings[, date_diff3 := difftime(date, shift(date), units = 'days'), .(user_id, account_id, amount)]
+savings <- savings[, .SD[date_diff3 < quantile(date_diff3, probs = .95, na.rm = T)]]
+setcolorder(savings, c('user_id', 'date', 'account_id', 'date_diff', 'date_diff2', 'date_diff3'))
+
+p3 <- ggplot(savings) + 
+  geom_bar(aes(factor(date_diff3)))
+```
+
+
+
+```{r}
+p1 + p2 + p3
+
+```
+
+
+Regular savings txns of same of same amount and into same account happen, as we'd expect, either on a weekly or monthly basis.
+```{r}
+ggplot(savings) +
+  geom_bar(aes(date_diff3)) +
+  xlim(0, 40)
+```
+
+
+
+```{r}
+# view data for a random user
+users <- unique(savings$user_id)
+```
+```{r}
+user <- sample(users, size = 1)
+dd[user_id == user]
+```
+
+
+
+
+
+
+
+
+
+Inspection reveals that often, savings txs on the same day go into different accounts, which makes sense. For txns with a diff of one or two days, I suspect some of these are also duplicates that we aren't able to detect.
+
+Inspecting also reveals some clear differences in savings patterns among users: some users save small amount weekly, some save monthly, some make transfers to multiple accounts on a regular basis (often monthly), some save without any clear pattern (possibly whenever they have money, time, or remember to save). **This is something to explore further. Could possibly try to infer clusters of savings types.**
+
+
+```{r}
+summary(savings)
+```
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

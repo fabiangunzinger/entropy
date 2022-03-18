@@ -1,0 +1,61 @@
+---
+title: "Entropy exploration"
+author: "Fabian Gunzinger"
+date: "16/03/2022"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+setwd('~/dev/projects/entropy/entropy/analysis')
+source('helpers.R')
+
+library(ggplot2)
+library(lubridate)
+library(patchwork)
+
+
+FIGDIR = '/Users/fgu/dev/projects/entropy/output/figures' 
+
+# load data
+dt = read_analysis_data('X77')
+```
+
+
+Relationship between unique tags and smoothed and unsmoothed entropy/
+
+```{r}
+fn = file.path(FIGDIR, 'entropy_tag_vs_nunique.png')
+
+ggplot(dt) +
+  geom_point(aes(entropy_tag, entropy_tag_s, colour=factor(nunique_tag)), size=1) +
+  scale_color_brewer(palette='GnBu', name = 'Unique\ntags') +
+  theme_minimal(base_size = 20) +
+  labs(
+    x = 'Tag-based entropy',
+    y = 'Tag-based entropy (smoothed)'
+  )
+  
+
+ggsave(fn)
+```
+
+
+Correlates of unsmoothed entropy
+```{r}
+fn = file.path(FIGDIR, 'entropy_tag_vs_nunique.png')
+
+ggplot(dt) +
+  geom_point(aes(entropy_tag, entropy_tag_s, colour=factor(nunique_tag)), size=1) +
+  scale_color_brewer(palette='GnBu', name = 'Unique\ntags') +
+  theme_minimal(base_size = 20) +
+  labs(
+    x = 'Tag-based entropy',
+    y = 'Tag-based entropy (smoothed)'
+  )
+  
+
+ggsave(fn)
+```

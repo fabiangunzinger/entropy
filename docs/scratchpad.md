@@ -1,7 +1,7 @@
 # Entropy scratchpad
 
 
-Strands of intestigation - papers
+
 
 - Impact of spending profile on financial outcomes
 
@@ -13,53 +13,10 @@ Strands of intestigation - papers
 
     - ML classification
 
-
-
-Effect of spend profile on financial outcomes
-
-- To what extent does the way people allocate their spending determine
-  financial outcomes? Allocation varies over time and across individuals. Two
-  ways to assess spend allocation. Within a given period (i.e. characterise a
-  single distribution - using Shannon entropy), and across time (characterise
-  similarity/divergence across for each user, using Jensen-Shannon
-  divergence?).
-
-- For now, focus on the former. We find a consistent effect. But what are we
-  measuring?
-
-- We do the following:
-
-    - Calculate different summary statistics of spend profiles
-
-        - Unsmoothed entropy
-
-        - Smoothed entropy
-
-        - Grocery spend entropy
-
-    - See whether these are related to financial outcomes
-
-
-Financial outcomes (user-month level)
-
-- Savings
-
-    - Total/net sa inflows
-
-    - Dummy for whether sa inflows
-
-- Spend
-
-    - Total spend
-
-    - Total highly discretionary spend
-
-- Fees
-
-    - Total overdraft fees
-
-    - Dummy for overdraft fees
-
+        - Savers and spender types (There are distinct savings patterns in
+        terms of frequency: some people save small amounts weekly, some save
+        monthly, some make two txns at the end of each month, some save
+        erratically, ...)
 
 
 
