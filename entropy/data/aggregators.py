@@ -253,9 +253,10 @@ def has_rent_payments(df):
 def has_mortgage_payments(df):
     """Dummies for mortgage payments.
 
-        Classifying "mortgage or rent" auto tags as mortgages since data inspectio
-        suggests that this is accurate for majority of cases.
-    Cases where user makes both rent and mortgage payment in same month account for less than 2.5% of test dataset, so ignoring this issue.
+    Classifying "mortgage or rent" auto tags as mortgages since data
+    inspectio suggests that this is accurate for majority of cases.  Cases
+    where user makes both rent and mortgage payment in same month account
+    for less than 2.5% of test dataset, so ignoring this issue.
     """
     group_cols = [df.user_id, df.ym]
     tags = ["mortgage or rent", "mortgage payment"]
@@ -455,4 +456,18 @@ def grocery_shop_entropy(df):
     data = df[["user_id", "ym", "tag_group", "is_debit", "amount", "date"]].copy()
     data["merchant"] = df.merchant.where(is_grocery_shop(df), np.nan)
     counts = _entropy_base_values(data, cat="merchant", stat="size")
-    return _entropy_scores(counts).rename("entropy_groc")
+    e = _entropy_scores(counts).rename("entropy_groc")
+    en = _entropy_scores(counts, norm=True).rename("entropy_groc_n")
+    ez = _entropy_scores(counts, zscore=True).rename("entropy_groc_z")
+    return pd.concat([e, en, ez], axis=1)
+
+
+
+
+
+
+
+
+
+
+
