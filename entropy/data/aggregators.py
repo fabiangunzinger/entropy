@@ -456,10 +456,14 @@ def grocery_shop_entropy(df):
     data = df[["user_id", "ym", "tag_group", "is_debit", "amount", "date"]].copy()
     data["merchant"] = df.merchant.where(is_grocery_shop(df), np.nan)
     counts = _entropy_base_values(data, cat="merchant", stat="size")
-    e = _entropy_scores(counts).rename("entropy_groc")
-    en = _entropy_scores(counts, norm=True).rename("entropy_groc_n")
-    ez = _entropy_scores(counts, zscore=True).rename("entropy_groc_z")
-    return pd.concat([e, en, ez], axis=1)
+    return pd.concat([
+        _entropy_scores(counts).rename("entropy_groc"),
+        _entropy_scores(counts, norm=True).rename("entropy_groc_n"),
+        _entropy_scores(counts, zscore=True).rename("entropy_groc_z"),
+        _entropy_scores(counts, smooth=True).rename("entropy_groc_s"),
+        _entropy_scores(counts, smooth=True, norm=True).rename("entropy_groc_sn"),
+        _entropy_scores(counts, smooth=True, zscore=True).rename("entropy_groc_sz"),
+    ], axis=1)
 
 
 
