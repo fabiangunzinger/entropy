@@ -404,31 +404,29 @@ def cat_based_entropy(df):
     cats = ["tag", "tag_auto", "merchant"]
     scores = []
     for cat in cats:
-        for stat in ['size', 'sum']:
-            print(cat, stat)
-            base_values = _entropy_base_values(df, cat, stat=stat)
-            scores.extend(
-                [
-                    _entropy_scores(base_values, smooth=False, norm=False).rename(
-                        f"entropy_{cat}_{stat}"
-                    ),
-                    _entropy_scores(base_values, smooth=False, norm=True).rename(
-                        f"entropy_{cat}_{stat}_n"
-                    ),
-                    _entropy_scores(base_values, smooth=False, zscore=True).rename(
-                        f"entropy_{cat}_{stat}_z"
-                    ),
-                    _entropy_scores(base_values, smooth=True, norm=False).rename(
-                        f"entropy_{cat}_{stat}_s"
-                    ),
-                    _entropy_scores(base_values, smooth=True, norm=True).rename(
-                        f"entropy_{cat}_{stat}_sn"
-                    ),
-                    _entropy_scores(base_values, smooth=True, zscore=True).rename(
-                        f"entropy_{cat}_{stat}_sz"
-                    ),
-                ]
-            )
+        base_values = _entropy_base_values(df, cat, stat='size')
+        scores.extend(
+            [
+                _entropy_scores(base_values, smooth=False).rename(
+                    f"entropy_{cat}"
+                ),
+                _entropy_scores(base_values, smooth=False, norm=True).rename(
+                    f"entropy_{cat}_n"
+                ),
+                _entropy_scores(base_values, smooth=False, zscore=True).rename(
+                    f"entropy_{cat}_z"
+                ),
+                _entropy_scores(base_values, smooth=True).rename(
+                    f"entropy_{cat}_s"
+                ),
+                _entropy_scores(base_values, smooth=True, norm=True).rename(
+                    f"entropy_{cat}_sn"
+                ),
+                _entropy_scores(base_values, smooth=True, zscore=True).rename(
+                    f"entropy_{cat}_sz"
+                ),
+            ]
+        )
     return pd.concat(scores, axis=1)
 
 
