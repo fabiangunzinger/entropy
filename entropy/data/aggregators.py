@@ -186,7 +186,7 @@ def savings_accounts_flows(df):
         .abs()
         .unstack()
         .fillna(0)
-        .apply(hd.winsorise, how='upper', pct=1)
+        .apply(hd.winsorise, how="upper", pct=1)
         .assign(
             sa_netflows=lambda df: df.sa_inflows - df.sa_outflows,
             has_sa_inflows=lambda df: (df.sa_inflows > 0).astype(int),
@@ -346,8 +346,8 @@ def overdraft_fees(df):
     return od_fees.groupby(group_cols).count().gt(0).astype(int).rename("has_od_fees")
 
 
-def _entropy_base_values(df, cat, stat='size', wknd=False):
-    """Spend txns count or value for each cat by user-month.
+def _entropy_base_values(df, cat, stat="size", wknd=False):
+    """Spend txns counts or values for each cat by user-month.
 
     Args:
     df: A txn-level dataframe.
@@ -391,8 +391,6 @@ def _entropy_scores(df, norm=False, zscore=False, smooth=False):
     if norm:
         e = e / np.log2(num_unique)
     if zscore:
-        print('mean', e.mean())
-        print('std', e.std())
         e = (e - e.mean()) / e.std()
     return pd.Series(e, index=df.index)
 
@@ -404,21 +402,17 @@ def cat_based_entropy(df):
     cats = ["tag", "tag_auto", "merchant"]
     scores = []
     for cat in cats:
-        base_values = _entropy_base_values(df, cat, stat='size')
+        base_values = _entropy_base_values(df, cat, stat="size")
         scores.extend(
             [
-                _entropy_scores(base_values, smooth=False).rename(
-                    f"entropy_{cat}"
-                ),
+                _entropy_scores(base_values, smooth=False).rename(f"entropy_{cat}"),
                 _entropy_scores(base_values, smooth=False, norm=True).rename(
                     f"entropy_{cat}_n"
                 ),
                 _entropy_scores(base_values, smooth=False, zscore=True).rename(
                     f"entropy_{cat}_z"
                 ),
-                _entropy_scores(base_values, smooth=True).rename(
-                    f"entropy_{cat}_s"
-                ),
+                _entropy_scores(base_values, smooth=True).rename(f"entropy_{cat}_s"),
                 _entropy_scores(base_values, smooth=True, norm=True).rename(
                     f"entropy_{cat}_sn"
                 ),
@@ -430,3 +424,35 @@ def cat_based_entropy(df):
     return pd.concat(scores, axis=1)
 
 
+@aggregator
+@hh.timer
+def grocery_shop_entropy(df):
+    """Returns Shannon entropy based on grocery merchant counts."""
+
+    def is_grocery_shop(df):
+        """Return True if a txn is a grocery shop.
+
+        Regex requires optional supermarket suffix because for some merchants
+        (e.g. Tesco), other suffixes like 'finance' or 'fuel' also occurr,
+        while those that only sell groceries (e.g. Ocado) appear without a
+        suffix.
+        """
+        grocers = [
+            "tesco",
+            "sainsburys",
+            "asda",
+            "morrisons",
+            "aldi",
+            "co-op",
+            "lidl",
+            "waitrose",
+            "iceland",
+            "ocado",
+        ]
+        p = fr"^({'|'.join(grocers)})(:?\ssupermarket)?$"
+        return df.merchant_business_line.str.match(p)
+
+    data = df[["user_id", "ym", "tag_group", "is_debit", "amount", "date"]].copy()
+    data["merchant"] = df.merchant.where(is_grocery_shop(df), np.nan)
+    counts = _entropy_base_values(data, cat="merchant", stat="size")
+    return _entropy_scores(counts).rename("entropy_groc")
