@@ -56,9 +56,8 @@ def year_income(df, min_income=10_000):
 
     min_income divided by 1000 because income expressed in '000s.
     """
-    cond = (
-        df.groupby("user_id").year_income.apply(lambda x: x.min(skipna=False))
-        >= (min_income / 1000)
+    cond = df.groupby("user_id").year_income.apply(lambda x: x.min(skipna=False)) >= (
+        min_income / 1000
     )
     users = cond[cond].index
     return df[df.user_id.isin(users)]
@@ -99,9 +98,8 @@ def month_min_spend(df, min_spend=200):
 
     min_spend divided by 1000 as spend is expressed in '000s.
     """
-    cond = (
-        df.groupby("user_id").month_spend.apply(lambda x: x.min(skipna=False))
-        >= (min_spend / 1000)
+    cond = df.groupby("user_id").month_spend.apply(lambda x: x.min(skipna=False)) >= (
+        min_spend / 1000
     )
     users = cond[cond].index
     return df[df.user_id.isin(users)]
@@ -119,19 +117,40 @@ def month_min_ca_txns(df, min_txns=5):
     return df[df.user_id.isin(users)]
 
 
+# @selector
+# @counter
+# def min_num_unique_categories(df, min_nunique=2):
+#     """Spends in two distinct categories each month
+
+#     Requires that user makes spend in at least two distinct categories in each
+#     month for each category variable we use to calculate entorpy.
+
+#     Ensures that we can calculate entropy scores (which requires spend in at
+#     least one category) and avoids zero entropy scores (resulting from all
+#     spends in one category) that are likely due to missing tags.
+#     """
+#     cond = df.filter(regex="^nunique_").min(1).groupby(df.user_id).min().ge(min_nunique)
+#     users = cond[cond].index
+#     return df[df.user_id.isin(users)]
+
+
 @selector
 @counter
-def min_num_unique_categories(df, min_nunique=2):
-    """Spends in two distinct categories each month
+def min_spend_diversity(df):
+    """Minimum level of spend diversity
 
-    Requires that user makes spend in at least two distinct categories in each
-    month for each category variable we use to calculate entorpy.
-    
-    Ensures that we can calculate entropy scores (which requires spend in at
-    least one category) and avoids zero entropy scores (resulting from all
-    spends in one category) that are likely due to missing tags.
+    Requiring that entropy is larger than 0 ensures that there are at txns in
+    at least two categories per user-month. For all but grocery entropy, fewer
+    than that likely indicates incomplete tagging rather than genuine counts.
+
+    For groceries, it's possible that all txns are with the same grocer in a
+    user-month, so we require that grocery entropy is not missing, which
+    ensures that there is at least a single tagged txn.
     """
-    cond = df.filter(regex="^nunique_").min(1).groupby(df.user_id).min().ge(min_nunique)
+    raw_non_groc_entropies = df.filter(regex="entropy(?!.*_([szn]|groc))")
+    cond = (raw_non_groc_entropies.min(1).groupby(df.user_id).min() > 0) & (
+        df.entropy_groc.notna().groupby(df.user_id).min() == 1
+    )
     users = cond[cond].index
     return df[df.user_id.isin(users)]
 
@@ -143,7 +162,7 @@ def complete_demographic_info(df):
 
     Retains only users for which we have full demographic information.
     """
-    cols = ["age", "is_female", 'is_urban']
+    cols = ["age", "is_female", "is_urban"]
     cond = df[cols].isna().groupby(df.user_id).sum().sum(1).eq(0)
     users = cond[cond].index
     return df[df.user_id.isin(users)]
