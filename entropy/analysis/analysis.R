@@ -75,6 +75,52 @@ dt = read_analysis_data()
 names(dt)
 
 
+
+
+# New ------------------------------------------------------------------------------
+
+endog = 'has_sa_inflows'
+exog = c('entropy_tag_sz', 'entropy_tag_z')
+fin_behav = c(
+  'has_reg_sa_inflows',
+  'prop_credit',
+  'month_spend'
+)
+planning = c()
+hh_chars = c(
+  'is_urban',
+  'month_income',
+  'has_regular_income',
+  'has_month_income',
+  'has_loan_repmt'
+)
+controls = c(fin_behav, planning, hh_chars)
+
+
+# FE specifications
+etable(
+  fixest::feols(
+    xpd(
+      ..endog ~ ..exog + ..controls | csw0(user_id, ym),
+      ..endog = endog,
+      ..controls = controls,
+      ..exog = exog
+    ),
+    data=dt
+  ), 
+  title = 'FE specifications', 
+  order = c('!(Intercept)'),
+  tex = T,
+  file=file.path(TABDIR, 'reg_entropy_savings_fe.tex'),
+  fontsize = 'footnotesize',
+  label = 'tab:reg_entropy_savings_fe',
+  replace = T
+)
+
+
+
+
+
 # Effect of entropy on savings -----------------------------------------------------
 
 endog = 'has_sa_inflows'
@@ -158,6 +204,65 @@ print(total_var)
 print(within_var)
 print(between_var)
 print(within_var / between_var)
+
+
+# Entropy with num-zero count
+etable(
+  fixest::feols(xpd(has_od_fees ~ csw(entropy_tag_size, nunique_tag) + ..controls  | user_id + ym, ..endog = endog, ..controls = controls, ..exog = exog), data=dt), 
+  # title = 'FE specifications', 
+  order = c('entropy', 'nunique')
+  # tex = T,
+  # file=file.path(TABDIR, 'reg_entropy_savings_fe.tex'),
+  # fontsize = 'footnotesize',
+  # label = 'tab:reg_entropy_savings_fe',
+  # replace = T
+)
+
+
+
+# All entropy vars - tag only thus far
+cat_vars = c('tag', 'auto_tag', 'merchant')
+
+for (cat in cat_vars) {
+  exog = names(dt)[grep(cat, names(dt))]
+  print(exog)
+}
+
+etable(
+  fixest::feols(
+    xpd(
+      ..endog ~ 
+        sw(
+          entropy_tag_size_z,
+          entropy_tag_size_sz,
+          entropy_tag_sum_z,
+          entropy_tag_sum_sz,
+          
+          # entropy_tag_size_n,
+          # 
+          # entropy_tag_size_sn,
+          # entropy_tag_sum,
+          # entropy_tag_sum_n,
+          # entropy_tag_sum_s,
+          # entropy_tag_sum_sn
+      )
+      + ..controls | user_id + ym,
+      ..endog = endog,
+      ..controls = controls,
+      ..exog = exog
+    ),
+    data=dt
+  ), 
+  # title = 'FE specifications', 
+  order = c('entropy', '!(Intercept)')
+  # tex = T,
+  # file=file.path(TABDIR, 'reg_entropy_savings_fe.tex'),
+  # fontsize = 'footnotesize',
+  # label = 'tab:reg_entropy_savings_fe',
+  # replace = T
+)
+  
+
 
 
 # Effect of entropy on overdraft fees ----------------------------------------------

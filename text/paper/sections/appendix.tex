@@ -1,34 +1,5 @@
 % !TEX root = ../entropy.tex
 
-\section{Effect of entropy on overdraft fees}%
-\label{sub:effect_of_entropy_on_overdraft_fees}
-
-\begin{itemize}
-
-    \item Table~\ref{tab:reg_entropy_odfees} replicates results from
-        \citet{muggleton2020evidence} Tables S20 (Columns 1 and 2) and Table
-        S40 (columns 3 and 4).
-
-    \item Similar to their results, higher entropy is positively related to
-        negative financial outcomes.
-
-    \item Yet, contrary to their findings, the effect becomes stronger in the
-        presence of fixed effects.
-
-    \item Also, in contrast to above findings, using non-smoothed entropy
-        doesn't reverse the effect but strengthen it.
-
-    \item Differences to \citet{muggleton2020evidence} could be due to a number
-        of factors: we use a different dataset, a different and self-selected sample of people
-        that is skewed towards younger and wealthier individuals, as well as a
-        longer panel.
-
-\end{itemize}
-
-\input{\tabdir/reg_entropy_odfees.tex}
-
-
-
 \section{Data}%
 \label{sec:data}
 
@@ -52,6 +23,7 @@ Preprocessing steps
         [this](https://blogs.sas.com/content/iml/2017/02/08/winsorization-good-bad-and-ugly.html)
         article convincingly argues that we shouldn't do that in our case.
 \end{itemize}
+
 
 \subsection{Variable construction}%
 \label{sub:variable_construction}
@@ -120,11 +92,6 @@ Individual and household characteristics
 \end{itemize}
 
 
-
-
-
-
-
 \subsection{Variabel description}%
 \label{sub:variabel_description}
 
@@ -142,9 +109,6 @@ Individual and household characteristics
 
 Exploration of control variables here (e.g. like jpmorgan2019weathering for
 income stability)
-
-
-
 
 
 \subsection{Data issues}%
@@ -168,7 +132,6 @@ Some accounts might be business accounts. Using versions of the algorightms
 used by \citet{bourquin2020effects} to identify such accounts showed, however,
 that such accounts only make up a tiny percentage of overall accounts and would
 not influence our results. We thus do not exclude them.
-
 
 
 \section{Entropy}%
@@ -255,3 +218,35 @@ Desireable features of entropy variable:
 
     \item 
 \end{itemize}
+
+
+\section{Effect of entropy on overdraft fees}%
+\label{sub:effect_of_entropy_on_overdraft_fees}
+
+\begin{itemize}
+
+    \item Table~\ref{tab:reg_entropy_odfees} replicates results from
+        \citet{muggleton2020evidence} Tables S20 (Columns 1 and 2) and Table
+        S40 (columns 3 and 4).
+
+    \item Similar to their results, higher entropy is positively related to
+        negative financial outcomes.
+
+    \item Yet, contrary to their findings, the effect becomes stronger in the
+        presence of fixed effects.
+
+    \item Also, in contrast to above findings, using non-smoothed entropy
+        doesn't reverse the effect but strengthen it.
+
+    \item Differences to \citet{muggleton2020evidence} could be due to a number
+        of factors: we use a different dataset, a different and self-selected sample of people
+        that is skewed towards younger and wealthier individuals, as well as a
+        longer panel.
+
+\end{itemize}
+
+\input{\tabdir/reg_entropy_odfees.tex}
+
+
+
+

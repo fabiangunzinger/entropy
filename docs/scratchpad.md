@@ -1,25 +1,5 @@
 # Entropy scratchpad
 
-
-
-
-- Impact of spending profile on financial outcomes
-
-    - Traditional
-
-        - Does spend profile (entropy) correlate with events in peoples lives
-        (event studies) can we interpret it as stress? Is there another measure
-        we can interpret as stress/chaos?
-
-    - ML classification
-
-        - Savers and spender types (There are distinct savings patterns in
-        terms of frequency: some people save small amounts weekly, some save
-        monthly, some make two txns at the end of each month, some save
-        erratically, ...)
-
-
-
 Entropy as a measure of stress?
 
 - Initial attempt of paper was to use entropy as a proxy of life stress
@@ -66,38 +46,7 @@ Entropy as a measure of stress?
         - Consistency-based entropy (Jensen-Shannon)?
 
 
-- There are two dimensions here:
 
-    - The way we calculate probabilities - e.g. what entropy score is based on (e.g. category counts, over-time consistency)
-
-    - Whether or not we use Laplace smoothing
-
-- All of this is, ultimately, about whether we can gain useful information from
-  a person's spending profile
-
-
-
-
-
-
-
-
-ML paper
-
-- New approach: I want to make it easier for people to save. I have this entire
-  dataset. Use ml to determine what predicts savings. Can we use nudges/app
-  features what would help people save?
-
-- Why don't people save?
-
-- Lots of people think they haven't got enough savings and wish they could save
-  more, yet don't. Why? What characterises those who do save?
-
-- Given this dataset, what's the most impactful thing in terms of user's
-  wellbeing that we could ask ourselves?
-
-
-Entropy scores and savings behaviour relationthip
 
 - Unsmoothed entropy increases with the number of unique categories a user
   spends money on, and is positively related to sa inflows. This means that

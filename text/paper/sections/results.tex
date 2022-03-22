@@ -3,6 +3,14 @@
 \section{Results}%
 \label{sec:results}
 
+\subsection{New results}%
+\label{sub:new_results}
+
+\foreach \endog in {has_sa_inflows,sa_inflows,sa_netflows,sa_outflows} {
+    \foreach \cat in {tag,tag_auto,merchant,groc} {
+        \input{\tabdir/reg_\endog_\cat.tex}}}
+
+
 \subsection{Effect of entropy on saving}%
 \label{sub:effect_of_entropy_on_saving}
 
@@ -40,10 +48,6 @@ in a given month.
 
         Unsmoothed entropy is high when spends across categories are equal and
         the total number of spends is high.
-
-
-
-
 
 \end{itemize}
 
