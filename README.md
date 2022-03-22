@@ -1,7 +1,7 @@
 [![Build Status](https://app.travis-ci.com/fabiangunzinger/entropy.svg?branch=main)](https://app.travis-ci.com/fabiangunzinger/entropy)
 
-Home of my joint research project with Neil Stewart, exploring the
-relationshiop between spending entropy and savings outcomes.
+Home of my joint research project with Neil Stewart, exploring the relationship
+between how people spend their money and how much they save.
 
 Overview of main directories: 
 

@@ -23,6 +23,11 @@ FIGDIR = '/Users/fgu/dev/projects/entropy/output/figures'
 dt = read_analysis_data('X77')
 ```
 
+## Purpose
+
+The purpose of this document is to better understand different summary measures of spending profiles and how they relate to one another.
+
+
 
 Relationship between unique tags and smoothed and unsmoothed entropy/
 

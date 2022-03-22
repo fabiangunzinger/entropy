@@ -90,6 +90,9 @@ Measures of spending profiles:
     \item Smoothed tag-based entropy
 
     \item Grocery-shops based entropy
+
+    \item Composite measure based on PCA from combination of base entropy
+        scores (similar to \citet{eagle2010network}
 \end{itemize}
 
 
@@ -240,13 +243,31 @@ treating ``unknown merchant'' as a single merchant. But for user-months for
 which the merchant is unknown for all transactions, this would lead to an
 entropy score of 0, which is undesireable.
 
+\paragraph{Grocery shop entropy}%
+\label{par:grocery_shop_entropy}
+
+We consider purchases at Tesco, Sainsbury's, Asda, Morrisons, Aldi, Co-op,
+Lidl, Waitrose, Iceland, and Ocado, which have a combined market share of 96.5
+percent.
+
+
 
 \subsection{Summary statistics}%
 \label{par:summary_statistics}
-% \begin{table}[H]
-% \caption{Summary statistics}\label{tab:sumstats}
-% \input{\tabdir/sumstats.tex}
-% \end{table}
+
+Table~\ref{tab:sumstats} provides summary statistics.
+
+\input{\tabdir/sumstats.tex}
+
+Figure~\ref{fig:entropy_kdes}
+\begin{figure}[H]
+    \center \newcommand\width{\textwidth} \caption{Entropy distributions}
+    \label{fig:entropy_kdes}
+    \includegraphics[width=\width]{\figdir/entropy_kdes.png}
+    \fignote{\width}{}
+\end{figure}
+
+
 
 
 \subsection{Model specification}%
@@ -261,6 +282,8 @@ We estimate models of the form:
 
 where $s_{i,t}$ is an indicator variable equal to one if individual $i$ made
 one or more transfers to any of their savings account in month $t$ and zero
-otherwise, $H_{it}$ is $i$'s spending entropy in month $t$,
-$x_{i,t}$ a vector of control variables, $\alpha_i$ an individual fixed effect, $\lambda_t$ a calendar
-month fixed effect, and $\epsilon_{i, t}$ the error term.
+otherwise, $H_{it}$ is $i$'s spending entropy in month $t$, $x_{i,t}$ a vector
+of control variables, $\alpha_i$ an individual fixed effect, $\lambda_t$ a
+calendar month fixed effect, and $\epsilon_{i, t}$ the error term.
+
+

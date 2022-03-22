@@ -10,6 +10,14 @@ FIGDIR = '/Users/fgu/dev/projects/entropy/output/figures'
 SAMPLE = 'X77'
 
 
+
+
+
+
+
+
+
+
 # Savings --------------------------------------------------------------------------
 
 dt = read_txn_data(SAMPLE)

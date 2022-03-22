@@ -7,16 +7,15 @@ TABDIR = '/Users/fgu/dev/projects/entropy/output/tables'
 SAMPLE = '777'
 
 
-dt = read_txn_data(SAMPLE)
+dt = read_analysis_data()
 head(dt)
-
-
-# txn data
 
 stargazer(
   dt,
-  type = 'text'
-  # out = file.path(TABDIR, 'sumstats.tex')
+  title = 'Summary statistics',
+  label = 'tab:sumstats',
+  font.size = 'scriptsize',
+  out = file.path(TABDIR, 'sumstats.tex')
 )
 
 
