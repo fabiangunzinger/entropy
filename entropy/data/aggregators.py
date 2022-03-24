@@ -416,16 +416,10 @@ def cat_based_entropy(df):
         scores.extend(
             [
                 _entropy_scores(base_values, smooth=False).rename(f"entropy_{cat}"),
-                _entropy_scores(base_values, smooth=False, norm=True).rename(
-                    f"entropy_{cat}_n"
-                ),
                 _entropy_scores(base_values, smooth=False, zscore=True).rename(
                     f"entropy_{cat}_z"
                 ),
                 _entropy_scores(base_values, smooth=True).rename(f"entropy_{cat}_s"),
-                _entropy_scores(base_values, smooth=True, norm=True).rename(
-                    f"entropy_{cat}_sn"
-                ),
                 _entropy_scores(base_values, smooth=True, zscore=True).rename(
                     f"entropy_{cat}_sz"
                 ),
@@ -464,7 +458,7 @@ def grocery_shop_entropy(df):
 
     data = df[["user_id", "ym", "tag_group", "is_debit", "amount", "date"]].copy()
     data["merchant"] = df.merchant.where(is_grocery_shop(df), np.nan)
-    counts = _entropy_base_values(data, cat="merchant", stat="size")
+    counts = _entropy_base_values(data, cat="merchant", stat="size", wknd=True)
     return pd.concat(
         [
             _entropy_scores(counts).rename("entropy_groc"),
