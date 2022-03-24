@@ -34,7 +34,7 @@ def txn_count(df):
         df.groupby(group_cols)
         .id.size()
         .rename("txns_count")
-        .pipe(hd.trim, how="upper", pct=1)
+        .pipe(hd.trim, how="upper", pct=5)
         .dropna()
     )
 
@@ -48,7 +48,7 @@ def txn_volume(df):
         abs_amount.groupby(group_cols)
         .sum()
         .rename("txns_volume")
-        .pipe(hd.trim, how="upper", pct=1)
+        .pipe(hd.trim, how="upper", pct=5)
         .dropna()
     )
 
@@ -195,7 +195,7 @@ def savings_accounts_flows(df):
         .abs()
         .unstack()
         .fillna(0)
-        .apply(hd.winsorise, how="upper", pct=1)
+        .apply(hd.winsorise, how="upper", pct=5)
         .assign(
             sa_netflows=lambda df: df.sa_inflows - df.sa_outflows,
             has_sa_inflows=lambda df: (df.sa_inflows > 0).astype(int),
@@ -341,7 +341,7 @@ def month_spend(df):
         .fillna(0)
         .assign(month_spend=lambda df: df.sum(1))
         .div(1000)
-        .apply(hd.winsorise, pct=1, how="upper")
+        .apply(hd.winsorise, pct=5, how="upper")
     )
 
 
