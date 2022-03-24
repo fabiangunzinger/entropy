@@ -37,7 +37,7 @@ def parse_args(argv):
 
 @hh.timer
 def read_raw_data(sample):
-    return hd.read_raw_data(sample) 
+    return hd.read_raw_data(sample)
 
 
 @hh.timer
@@ -57,11 +57,10 @@ def validate_data(df):
 
 @hh.timer
 def aggregate_data(df):
-    """Concats all columns and orders columns to R plm standard."""
-    return (
-        pd.concat((func(df) for func in agg.aggregator_funcs), axis=1, join="outer")
-        .reset_index()
-    )
+    """Concats all columns."""
+    return pd.concat(
+        (func(df) for func in agg.aggregator_funcs), axis=1, join="inner"
+    ).reset_index()
 
 
 @hh.timer
