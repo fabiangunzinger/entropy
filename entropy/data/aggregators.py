@@ -18,9 +18,6 @@ import entropy.helpers.data as hd
 import entropy.helpers.helpers as hh
 
 
-month = pd.Grouper(key="date", freq="m")
-idx_cols = ["user_id", month]
-
 aggregator_funcs = []
 
 
@@ -33,7 +30,13 @@ def aggregator(func):
 @hh.timer
 def txn_count(df):
     group_cols = [df.user_id, df.ym]
-    return df.groupby(group_cols).id.size().rename("txns_count")
+    return (
+        df.groupby(group_cols)
+        .id.size()
+        .rename("txns_count")
+        .pipe(hd.trim, how="upper", pct=1)
+        .dropna()
+    )
 
 
 @aggregator
@@ -41,7 +44,13 @@ def txn_count(df):
 def txn_volume(df):
     group_cols = [df.user_id, df.ym]
     abs_amount = df.amount.abs()
-    return abs_amount.groupby(group_cols).sum().rename("txns_volume")
+    return (
+        abs_amount.groupby(group_cols)
+        .sum()
+        .rename("txns_volume")
+        .pipe(hd.trim, how="upper", pct=1)
+        .dropna()
+    )
 
 
 @aggregator
@@ -456,22 +465,12 @@ def grocery_shop_entropy(df):
     data = df[["user_id", "ym", "tag_group", "is_debit", "amount", "date"]].copy()
     data["merchant"] = df.merchant.where(is_grocery_shop(df), np.nan)
     counts = _entropy_base_values(data, cat="merchant", stat="size")
-    return pd.concat([
-        _entropy_scores(counts).rename("entropy_groc"),
-        _entropy_scores(counts, norm=True).rename("entropy_groc_n"),
-        _entropy_scores(counts, zscore=True).rename("entropy_groc_z"),
-        _entropy_scores(counts, smooth=True).rename("entropy_groc_s"),
-        _entropy_scores(counts, smooth=True, norm=True).rename("entropy_groc_sn"),
-        _entropy_scores(counts, smooth=True, zscore=True).rename("entropy_groc_sz"),
-    ], axis=1)
-
-
-
-
-
-
-
-
-
-
-
+    return pd.concat(
+        [
+            _entropy_scores(counts).rename("entropy_groc"),
+            _entropy_scores(counts, zscore=True).rename("entropy_groc_z"),
+            _entropy_scores(counts, smooth=True).rename("entropy_groc_s"),
+            _entropy_scores(counts, smooth=True, zscore=True).rename("entropy_groc_sz"),
+        ],
+        axis=1,
+    )
