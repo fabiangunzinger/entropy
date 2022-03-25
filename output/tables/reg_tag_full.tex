@@ -1,0 +1,53 @@
+
+\begin{table}[htbp]
+   \centering
+   \footnotesize
+   \begin{threeparttable}[b]
+      \caption{\label{tab:reg_tag_full.tex} tag results}
+      \begin{tabular}{lcccc}
+         \tabularnewline \midrule \midrule
+         Dependent Variables: & has\_sa\_inflows   & sa\_inflows    & sa\_netflows   & sa\_outflows\\   
+         Model:               & (1)                & (2)            & (3)            & (4)\\  
+         \midrule
+         \emph{Variables}\\
+         entropy\_tag\_n      & 0.0919$^{***}$     & 82.84          & 108.9          & -26.01\\   
+                              & (0.0307)           & (109.2)        & (99.81)        & (108.6)\\   
+         Credit spend         & -0.0076            & -394.5$^{***}$ & -356.1$^{***}$ & -38.40\\   
+                              & (0.0198)           & (81.77)        & (80.18)        & (80.12)\\   
+         Month spend          & 0.0213$^{***}$     & 224.8$^{***}$  & 125.1$^{***}$  & 99.68$^{***}$\\   
+                              & (0.0013)           & (11.75)        & (10.13)        & (8.180)\\   
+         Urban                & 0.0009             & -354.0         & -373.1         & 19.08\\   
+                              & (0.1418)           & (548.7)        & (259.8)        & (418.8)\\   
+         Month income         & 0.0029             & -6.920         & -123.9$^{***}$ & 117.0$^{***}$\\   
+                              & (0.0020)           & (11.02)        & (11.61)        & (13.95)\\   
+         Regular income       & 0.0111             & 2.057          & 21.87          & -19.82\\   
+                              & (0.0077)           & (28.19)        & (21.34)        & (29.33)\\   
+         Has income in month  & 0.0146             & -66.21         & 175.5$^{**}$   & -241.7$^{***}$\\   
+                              & (0.0174)           & (73.50)        & (82.12)        & (66.56)\\   
+         Loan repayment       & 0.0041             & -120.0$^{***}$ & -95.83$^{***}$ & -24.14\\   
+                              & (0.0091)           & (29.07)        & (23.85)        & (26.04)\\   
+         Pension              & -0.0004            & 108.1          & -154.4         & 262.6$^{*}$\\   
+                              & (0.0505)           & (212.7)        & (150.4)        & (146.3)\\   
+         Benefits             & 0.0089             & -8.144         & -21.21         & 13.07\\   
+                              & (0.0186)           & (63.62)        & (49.55)        & (68.62)\\   
+         \midrule
+         \emph{Fixed-effects}\\
+         User id              & Yes                & Yes            & Yes            & Yes\\  
+         Calendar month       & Yes                & Yes            & Yes            & Yes\\  
+         \midrule
+         \emph{Fit statistics}\\
+         Observations         & 82,589             & 82,589         & 82,589         & 82,589\\  
+         R$^2$                & 0.40501            & 0.29948        & 0.06423        & 0.25609\\  
+         Within R$^2$         & 0.00933            & 0.05053        & 0.01640        & 0.01836\\  
+         \midrule \midrule
+         \multicolumn{5}{l}{\emph{Clustered (User id) standard-errors in parentheses}}\\
+         \multicolumn{5}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+      \end{tabular}
+      
+      \begin{tablenotes}\footnotesize
+         \item Spend and income variables are in \pounds'000
+      \end{tablenotes}
+   \end{threeparttable}
+\end{table}
+
+

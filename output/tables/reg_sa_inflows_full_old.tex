@@ -1,0 +1,53 @@
+
+\begin{table}[htbp]
+   \centering
+   \footnotesize
+   \begin{threeparttable}[b]
+      \caption{\label{tab:reg_sa_inflows_full.tex} sa\_inflows results}
+      \begin{tabular}{lcc}
+         \tabularnewline \midrule \midrule
+         Dependent Variable: & \multicolumn{2}{c}{sa\_inflows}\\
+         Model:              & (1)            & (2)\\  
+         \midrule
+         \emph{Variables}\\
+         entropy\_tag\_sz    & 20.16          & 47.65$^{*}$\\   
+                             & (12.35)        & (25.29)\\   
+         entropy\_tag\_z     &                & -51.35\\   
+                             &                & (38.84)\\   
+         Regular savings     & 373.2$^{***}$  & 373.8$^{***}$\\   
+                             & (45.91)        & (45.90)\\   
+         Credit spend        & -376.0$^{***}$ & -353.9$^{***}$\\   
+                             & (81.11)        & (81.38)\\   
+         Month spend         & 225.4$^{***}$  & 226.9$^{***}$\\   
+                             & (11.69)        & (12.01)\\   
+         Urban               & -290.1         & -290.9\\   
+                             & (510.7)        & (509.0)\\   
+         Month income        & -6.666         & -6.020\\   
+                             & (10.85)        & (10.86)\\   
+         Regular income      & -61.87$^{**}$  & -61.26$^{**}$\\   
+                             & (27.77)        & (27.78)\\   
+         Has income in month & -44.96         & -40.12\\   
+                             & (72.11)        & (72.24)\\   
+         Loan repayment      & -121.6$^{***}$ & -119.9$^{***}$\\   
+                             & (28.49)        & (28.44)\\   
+         \midrule
+         \emph{Fixed-effects}\\
+         User id             & Yes            & Yes\\  
+         Calendar month      & Yes            & Yes\\  
+         \midrule
+         \emph{Fit statistics}\\
+         Observations        & 82,589         & 82,589\\  
+         R$^2$               & 0.30185        & 0.30188\\  
+         Within R$^2$        & 0.05374        & 0.05378\\  
+         \midrule \midrule
+         \multicolumn{3}{l}{\emph{Clustered (User id) standard-errors in parentheses}}\\
+         \multicolumn{3}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+      \end{tabular}
+      
+      \begin{tablenotes}\footnotesize
+         \item Notes: Spend and income variables are in \pounds'000.
+      \end{tablenotes}
+   \end{threeparttable}
+\end{table}
+
+

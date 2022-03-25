@@ -4,15 +4,13 @@ source('helpers.R')
 library(ggplot2)
 library(lubridate)
 library(patchwork)
+library(plyr)
 
+theme_set(theme_minimal())
 
 FIGDIR = '/Users/fgu/dev/projects/entropy/output/figures' 
-SAMPLE = 'X77'
 
-
-
-
-
+dt <- read_analysis_data()
 
 
 
@@ -20,10 +18,10 @@ SAMPLE = 'X77'
 
 # Savings --------------------------------------------------------------------------
 
-dt = read_txn_data(SAMPLE)
+dt <- read_txn_data(SAMLE)
 
 # savings txns of users in final sample
-dta = read_analysis_data(SAMPLE)
+dta <-  read_analysis_data(SAMPLE)
 final_sample <- unique(dta$user_id)
 dt <- dt[user_id %in% final_sample,]
 savings <- dt[is_sa_flow == 1 & is_debit == FALSE]
@@ -79,7 +77,7 @@ dd <- savings[, .(user_id, date, amount, desc, account_id, date_diff)]
 
 # Transactions by day of week ------------------------------------------------------
 
-dt = read_txn_data('777')
+dt <- read_txn_data('777')
 
 day_order <- c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
 
@@ -89,6 +87,7 @@ p <- ggplot(dt, aes(factor(weekdays(as.Date(dt$date)), level = day_order))) +
     x = 'Day of week',
     y = 'Number of transactions'
   ) & theme_minimal()
+p
 
 ggsave(file.path(FIGDIR, 'dow_txns.png'))
 
@@ -96,7 +95,7 @@ ggsave(file.path(FIGDIR, 'dow_txns.png'))
 
 # Entropy and components -----------------------------------------------------------
 
-dt = read_analysis_data()
+dt <- read_analysis_data()
 
 p1 <- ggplot(dt, aes(txns_count)) +
   geom_histogram(binwidth=5) +
@@ -114,7 +113,7 @@ p2 <- ggplot() +
     y = 'Number of observations'
   )
 
-p3 <- ggplot(dt, aes(entropy)) +
+p3 <- ggplot(dt, aes(entropy_tag)) +
   geom_histogram(binwidth = .05) + 
   labs(
     x = 'Spending entropy',
@@ -122,8 +121,34 @@ p3 <- ggplot(dt, aes(entropy)) +
   )
 
 
-p1 + p2 + p3 & theme_minimal()
+p1 + p2 + p3
 ggsave(file.path(FIGDIR, 'entropy_hists.png'))
 # look into using height and width params
 
 
+
+# Variable densities ---------------------------------------------------------------
+
+facet_kdes <- function(regex, ncol = 3) {
+  vars <- grep(regex, names(dt), value = T, perl = T)
+  data <- melt(dt[, ..vars], measure.vars = vars)
+  ggplot(data) +
+    geom_density(aes(value)) +
+    facet_wrap(~variable, ncol = ncol, scales = 'free')
+}
+
+# txn counts
+facet_kdes('txn_count')
+
+# saving accounts flows
+facet_kdes('^sa_.*flows$')
+
+# tag spends
+facet_kdes('spend')
+
+# income vars
+facet_kdes('income')
+
+# entropy
+facet_kdes('entropy(?!.*z$)', ncol = 2)
+ggsave(file.path(FIGDIR, 'entropy_kdes.png'))

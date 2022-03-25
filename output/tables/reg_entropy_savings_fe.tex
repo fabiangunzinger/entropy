@@ -1,45 +1,48 @@
 
 \begin{table}[htbp]
    \centering
-   \caption{\label{tab:reg_entropy_savings_fe} FE specifications}
-   \begin{footnotesize}
+   \footnotesize
+   \begin{threeparttable}[b]
+      \caption{\label{tab:reg_entropy_savings_fe} FE specifications}
       \begin{tabular}{lccc}
-         \tabularnewline\midrule\midrule
+         \tabularnewline \midrule \midrule
          Dependent Variable: & \multicolumn{3}{c}{has\_sa\_inflows}\\
-         Model:                      & (1)             & (2)             & (3)\\
-         \midrule \emph{Variables} &   &   &  \\
-         Entropy (tag-based, smooth) & -0.0509$^{***}$ & -0.0500$^{***}$ & -0.0380$^{***}$\\
-                                     & (0.0033)        & (0.0067)        & (0.0067)\\
-         Entropy (tag-based)         & 0.0960$^{***}$  & 0.0881$^{***}$  & 0.0656$^{***}$\\
-                                     & (0.0052)        & (0.0104)        & (0.0106)\\
-         Regular savings             & 0.6200$^{***}$  & 0.2150$^{***}$  & 0.2097$^{***}$\\
-                                     & (0.0046)        & (0.0088)        & (0.0088)\\
-         Credit spend                & -0.1115$^{***}$ & -0.0384$^{*}$   & -0.0353$^{*}$\\
-                                     & (0.0082)        & (0.0199)        & (0.0198)\\
-         Month spend                 & 0.0078$^{***}$  & 0.0202$^{***}$  & 0.0194$^{***}$\\
-                                     & (0.0007)        & (0.0013)        & (0.0013)\\
-         Urban                       & 0.0129$^{***}$  & 0.0392          & 0.0368\\
-                                     & (0.0044)        & (0.1268)        & (0.1209)\\
-         Month income ('000)         & -0.0081$^{***}$ & 0.0031          & 0.0022\\
-                                     & (0.0009)        & (0.0019)        & (0.0019)\\
-         Regular income              & -0.1203$^{***}$ & -0.0109$^{*}$   & -0.0258$^{***}$\\
-                                     & (0.0034)        & (0.0064)        & (0.0075)\\
-         Has income in month         & 0.1228$^{***}$  & 0.0180          & 0.0196\\
-                                     & (0.0133)        & (0.0167)        & (0.0166)\\
-         Loan repayment              & -0.0022         & 0.0049          & 0.0025\\
-                                     & (0.0033)        & (0.0085)        & (0.0084)\\
-         (Intercept)                 & 0.2450$^{***}$  &                 &   \\
-                                     & (0.0136)        &                 &   \\
-         \midrule \emph{Fixed-effects} &   &   &  \\
-         User id                     &                 & Yes             & Yes\\
-         Calendar month              &                 &                 & Yes\\
-         \midrule \emph{Fit statistics} &   &   &  \\
-         Observations                & 82,589          & 82,589          & 82,589\\
-         R$^2$                       & 0.19349         & 0.41341         & 0.41652\\
-         Within R$^2$                &                 & 0.03498         & 0.02849\\
-         \midrule\midrule\multicolumn{4}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+         Model:              & (1)              & (2)              & (3)\\  
+         \midrule
+         \emph{Variables}\\
+         entropy\_tag\_sz    & -0.051$^{***}$   & -0.059$^{***}$   & -0.047$^{***}$\\   
+                             & [-0.058; -0.043] & [-0.072; -0.046] & [-0.060; -0.034]\\   
+         entropy\_tag\_z     & 0.104$^{***}$    & 0.105$^{***}$    & 0.081$^{***}$\\   
+                             & [0.092; 0.116]   & [0.084; 0.125]   & [0.060; 0.102]\\   
+         Regular savings     & 0.581$^{***}$    & 0.202$^{***}$    & 0.196$^{***}$\\   
+                             & [0.573; 0.589]   & [0.186; 0.217]   & [0.180; 0.212]\\   
+         Credit spend        & -0.141$^{***}$   & -0.052$^{***}$   & -0.052$^{***}$\\   
+                             & [-0.156; -0.126] & [-0.087; -0.017] & [-0.087; -0.017]\\   
+         Month spend         & 0.009$^{***}$    & 0.019$^{***}$    & 0.019$^{***}$\\   
+                             & [0.008; 0.011]   & [0.017; 0.022]   & [0.016; 0.021]\\   
+         Urban               & 0.006            & 0.010            & -0.002\\   
+                             & [-0.002; 0.015]  & [-0.178; 0.199]  & [-0.189; 0.186]\\   
+         Month income        & -0.018$^{***}$   & 0.007$^{*}$      & 0.005\\   
+                             & [-0.020; -0.016] & [-0.0004; 0.014] & [-0.002; 0.012]\\   
+         Has income in month & 0.089$^{***}$    & 0.038$^{***}$    & 0.035$^{**}$\\   
+                             & [0.067; 0.112]   & [0.011; 0.066]   & [0.007; 0.063]\\   
+         Loan repayment      & -0.010$^{***}$   & 0.001            & 0.0005\\   
+                             & [-0.016; -0.003] & [-0.014; 0.017]  & [-0.015; 0.016]\\   
+         (Intercept)         & 0.232$^{***}$    &                  &   \\   
+                             & [0.208; 0.256]   &                  &   \\   
+         \midrule
+         \emph{Fixed-effects}\\
+         User id             &                  & Yes              & Yes\\  
+         Calendar month      &                  &                  & Yes\\  
+         \midrule
+         \emph{Fit statistics}\\
+         Observations        & 89,169           & 89,169           & 89,169\\  
+         R$^2$               & 0.19330          & 0.42488          & 0.42727\\  
+         Within R$^2$        &                  & 0.03210          & 0.02647\\  
+         \midrule \midrule
+         \multicolumn{4}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
       \end{tabular}
-   \end{footnotesize}
+   \end{threeparttable}
 \end{table}
 
 

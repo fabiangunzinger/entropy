@@ -22,3 +22,12 @@ read_txn_data <- function(sample = 'X77') {
   dt[, date := as.Date(date)]
   return(dt)
 }
+
+# set fontsize of latex table produced by etable
+set_font = function(x, fontsize){
+  if(missing(fontsize)) return(x)
+  dreamerr::check_arg_plus(fontsize, "match(tiny, scriptsize, footnotesize, small, normalsize, large, Large)")
+  x[x == "%start:tab\n"] = paste0("\\begin{", fontsize, "}")
+  x[x == "%end:tab\n"] = paste0("\\end{", fontsize, "}")
+  return(x)
+}

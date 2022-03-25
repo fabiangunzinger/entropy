@@ -6,9 +6,23 @@
 \subsection{New results}%
 \label{sub:new_results}
 
+
+% \foreach \cat in {tag,tag_auto,merchant,groc} {
+%     \input{\tabdir/reg_\cat_full.tex}
+% }
+
+
+\input{\tabdir/reg_entropy_explore.tex}
+
 \foreach \endog in {has_sa_inflows,sa_inflows,sa_netflows,sa_outflows} {
-    \foreach \cat in {tag,tag_auto,merchant,groc} {
-        \input{\tabdir/reg_\endog_\cat.tex}}}
+    \input{\tabdir/reg_\endog_full.tex}
+    \input{\tabdir/reg_\endog_full_nofe.tex}
+    % \input{\tabdir/reg_\endog_full_old.tex}
+}
+
+% \foreach \endog in {has_sa_inflows,sa_inflows,sa_netflows,sa_outflows} {
+%     \foreach \cat in {tag,tag_auto,merchant,groc} {
+%         \input{\tabdir/reg_\endog_\cat.tex}}}
 
 
 \subsection{Effect of entropy on saving}%

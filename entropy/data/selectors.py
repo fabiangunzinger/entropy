@@ -147,7 +147,7 @@ def min_spend_diversity(df):
     user-month, so we require that grocery entropy is not missing, which
     ensures that there is at least a single tagged txn.
     """
-    raw_non_groc_entropies = df.filter(regex="entropy(?!.*_([szn]|groc))")
+    raw_non_groc_entropies = df.filter(regex="entropy(?!.*_([sz]|groc))")
     cond = (raw_non_groc_entropies.min(1).groupby(df.user_id).min() > 0) & (
         df.entropy_groc.notna().groupby(df.user_id).min() == 1
     )

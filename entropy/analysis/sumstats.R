@@ -12,10 +12,14 @@ head(dt)
 
 stargazer(
   dt,
-  title = 'Summary statistics',
-  label = 'tab:sumstats',
-  font.size = 'scriptsize',
-  out = file.path(TABDIR, 'sumstats.tex')
+  digits = 2,
+  summary.stat = c('mean', 'sd', 'min', 'p25', 'median', 'p75', 'max'),
+  type = 'text'
+  
+  # title = 'Summary statistics',
+  # label = 'tab:sumstats',
+  # font.size = 'scriptsize',
+  # out = file.path(TABDIR, 'sumstats.tex')
 )
 
 

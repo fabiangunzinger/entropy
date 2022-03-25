@@ -1,52 +1,59 @@
 
 \begin{table}[htbp]
    \centering
-   \caption{\label{tab:reg_has_sa_inflows_merchant.tex} Main results}
-   \begin{footnotesize}
+   \footnotesize
+   \begin{threeparttable}[b]
+      \caption{\label{tab:reg_has_sa_inflows_merchant.tex} Main results}
       \begin{tabular}{lcccccc}
-         \tabularnewline\midrule\midrule
+         \tabularnewline \midrule \midrule
          Dependent Variable: & \multicolumn{6}{c}{has\_sa\_inflows}\\
-         Model:                           & (1)            & (2)            & (3)            & (4)            & (5)            & (6)\\
-         \midrule \emph{Variables} &   &   &   &   &   &  \\
-         entropy\_merchant               & 0.0288$^{***}$ &                &                &                &                &   \\
-                                          & (0.0076)       &                &                &                &                &   \\
-         entropy\_merchant\_n           &                & 0.2902$^{***}$ &                &                &                &   \\
-                                          &                & (0.0764)       &                &                &                &   \\
-         Entropy (merchant-based)         &                &                & 0.0295$^{***}$ &                &                &   \\
-                                          &                &                & (0.0078)       &                &                &   \\
-         entropy\_merchant\_s           &                &                &                & -0.1107        &                &   \\
-                                          &                &                &                & (0.0750)       &                &   \\
-         entropy\_merchant\_sn          &                &                &                &                & -1.117         &   \\
-                                          &                &                &                &                & (0.7567)       &   \\
-         Entropy (merchant-based, smooth) &                &                &                &                &                & -0.0068\\
-                                          &                &                &                &                &                & (0.0046)\\
-         Regular savings                  & 0.1889$^{***}$ & 0.1889$^{***}$ & 0.1889$^{***}$ & 0.1895$^{***}$ & 0.1895$^{***}$ & 0.1895$^{***}$\\
-                                          & (0.0109)       & (0.0109)       & (0.0109)       & (0.0109)       & (0.0109)       & (0.0109)\\
-         Credit spend                     & -0.0085        & -0.0085        & -0.0085        & -0.0088        & -0.0088        & -0.0088\\
-                                          & (0.0281)       & (0.0281)       & (0.0281)       & (0.0285)       & (0.0285)       & (0.0285)\\
-         Month spend                      & 0.0213$^{***}$ & 0.0213$^{***}$ & 0.0213$^{***}$ & 0.0214$^{***}$ & 0.0214$^{***}$ & 0.0214$^{***}$\\
-                                          & (0.0019)       & (0.0019)       & (0.0019)       & (0.0019)       & (0.0019)       & (0.0019)\\
-         Urban                            & 0.1889$^{*}$   & 0.1889$^{*}$   & 0.1889$^{*}$   & 0.1833$^{*}$   & 0.1833$^{*}$   & 0.1833$^{*}$\\
-                                          & (0.1094)       & (0.1094)       & (0.1094)       & (0.1037)       & (0.1037)       & (0.1037)\\
-         Month income ('000)              & 0.0022         & 0.0022         & 0.0022         & 0.0020         & 0.0020         & 0.0020\\
-                                          & (0.0027)       & (0.0027)       & (0.0027)       & (0.0026)       & (0.0026)       & (0.0026)\\
-         Regular income                   & -0.0237$^{**}$ & -0.0237$^{**}$ & -0.0237$^{**}$ & -0.0237$^{**}$ & -0.0237$^{**}$ & -0.0237$^{**}$\\
-                                          & (0.0099)       & (0.0099)       & (0.0099)       & (0.0099)       & (0.0099)       & (0.0099)\\
-         Has income in month              & 0.0203         & 0.0203         & 0.0203         & 0.0227         & 0.0227         & 0.0227\\
-                                          & (0.0241)       & (0.0241)       & (0.0241)       & (0.0242)       & (0.0242)       & (0.0242)\\
-         Loan repayment                   & -0.0094        & -0.0094        & -0.0094        & -0.0070        & -0.0070        & -0.0070\\
-                                          & (0.0111)       & (0.0111)       & (0.0111)       & (0.0111)       & (0.0111)       & (0.0111)\\
-         \midrule \emph{Fixed-effects} &   &   &   &   &   &  \\
-         User id                          & Yes            & Yes            & Yes            & Yes            & Yes            & Yes\\
-         Calendar month                   & Yes            & Yes            & Yes            & Yes            & Yes            & Yes\\
-         \midrule \emph{Fit statistics} &   &   &   &   &   &  \\
-         Observations                     & 49,636         & 49,636         & 49,636         & 49,636         & 49,636         & 49,636\\
-         R$^2$                            & 0.41889        & 0.41889        & 0.41889        & 0.41857        & 0.41857        & 0.41857\\
-         Within R$^2$                     & 0.02404        & 0.02404        & 0.02404        & 0.02352        & 0.02352        & 0.02352\\
-         \midrule\midrule\multicolumn{7}{l}{\emph{Clustered (User id) standard-errors in parentheses}}\\
+         Model:                  & (1)            & (2)            & (3)            & (4)            & (5)            & (6)\\  
+         \midrule
+         \emph{Variables}\\
+         entropy\_merchant       & 0.0307$^{***}$ &                &                &                &                &   \\   
+                                 & (0.0080)       &                &                &                &                &   \\   
+         entropy\_merchant\_n    &                & 0.3091$^{***}$ &                &                &                &   \\   
+                                 &                & (0.0812)       &                &                &                &   \\   
+         entropy\_merchant\_z    &                &                & 0.0314$^{***}$ &                &                &   \\   
+                                 &                &                & (0.0082)       &                &                &   \\   
+         entropy\_merchant\_s    &                &                &                & -0.1099        &                &   \\   
+                                 &                &                &                & (0.0778)       &                &   \\   
+         entropy\_merchant\_sn   &                &                &                &                & -1.109         &   \\   
+                                 &                &                &                &                & (0.7848)       &   \\   
+         entropy\_merchant\_sz   &                &                &                &                &                & -0.0067\\   
+                                 &                &                &                &                &                & (0.0048)\\   
+         Credit spend            & -0.0082        & -0.0082        & -0.0082        & -0.0081        & -0.0081        & -0.0081\\   
+                                 & (0.0291)       & (0.0291)       & (0.0291)       & (0.0296)       & (0.0296)       & (0.0296)\\   
+         Month spend             & 0.0213$^{***}$ & 0.0213$^{***}$ & 0.0213$^{***}$ & 0.0215$^{***}$ & 0.0215$^{***}$ & 0.0215$^{***}$\\   
+                                 & (0.0019)       & (0.0019)       & (0.0019)       & (0.0020)       & (0.0020)       & (0.0020)\\   
+         Urban                   & 0.1720         & 0.1720         & 0.1720         & 0.1659         & 0.1659         & 0.1659\\   
+                                 & (0.1234)       & (0.1234)       & (0.1234)       & (0.1173)       & (0.1173)       & (0.1173)\\   
+         Month income            & 0.0020         & 0.0020         & 0.0020         & 0.0019         & 0.0019         & 0.0019\\   
+                                 & (0.0028)       & (0.0028)       & (0.0028)       & (0.0027)       & (0.0027)       & (0.0027)\\   
+         Regular income          & 0.0132         & 0.0132         & 0.0132         & 0.0133         & 0.0133         & 0.0133\\   
+                                 & (0.0099)       & (0.0099)       & (0.0099)       & (0.0099)       & (0.0099)       & (0.0099)\\   
+         Has income in month     & 0.0151         & 0.0151         & 0.0151         & 0.0177         & 0.0177         & 0.0177\\   
+                                 & (0.0250)       & (0.0250)       & (0.0250)       & (0.0251)       & (0.0251)       & (0.0251)\\   
+         Loan repayment          & -0.0088        & -0.0088        & -0.0088        & -0.0063        & -0.0063        & -0.0063\\   
+                                 & (0.0119)       & (0.0119)       & (0.0119)       & (0.0119)       & (0.0119)       & (0.0119)\\   
+         \midrule
+         \emph{Fixed-effects}\\
+         User id                 & Yes            & Yes            & Yes            & Yes            & Yes            & Yes\\  
+         Calendar month          & Yes            & Yes            & Yes            & Yes            & Yes            & Yes\\  
+         \midrule
+         \emph{Fit statistics}\\
+         Observations            & 49,636         & 49,636         & 49,636         & 49,636         & 49,636         & 49,636\\  
+         R$^2$                   & 0.40990        & 0.40990        & 0.40990        & 0.40953        & 0.40953        & 0.40953\\  
+         Within R$^2$            & 0.00895        & 0.00895        & 0.00895        & 0.00833        & 0.00833        & 0.00833\\  
+         \midrule \midrule
+         \multicolumn{7}{l}{\emph{Clustered (User id) standard-errors in parentheses}}\\
          \multicolumn{7}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
       \end{tabular}
-   \end{footnotesize}
+      
+      \begin{tablenotes}\footnotesize
+         \item Spend and income variables are in £'000
+      \end{tablenotes}
+   \end{threeparttable}
 \end{table}
 
 

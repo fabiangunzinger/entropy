@@ -26,22 +26,25 @@ set_font = function(x, fontsize){
 }
 setFixest_etable(postprocess.tex = set_font)
 
+
 setFixest_etable(
   se.below = T,
   style.tex = style.tex(
-    "base"
+    main = "base",
+    tpt = TRUE,
+    notes.tpt.intro = '\\footnotesize'
   )
 )
 
 setFixest_dict(c(
   has_reg_sa_inflows = "Regular savings",
   
-  entropy_tag_z = "Entropy (tag-based)",
-  entropy_tag_sz = "Entropy (tag-based, smooth)",
-  entropy_tag_auto_z = "Entropy (auto-tag-based)",
-  entropy_tag_auto_sz = "Entropy (auto-tag-based, smooth)",
-  entropy_merchant_z = "Entropy (merchant-based)",
-  entropy_merchant_sz = "Entropy (merchant-based, smooth)",
+  # entropy_tag_z = "Entropy (tag-based)",
+  # entropy_tag_sz = "Entropy (tag-based, smooth)",
+  # entropy_tag_auto_z = "Entropy (auto-tag-based)",
+  # entropy_tag_auto_sz = "Entropy (auto-tag-based, smooth)",
+  # entropy_merchant_z = "Entropy (merchant-based)",
+  # entropy_merchant_sz = "Entropy (merchant-based, smooth)",
   
   spend_communication = 'Spend communication',
   spend_finance = 'Spend finance',
@@ -59,10 +62,12 @@ setFixest_dict(c(
   is_female = 'Female',
   age = 'Age',
   year_income = 'Year income',
-  month_income = 'Month income (\'000)',
+  month_income = 'Month income',
   has_regular_income = 'Regular income',
   has_month_income = 'Has income in month',
   has_loan_repmt = 'Loan repayment',
+  has_pension = 'Pension',
+  has_benefits = 'Benefits',
   
   user_id = 'User id',
   ym = 'Calendar month'
@@ -71,16 +76,121 @@ setFixest_dict(c(
 
 # Load data ------------------------------------------------------------------------
 
+dto = read_analysis_data('XX7old')
 dt = read_analysis_data()
 names(dt)
 
 
 
-
 # New ------------------------------------------------------------------------------
+note <- "Notes: Spend and income variables are in \\pounds'000."
+endogs = c('has_sa_inflows', 'sa_inflows', 'sa_netflows', 'sa_outflows')
+cats = c('tag', 'tag_auto', 'merchant', 'groc')
+cat_spends <- grep('spend_(?!month)', names(dt), value = T, perl = T)
+controls = c(
+  # fin behaviour
+  'prop_credit',
+  # 'month_spend',
+  cat_spends,
+  # 'txn_count_ca',
+  # 'txn_count_sa',
+  # 'nunique_tag',
+  # planning - tbd
+  # hh / ind chars
+  'is_urban',
+  # 'month_income',
+  'year_income',
+  'has_regular_income',
+  'has_loan_repmt',
+  'has_benefits'
+)
 
-endog = 'has_sa_inflows'
-exog = c('entropy_tag_sz', 'entropy_tag_z')
+endogs = c('has_sa_inflows', 'sa_inflows', 'sa_netflows', 'sa_outflows')
+endogs = c('has_sa_inflows')
+
+for (endog in endogs) {
+  n <- grep(glue('entropy_.*_z'), names(dt), value = T, perl = T)
+  sn <- grep(glue('entropy_.*_sz'), names(dt), value = T, perl = T)
+  exog <- c(n, sn)
+
+  print(etable(
+    fixest::feols(xpd(.[endog] ~ sw(.[,exog]) + ..controls | user_id + ym + region_name, ..controls = controls), data=dt), 
+    title = glue('{endog} results'),
+    order = '[Ee]ntropy',
+    notes = c(note)
+    # tex = T,
+    # fontsize = 'footnotesize',
+    # file=file.path(TABDIR, glue('reg_{endog}_full.tex')),
+    # label = glue('tab:reg_{endog}_full.tex'),
+    # replace = T
+  ))
+}
+
+
+
+# use logs
+
+# setFixest_fml(
+#   ..controls = ~ prop_credit + log1p(spend_communication) + log1p(spend_finance) + log1p(spend_hobbies) + log1p(spend_household) + log1p(spend_motor) + log1p(spend_retail) + log1p(spend_services) + log1p(spend_travel) + log1p(spend_other_spend) + is_urban + log1p(year_income) + has_regular_income + has_loan_repmt + has_benefits
+# )
+
+endogs = c('has_sa_inflows', 'sa_inflows', 'sa_netflows', 'sa_outflows')
+endogs = c('has_sa_inflows')
+
+for (endog in endogs) {
+  n <- grep(glue('entropy_.*_z'), names(dt), value = T, perl = T)
+  sn <- grep(glue('entropy_.*_sz'), names(dt), value = T, perl = T)
+  exog <- c(n, sn)
+  
+  # take logs of flow outcomes
+  if (startsWith(endog, 'has')) {
+    fml <- xpd(.[endog] ~ sw(.[,exog]) + ..controls | user_id + ym + region_name)
+    fml <- xpd(.[endog] ~ sw(.[,exog]) + ..controls | user_id + ym + region_name, ..controls = controls)
+  } else {
+    fml <- xpd(log1p(.[endog]) ~ sw(.[,exog]) + ..controls | user_id + ym + region_name)    
+  }
+
+  print(etable(
+    fixest::feols(fml, data=dt), 
+    title = glue('{endog} results'),
+    order = '[Ee]ntropy',
+    notes = c(note)
+    # tex = T,
+    # fontsize = 'footnotesize',
+    # file=file.path(TABDIR, glue('reg_{endog}_full.tex')),
+    # label = glue('tab:reg_{endog}_full.tex'),
+    # replace = T
+  ))
+}
+
+
+
+
+for (cat in cats) {
+  exog <- grep(glue('entropy_{cat}_n'), names(dt), value = T, perl = T)
+  etable(
+    fixest::feols(
+      xpd(c(has_sa_inflows, sa_inflows, sa_netflows, sa_outflows) 
+          ~ ..exog + ..controls | user_id + ym, ..exog = exog, 
+          ..controls = controls
+      ),
+      data=dt
+    ), 
+    title = glue('{cat} results'),
+    order = '[Ee]ntropy',
+    notes = c(note1),
+    tex = T,
+    fontsize = 'footnotesize',
+    file=file.path(TABDIR, glue('reg_{cat}_full.tex')),
+    label = glue('tab:reg_{cat}_full.tex'),
+    replace = T
+  )
+}
+
+
+
+# replicate old redsults
+
 fin_behav = c(
   'has_reg_sa_inflows',
   'prop_credit',
@@ -97,25 +207,31 @@ hh_chars = c(
 controls = c(fin_behav, planning, hh_chars)
 
 
-# FE specifications
-etable(
-  fixest::feols(
-    xpd(
-      ..endog ~ ..exog + ..controls | csw0(user_id, ym),
-      ..endog = endog,
-      ..controls = controls,
-      ..exog = exog
-    ),
-    data=dt
-  ), 
-  title = 'FE specifications', 
-  order = c('!(Intercept)'),
-  tex = T,
-  file=file.path(TABDIR, 'reg_entropy_savings_fe.tex'),
-  fontsize = 'footnotesize',
-  label = 'tab:reg_entropy_savings_fe',
-  replace = T
-)
+for (endog in endogs) {
+  n <- grep(glue('entropy_.*_n'), names(dt), value = T, perl = T)
+  sn <- grep(glue('entropy_.*_sn'), names(dt), value = T, perl = T)
+  
+  exog = c('entropy_tag_sz', 'entropy_tag_z')
+  etable(
+    fixest::feols(
+      xpd(.[endog] ~ csw(.[,exog]) + ..controls | user_id + ym, 
+          ..controls = controls),
+      data=dt
+    ), 
+    title = glue('{endog} results'),
+    order = '[Ee]ntropy',
+    notes = c(note),
+    tex = T,
+    fontsize = 'footnotesize',
+    file=file.path(TABDIR, glue('reg_{endog}_full_old.tex')),
+    label = glue('tab:reg_{endog}_full.tex'),
+    replace = T
+  )
+}
+
+
+
+
 
 
 

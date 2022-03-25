@@ -251,6 +251,79 @@ Lidl, Waitrose, Iceland, and Ocado, which have a combined market share of 96.5
 percent.
 
 
+\subsection{Control variables}%
+\label{sub:control_variables}
+
+We classify potential determinants of savings behaviour into \textit{financial behaviours},
+\textit{financial planning}, and \textit{individual or household
+characteristics}, a classification frequently used in policy research on
+the financial wellbeing \citep{can2019improving,cfpb2017financial, mps2018building}.
+
+Financial behaviour
+
+\begin{itemize}
+    \item Regular savings, dummy for 10 out of last 12 months
+
+    \item Proportion of purchases paid with credit card. This is only about 6
+        percent in our final sample, whereas it is 12 percent in the full
+        sample.\footnote{Across the UK, the proportion of credit pard purchases
+            is about 17 percent in a typical month \citep{ukfinance2021card}.
+            The proportion in our data is likely lower because the sample is
+        skewed towards more affluent individuals.}
+
+    \item Month total and category spend (category spend for robustness)
+\end{itemize}
+
+Planning
+\begin{itemize}
+    \item Regular login, dummy for 1 / month in 10 out of last 12 months. Have
+        login data for about 50 percent of sample, so best to work with full
+        sample once I use it. Implement once I can do that. -- not yet
+        implemented --
+\end{itemize}
+
+Individual and household characteristics
+\begin{itemize}
+    \item Gender
+
+    \item Age
+
+    \item Urban
+
+    \item Region
+
+    \item Year income, winsorised at the 1 percent level. We include
+        year-rather than month-income because the latter can be quite variable
+        (e.g. irregular work, changing jobs, etc.), and we assume people to
+        base their consumption on their annual income. (Could test this in
+        appendix: is correlation between annual and spend stronger than between
+        monthly and spend?)
+
+    % \item Month income, winsorised at top 1 percent-level.
+
+    \item Regular income, dummy for 10 out of last 12 months
+
+    \item Month income std -- not implemented yet --
+
+    \item Income current month, dummy for month income > 0
+
+    \item Has children, imperfect -- not yet implemented --
+
+    \item Index of multiple deprivations from nspl -- not implemented yet --
+
+    \item Received benefits
+
+    \item Receives pension
+
+    \item Housing tenure: mortgage, rent, other (owning outright implied)
+
+    \item Takes out (payday) loan
+
+    \item Total balance or balance / avg. month spend -- not yet implemented --
+\end{itemize}
+
+
+
 
 \subsection{Summary statistics}%
 \label{par:summary_statistics}
@@ -286,4 +359,10 @@ otherwise, $H_{it}$ is $i$'s spending entropy in month $t$, $x_{i,t}$ a vector
 of control variables, $\alpha_i$ an individual fixed effect, $\lambda_t$ a
 calendar month fixed effect, and $\epsilon_{i, t}$ the error term.
 
+Issues to think about:
+\begin{itemize}
+    \item Unbalanced panel is not random - people using MDB for longer are
+        different. Should we just use first x months for every user? E.g. first
+        year?
+\end{itemize}
 
