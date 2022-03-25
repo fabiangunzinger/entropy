@@ -34,7 +34,7 @@ def txn_count(df):
         df.groupby(group_cols)
         .id.size()
         .rename("txns_count")
-        .pipe(hd.trim, how="upper", pct=5)
+        .pipe(hd.trim, how="upper", pct=1)
         .dropna()
     )
 
@@ -48,7 +48,7 @@ def txn_volume(df):
         abs_amount.groupby(group_cols)
         .sum()
         .rename("txns_volume")
-        .pipe(hd.trim, how="upper", pct=5)
+        .pipe(hd.trim, how="upper", pct=1)
         .dropna()
     )
 
@@ -105,7 +105,7 @@ def income(df):
     Incomes are multiplied by -1 to get positive numbers (credits are negative
     in dataset), and expressed in '000s to ease coefficient comparison.
 
-    `month_income` is sum of income payment in a given month.
+    `month_income_effective` is sum of income payment in a given month.
 
     `year_income` is sum of income payments in calendar year, scaled to
     12-month incomes to account for user-years with incomplete data.
@@ -118,40 +118,40 @@ def income(df):
     """
     is_income_pmt = df.tag_group.eq("income") & ~df.is_debit
     amount = df.amount.where(is_income_pmt, 0).mul(-1)
-
     group_cols = [df.user_id, df.ym]
 
-    month_income = (
+    month_income_effective = (
         amount.groupby(group_cols)
         .sum()
-        .rename("month_income")
+        .rename("month_income_effective")
         .div(1000)
         .pipe(hd.winsorise, pct=1, how="upper")
     )
+    return month_income_effective
 
     user_year = lambda x: (x[0], x[1].year)
     scaled_inc = lambda s: s.sum() / s.size * 12
     year_income = (
-        month_income.groupby(user_year)
+        month_income_effective.groupby(user_year)
         .transform(scaled_inc)
         .rename("year_income")
-        .pipe(hd.winsorise, pct=1, how="upper")
     )
 
-    has_reg_income = (
-        month_income.gt(0)
+    month_income = year_income.div(12).rename('month_income')
+
+    income_variability = (
+        month_income_effective
         .groupby("user_id")
         .rolling(window=12, min_periods=1)
-        .sum()
-        .gt(10)
-        .astype(int)
+        .std()
         .droplevel(0)
-        .rename("has_regular_income")
+        .rename("income_variability")
     )
 
-    has_mt_income = month_income.gt(0).astype(int).rename("has_month_income")
+    has_mt_income = month_income_effective.gt(0).astype(int).rename("has_month_income")
 
-    return pd.concat([month_income, year_income, has_reg_income, has_mt_income], axis=1)
+    return pd.concat([month_income_effective, month_income, year_income,
+                      income_variability, has_mt_income], axis=1)
 
 
 @aggregator
@@ -195,7 +195,7 @@ def savings_accounts_flows(df):
         .abs()
         .unstack()
         .fillna(0)
-        .apply(hd.winsorise, how="upper", pct=5)
+        .apply(hd.winsorise, how="upper", pct=1)
         .assign(
             sa_netflows=lambda df: df.sa_inflows - df.sa_outflows,
             has_sa_inflows=lambda df: (df.sa_inflows > 0).astype(int),
@@ -341,7 +341,7 @@ def month_spend(df):
         .fillna(0)
         .assign(month_spend=lambda df: df.sum(1))
         .div(1000)
-        .apply(hd.winsorise, pct=5, how="upper")
+        .apply(hd.winsorise, pct=1, how="upper")
     )
 
 
