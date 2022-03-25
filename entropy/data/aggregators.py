@@ -127,7 +127,6 @@ def income(df):
         .div(1000)
         .pipe(hd.winsorise, pct=1, how="upper")
     )
-    return month_income_effective
 
     user_year = lambda x: (x[0], x[1].year)
     scaled_inc = lambda s: s.sum() / s.size * 12
@@ -151,7 +150,7 @@ def income(df):
     has_mt_income = month_income_effective.gt(0).astype(int).rename("has_month_income")
 
     return pd.concat([month_income_effective, month_income, year_income,
-                      income_variability, has_mt_income], axis=1)
+                      income_variability, has_mt_income], axis=1).dropna()
 
 
 @aggregator
