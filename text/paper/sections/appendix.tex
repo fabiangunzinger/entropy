@@ -17,78 +17,13 @@ Preprocessing steps
         outliers with the cutoff percentile value) because we believe that
         outliers result from errors in the data rather than represent genuine
         information.
+
     \item Actually, we don't do either of the above. With the harsher selection
         methods, the statistics are very reasonable, which, if anything, would
         suggest using winsorizing. However,
         [this](https://blogs.sas.com/content/iml/2017/02/08/winsorization-good-bad-and-ugly.html)
         article convincingly argues that we shouldn't do that in our case.
-\end{itemize}
 
-
-\subsection{Variable construction}%
-\label{sub:variable_construction}
-
-We classify potential determinants of savings behaviour into \textit{financial behaviours},
-\textit{financial planning}, and \textit{individual or household
-characteristics}, a classification frequently used in policy research on
-the financial wellbeing \citep{can2019improving,cfpb2017financial, mps2018building}.
-
-Financial behaviour
-
-\begin{itemize}
-    \item Regular savings, dummy for 10 out of last 12 months
-
-    \item Proportion of purchases paid with credit card. This is only about 6
-        percent in our final sample, whereas it is 12 percent in the full
-        sample.\footnote{Across the UK, the proportion of credit pard purchases
-            is about 17 percent in a typical month \citep{ukfinance2021card}.
-            The proportion in our data is likely lower because the sample is
-        skewed towards more affluent individuals.}
-
-    \item Month total and category spend (category spend for robustness)
-\end{itemize}
-
-Planning
-\begin{itemize}
-    \item Regular login, dummy for 1 / month in 10 out of last 12 months. Have
-        login data for about 50 percent of sample, so best to work with full
-        sample once I use it. Implement once I can do that. -- not yet
-        implemented --
-\end{itemize}
-
-Individual and household characteristics
-\begin{itemize}
-    \item Gender
-
-    \item Age
-
-    \item Urban
-
-    \item Region
-
-    \item Month income, winsorised at top 1 percent-level.
-
-    \item Year income, winsorised at the 1 percent level.
-
-    \item Regular income, dummy for 10 out of last 12 months
-
-    \item Month income std -- not implemented yet --
-
-    \item Income current month, dummy for month income > 0
-
-    \item Has children, imperfect -- not yet implemented --
-
-    \item Index of multiple deprivations from nspl -- not implemented yet --
-
-    \item Received benefits
-
-    \item Receives pension
-
-    \item Housing tenure: mortgage, rent, other (owning outright implied)
-
-    \item Takes out (payday) loan
-
-    \item Total balance or balance / avg. month spend -- not yet implemented --
 \end{itemize}
 
 
