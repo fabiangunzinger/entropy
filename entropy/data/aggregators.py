@@ -84,7 +84,7 @@ def category_counts(df):
 
 @aggregator
 @hh.timer
-def prop_credit(df):
+def pct_credit(df):
     """Proportion of month spend paid by credit card."""
     group_cols = [df.user_id, df.ym]
 
@@ -94,7 +94,7 @@ def prop_credit(df):
     is_cc_spend = is_spend & df.account_type.eq("credit card")
     cc_spend = df.amount.where(is_cc_spend, np.nan).groupby(group_cols).sum()
 
-    return cc_spend.div(spend).rename("prop_credit")
+    return cc_spend.div(spend).mul(100).rename("pct_credit")
 
 
 @aggregator
@@ -404,6 +404,13 @@ def _entropy_scores(df, norm=False, zscore=False, smooth=False):
     return pd.Series(e, index=df.index)
 
 
+def _cat_count_ssd(df):
+    """Returns sum of squared differences of tag counts.
+
+    """
+    return (df.sub(df.mean(1), axis=0) ** 2).sum(1)
+
+
 @aggregator
 @hh.timer
 def cat_based_entropy(df):
@@ -422,6 +429,7 @@ def cat_based_entropy(df):
                 _entropy_scores(base_values, smooth=True, zscore=True).rename(
                     f"entropy_{cat}_sz"
                 ),
+                _cat_count_ssd(base_values).rename(f"ssd_{cat}"),
             ]
         )
     return pd.concat(scores, axis=1)
