@@ -29,7 +29,7 @@ def year_income(df, min_income=10_000):
 
 @validator
 def savings_account(df):
-    assert df.groupby('user_id').txn_count_sa.max().gt(0).all()
+    assert df.groupby('user_id').txns_count_sa.max().gt(0).all()
     return df
 
 
@@ -47,7 +47,7 @@ def month_min_spend(df, min_spend=200):
 
 @validator
 def month_min_ca_txns(df):
-    assert df.txn_count_ca.min() >= 5
+    assert df.txns_count_ca.min() >= 5
     return df
 
 

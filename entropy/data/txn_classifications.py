@@ -4,6 +4,7 @@ tag_groups = {
         'bond income',
         'bursary',
         'dividend',
+        'expenses',
         'family benefits',
         'incapacity benefits',
         'interest income',
@@ -15,9 +16,12 @@ tag_groups = {
         'other benefits',
         'pension - other',
         'pension',
+        'payday loan funds',
         'rental income (room)',
         'rental income (whole property)',
         'rental income',
+        'refunded purchase',
+        'rewards/cashback',
         'salary (secondary)',
         'salary or wages (main)',
         'salary or wages (other)',
@@ -80,7 +84,6 @@ tag_groups = {
         'energy (gas, elec, other)',
         'enjoyment',
         'entertainment, tv, media',
-        'expenses',
         'eye care',
         'financial - other',
         'fines',
@@ -144,7 +147,6 @@ tag_groups = {
         'one-off or other',
         'parking or tolls',
         'parking',
-        'payday loan funds',
         'payday loan',
         'payment protection insurance',
         'penalty charges',
@@ -161,10 +163,8 @@ tag_groups = {
         'postage / shipping',
         'printing',
         'public transport',
-        'refunded purchase',
         'rent',
         'repayments',
-        'rewards/cashback',
         'road charges',
         'school fees',
         'secured loan repayment',
@@ -444,7 +444,6 @@ spend_subgroups = {
         'device rental',
         'donation to organisation',
         'electrical equipment',
-        'expenses',
         'gifts - other',
         'gifts or presents',
         'one-off or other',
@@ -482,9 +481,12 @@ income_subgroups = {
     ],
 
     'other_income': [
+        'expenses',
         'rental income (whole property)',
         'rental income (room)',
         'rental income',
+        'refunded purchase',
+        'rewards/cashback',
         'irregular income or gifts',
         'miscellaneous income - other',
         'investment income - other',
@@ -492,10 +494,279 @@ income_subgroups = {
         'bond income',
         'interest income',
         'dividend',
+        'payday loan funds',
         'student loan funds',
         'winnings',
         'bursary',
     ],
 }
 
+tag_spend = {
+    'accessories': [
+        'accessories',
+    ],
+    'administration': [
+        'administration - other',
+    ],
+    'alcohol': [
+        'alcohol',
+    ],
+    'personal care': [
+        'appearance',
+        'beauty treatments',
+        'personal care - other',
+        'toiletries',
+        'hairdressing',
+        'hairdressing, health, other',
+        'beauty products',
+        'spa',
+    ],
+    'appliances': [
+        'appliances or electrical',
+        'electrical equipment',
+        'personal electronics',
+    ],
+    'art': [
+        'art',
+    ],
+    'bank charges': [
+        'bank charges',
+        'penalty charges',
+        'banking charges',
+        'interest charges',
+    ],
+    'reading': [
+        'books / magazines / newspapers',
+    ],
+    'insurance': [
+        'breakdown cover',
+        'contents or other insurance',
+        'health insurance',
+        'dental insurance',
+        'mobile phone insurance',
+        'life insurance',
+        'income insurance',
+        'home appliance insurance',
+        'home insurance',
+        'insurance - other',
+        'insurance',
+        'motorbike insurance',
+        'payment protection insurance',
+        'pet insurance',
+    ],
+    'business expenses': [
+        'business expenses',
+        'tradesmen fees',
+        'bills',   # mostly business pmt facilitators
+    ],
+    'vehicle': [
+        'car fund',
+        'hire purchase',
+        'service / parts / repairs',
+        'vehicle insurance',
+        'vehicle running costs',
+        'vehicle tax',
+        'vehicle',
+        'transport',   # mainly pmts to car manufacturers
+        'coal/oil/lpg/other',   # seems to be mostly car fuel
+        'fuel',
+        'driving lessons',
+        'road charges',
+        'parking',
+        'parking or tolls',
+    ],
+    'vehicle hire': [
+        'vehicle hire',
+    ],
+    'cash': [
+        'cash',
+    ],
+    'charity': [
+        'charity - other',
+        'donation to organisation',
+    ],
+    'children': [
+        'child - clothes',
+        'child - everyday or childcare',
+        'child - toys, clubs or other',
+        'children - other',
+        'childrens club fees',
+        'toys',
+        'school fees',
+    ],
+    'childcare': [
+        'childcare fees',
+    ],
+    'entertainment': [
+        'cinema',
+        'sports event',
+        'zoo/theme park',
+        'concert & theatre',
+        'museum/exhibition',
+    ],
+    'clothes and shoes': [
+        'clothes - designer or other',
+        'clothes - everyday or work',
+        'clothes - other',
+        'clothes',
+        'designer clothes',
+        'shoes',
+    ],
+    'taxes': [
+        'council tax',
+        'tax payment',
+    ],
+    'education': [
+        'course and tuition fees',
+        'education - other',
+    ],
+    'eating out': [
+        'dining and drinking',
+        'dining or going out',
+        'lunch or snacks',
+        'take-away',
+    ],
+    'diy': [
+        'diy',
+        'device rental',   # mostly hss hire
+        'home diy or repairs',
+    ],
+    'energy and water': [
+        'electricity',
+        'energy (gas, elec, other)',
+        'gas and electricity',
+        'gas',
+        'water',
+    ],
+    'entertainment, tv, media': [
+        'entertainment, tv, media',
+        'lifestyle - other',   # mainly hmv
+        'media bundle',
+        'tv / movies package',
+        'tv licence',
+        'broadband',
+        'music',
+        'software',
+        'web hosting',
+        'games and gaming',
+    ],
+    'financial': [
+        'financial - other',
+        'repayments',
+        'sharedealing account',
+    ],
+    'fines': [
+        'fines',
+    ],
+    'flights': [
+        'flights',
+    ],
+    'flowers': [
+        'flowers',
+    ],
+    'groceries': [
+        'food, groceries, household',
+        'groceries',
+        'supermarket',
+    ],
+    'home': [
+        'furniture',
+        'furniture, furnishing, gardens',
+        'home',
+        'household - other',   # mainly adt collections home security
+        'lighting',
+    ],
+    'gambling': [
+        'gambling',
+    ],
+    'garden': [
+        'garden',
+        'home and garden - other',
+    ],
+    'gifts': [
+        'gifts - other',
+        'gifts or presents',
+    ],
+    'sports': [
+        'gym membership',
+        'social club',
+        'sports club membership',
+        'sports equipment',
+        'cycling',
+    ],
+    'hobbies': [
+        'art supplies',
+        'hobbies - other',
+        'hobbies or activities',
+        'hobby club membership',
+        'hobby supplies',
+        'memberships',
+        'musical equipment',
+        'photography',
+    ],
+    'holidays': [
+        'holidays',
+        'holiday',
+        'hotel/b&b',
+    ],
+    'jewellery': [
+        'jewellery',
+    ],
+    'legal': [
+        'legal',
+    ],
+    'health care': [
+        'dental treatment',
+        'eye care',
+        'medical treatment',
+        'medical, dental, eye care',
+        'physiotherapy',
+    ],
+    'phone and mobile': [
+        'mobile',
+        'mobile app',
+        'phone (landline)',
+        'phone or internet',
+    ],
+    'housing': [
+        'mortgage or rent',   # almost exclusively mortgage payments
+        'mortgage payment',
+        'rent',
+    ],
+    'mortgage release': [
+        'mortgage release',
+    ],
+    'household': [
+        'enjoyment',   # mainly paypal
+        'one-off or other payment',
+        'one-off or other',
+        'store card repayment',   # mainly small argos amounts
+        'dry cleaning and laundry',
+    ],
+    'office':[
+        'postage / shipping',
+        'printing',
+        'stationery',
+        'stationery & consumables',
+    ],
+    'pet': [
+        'pet - everyday or food',
+        'pet - toys, training, other',
+        'vet',
+    ],
+    'public transport': [
+        'public transport',
+    ],
+    'loan repayment': [
+        'secured loan repayment',
+        'unsecured loan repayment',
+        'student loan repayment',
+        'payday loan',
+        'personal loan',
+    ],
+    'taxi': [
+        'taxi',
+        'taxis or vehicle hire',
+    ],
+}
 

@@ -28,7 +28,7 @@ def aggregator(func):
 
 @aggregator
 @hh.timer
-def txn_count(df):
+def txns_count(df):
     group_cols = [df.user_id, df.ym]
     return (
         df.groupby(group_cols)
@@ -55,7 +55,15 @@ def txn_volume(df):
 
 @aggregator
 @hh.timer
-def txn_counts_by_account_type(df):
+def spend_txns_count(df):
+    is_spend = df.tag_group.eq("spend") & df.is_debit
+    group_cols = [df.user_id, df.ym]
+    return is_spend.groupby(group_cols).sum().rename("txns_count_spend")
+
+
+@aggregator
+@hh.timer
+def txns_counts_by_account_type(df):
     group_cols = [df.user_id, df.ym, df.account_type]
     return (
         df.groupby(group_cols, observed=True)
@@ -63,15 +71,15 @@ def txn_counts_by_account_type(df):
         .unstack()
         .fillna(0)
         .loc[:, ["savings", "current"]]
-        .rename(columns=lambda x: f"txn_count_{x[0]}a")
+        .rename(columns=lambda x: f"txns_count_{x[0]}a")
     )
 
 
 @aggregator
 @hh.timer
-def category_counts(df):
+def category_nunique(df):
     is_spend = df.tag_group.eq("spend") & df.is_debit
-    cat_vars = ["tag", "tag_auto", "merchant"]
+    cat_vars = ["tag", "tag_spend", "merchant"]
     group_cols = [df.user_id, df.ym]
     return (
         df[cat_vars]
@@ -136,11 +144,10 @@ def income(df):
         .rename("year_income")
     )
 
-    month_income = year_income.div(12).rename('month_income')
+    month_income = year_income.div(12).rename("month_income")
 
     income_variability = (
-        month_income_effective
-        .groupby("user_id")
+        month_income_effective.groupby("user_id")
         .rolling(window=12, min_periods=1)
         .std()
         .droplevel(0)
@@ -149,8 +156,16 @@ def income(df):
 
     has_mt_income = month_income_effective.gt(0).astype(int).rename("has_month_income")
 
-    return pd.concat([month_income_effective, month_income, year_income,
-                      income_variability, has_mt_income], axis=1).dropna()
+    return pd.concat(
+        [
+            month_income_effective,
+            month_income,
+            year_income,
+            income_variability,
+            has_mt_income,
+        ],
+        axis=1,
+    ).dropna()
 
 
 @aggregator
@@ -324,28 +339,6 @@ def region(df):
 
 @aggregator
 @hh.timer
-def month_spend(df):
-    """Spend per tag and total spend per user-month.
-
-    Expressed in '000s to ease coefficient comparison.
-    """
-    is_spend = df.tag_group.eq("spend") & df.is_debit
-    spend = df.amount.where(is_spend, np.nan)
-    tag = df.tag.where(is_spend, np.nan).cat.rename_categories(lambda x: "spend_" + x)
-    group_cols = [df.user_id, df.ym, tag]
-    return (
-        spend.groupby(group_cols, observed=True)
-        .sum()
-        .unstack()
-        .fillna(0)
-        .assign(month_spend=lambda df: df.sum(1))
-        .div(1000)
-        .apply(hd.winsorise, pct=1, how="upper")
-    )
-
-
-@aggregator
-@hh.timer
 def overdraft_fees(df):
     """Dummy for whether overdraft fees were paid."""
     pattern = r"(?:od|o/d|overdraft).*(?:fee|interest)"
@@ -353,6 +346,49 @@ def overdraft_fees(df):
     od_fees = df.id.where(is_od_fee, np.nan)
     group_cols = [df.user_id, df.ym]
     return od_fees.groupby(group_cols).count().gt(0).astype(int).rename("has_od_fees")
+
+
+@aggregator
+@hh.timer
+def month_spend(df):
+    """Total monthly spend.
+
+    Expressed in £'000s to ease coefficient comparison.
+    """
+    is_spend = df.tag_group.eq("spend") & df.is_debit
+    spend = df.amount.where(is_spend, np.nan)
+    group_cols = [df.user_id, df.ym]
+    return (
+        spend.groupby(group_cols)
+        .sum()
+        .div(1000)
+        .pipe(hd.winsorise, pct=1, how="upper")
+        .rename("month_spend")
+    )
+
+
+@aggregator
+@hh.timer
+def month_cat_spend(df):
+    """Monthly spend per category.
+
+    Expressed in £'000s to ease coefficient comparison.
+    """
+    is_spend = df.tag_group.eq("spend") & df.is_debit
+    spend = df.amount.where(is_spend, np.nan)
+    cols = ["tag", "tag_spend"]
+    frames = []
+    for col in cols:
+        c = (
+            df[col]
+            .where(is_spend, np.nan).cat
+            .rename_categories(lambda x: f"spend_{col}_" + x.replace(' ', '_'))
+        )
+        group_cols = [df.user_id, df.ym, c]
+        frames.append(
+            spend.groupby(group_cols, observed=True).sum().unstack()
+        )
+    return pd.concat(frames, join='inner', axis=1).fillna(0).div(1000)
 
 
 def _entropy_base_values(df, cat, stat="size", wknd=False):
@@ -405,9 +441,7 @@ def _entropy_scores(df, norm=False, zscore=False, smooth=False):
 
 
 def _cat_count_ssd(df):
-    """Returns sum of squared differences of tag counts.
-
-    """
+    """Returns sum of squared differences of tag counts."""
     return (df.sub(df.mean(1), axis=0) ** 2).sum(1)
 
 
@@ -415,7 +449,7 @@ def _cat_count_ssd(df):
 @hh.timer
 def cat_based_entropy(df):
     """Calculate entropy based on category txn base values."""
-    cats = ["tag", "tag_auto", "merchant"]
+    cats = ["tag", "tag_spend", "merchant"]
     scores = []
     for cat in cats:
         base_values = _entropy_base_values(df, cat, stat="size")

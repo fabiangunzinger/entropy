@@ -77,7 +77,7 @@ def regular_income(df, income_months_ratio=2 / 3):
 @counter
 def savings_account(df):
     """At least one savings account"""
-    cond = df.groupby("user_id").txn_count_sa.max().gt(0)
+    cond = df.groupby("user_id").txns_count_sa.max().gt(0)
     users = cond[cond].index
     return df[df.user_id.isin(users)]
 
@@ -110,7 +110,7 @@ def month_min_spend(df, min_spend=200):
 def month_min_ca_txns(df, min_txns=5):
     """Five or more monthly current account txns"""
     cond = (
-        df.groupby("user_id").txn_count_ca.apply(lambda x: x.min(skipna=False))
+        df.groupby("user_id").txns_count_ca.apply(lambda x: x.min(skipna=False))
         >= min_txns
     )
     users = cond[cond].index
