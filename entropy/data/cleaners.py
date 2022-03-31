@@ -151,7 +151,7 @@ def zero_balances_to_missing(df):
     return df
 
 
-def _apply_grouping(grouping, df, col_name):
+def _apply_grouping(df, col_name, grouping):
     """Applies grouping to col_name in dataframe in-place.
 
     Args:
@@ -175,9 +175,9 @@ def _apply_grouping(grouping, df, col_name):
 def add_tag(df):
     """Creates custom transaction tags for spends, income, and transfers."""
     df["tag"] = np.nan
-    _apply_grouping(tc.spend_subgroups, df, "tag")
-    _apply_grouping(tc.income_subgroups, df, "tag")
-    _apply_grouping(tc.transfers_subgroups, df, "tag")
+    _apply_grouping(df, "tag", tc.spend_subgroups)
+    _apply_grouping(df, "tag", tc.income_subgroups)
+    _apply_grouping(df, "tag", tc.transfers_subgroups)
     df["tag"] = df.tag.astype("category")
     return df
 
@@ -221,7 +221,7 @@ def tag_corrections(df):
 def add_tag_group(df):
     """Groups transactions into income, spend, and transfers."""
     df["tag_group"] = np.nan
-    _apply_grouping(tc.tag_groups, df, "tag_group")
+    _apply_grouping(df, "tag_group", tc.tag_groups)
     df["tag_group"] = df.tag_group.astype("category")
     return df
 
