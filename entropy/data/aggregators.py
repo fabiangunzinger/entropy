@@ -151,7 +151,7 @@ def income(df):
         .rolling(window=12, min_periods=1)
         .std()
         .droplevel(0)
-        .rename("income_variability")
+        .rename("income_var")
     )
 
     has_mt_income = month_income_effective.gt(0).astype(int).rename("has_month_income")
@@ -267,7 +267,7 @@ def has_rent_payments(df):
         .count()
         .gt(0)
         .astype(int)
-        .rename("has_rent_payment")
+        .rename("has_rent_pmt")
     )
 
 
@@ -290,7 +290,7 @@ def has_mortgage_payments(df):
         .count()
         .gt(0)
         .astype(int)
-        .rename("has_mortgage_payment")
+        .rename("has_mortgage_pmt")
     )
 
 
