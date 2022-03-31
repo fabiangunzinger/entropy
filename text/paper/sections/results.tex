@@ -3,73 +3,22 @@
 \section{Results}%
 \label{sec:results}
 
-\subsection{New results}%
+\subsection{Main results}%
 \label{sub:new_results}
 
+\begin{landscape}
+    \foreach \endog in {has_sa_inflows,sa_inflows,sa_netflows,sa_outflows} {
+            \input{\tabdir/reg_\endog.tex}
+            \input{\tabdir/reg_\endog_s.tex}
+        }
+\end{landscape}
 
-% \foreach \cat in {tag,tag_auto,merchant,groc} {
-%     \input{\tabdir/reg_\cat_full.tex}
-% }
 
+\newpage
+\subsection{Exploration}%
+\label{sub:exploration}
 
 \input{\tabdir/reg_entropy_explore.tex}
-
-\foreach \endog in {has_sa_inflows,sa_inflows,sa_netflows,sa_outflows} {
-    \input{\tabdir/reg_\endog_full.tex}
-    \input{\tabdir/reg_\endog_full_nofe.tex}
-    % \input{\tabdir/reg_\endog_full_old.tex}
-}
-
-% \foreach \endog in {has_sa_inflows,sa_inflows,sa_netflows,sa_outflows} {
-%     \foreach \cat in {tag,tag_auto,merchant,groc} {
-%         \input{\tabdir/reg_\endog_\cat.tex}}}
-
-
-\subsection{Effect of entropy on saving}%
-\label{sub:effect_of_entropy_on_saving}
-
-Entropy measures are calculated based on the probability of occurrence of a
-pattern within a user month. Implicitly, this assumes that move diverse
-spending reflects more chaotic behaviour. The outcome variable is a dummy
-indicating whether a user made at least one transfer into their savings account
-in a given month.
-
-\begin{itemize}
-
-    \item Table~\ref{tab:reg_entropy_savings_fe} shows results with a full set
-        of controls for different FE specifications.
-        Table~\ref{tab:reg_entropy_savings_obo} summarises shows controls added
-        cumulatively.
-
-    \item For smoothed entropy, the results are as hypothesised: higher entropy
-        is strongly and robustly associated with a lower probability of making
-        a savings transaction.
-
-    \item Curiously, though, unsmoothed entropy is even more strongly but
-        positively related to making a savings transaction.
-
-    \item Figure~\ref{fig:entropy_tag_vs_nunique} shows that smoothing
-        increases entropy scores for those profiles with txns in few unique
-        categories (the reason is that a low number of unique categories
-        implies a high number of categories with zero counts, and smoothing
-        reverses the implication of zero counts from 'zero entropy' to 'max
-        entropy').
-
-    \item Smoothed entropy is high when the number of unique categories is low
-        (and zero categories high), and it is negatively related to saving.
-        Hence: user-months with spends across few categories are less likely to
-        save.
-
-        Unsmoothed entropy is high when spends across categories are equal and
-        the total number of spends is high.
-
-\end{itemize}
-
-\input{\tabdir/reg_entropy_savings_fe.tex}
-
-\begin{landscape}
-    \input{\tabdir/reg_entropy_savings_obo.tex}
-\end{landscape}
 
 \begin{figure}[H]
     \caption{Entropy and unique tags}
