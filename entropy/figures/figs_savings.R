@@ -1,77 +1,90 @@
 setwd('~/dev/projects/entropy/entropy/analysis')
 source('helpers.R')
 
+library(ggdist)
 library(ggplot2)
+library(ggthemr)
 library(lubridate)
 library(patchwork)
 library(plyr)
+library(stringr)
 
+ggthemr('fresh')
 theme_set(theme_minimal())
+theme_update(
+  plot.caption = element_text(hjust = 0),
+  plot.tag = element_text(size = 8)
+)
 
 FIGDIR = '/Users/fgu/dev/projects/entropy/output/figures' 
-
-dt <- read_analysis_data()
-
-
-
-
-
-# Savings --------------------------------------------------------------------------
-
-dt <- read_txn_data(SAMLE)
-
-# savings txns of users in final sample
-dta <-  read_analysis_data(SAMPLE)
-final_sample <- unique(dta$user_id)
-dt <- dt[user_id %in% final_sample,]
-savings <- dt[is_sa_flow == 1 & is_debit == FALSE]
-setorderv(savings, c('user_id', 'date'))
-
-# Number of days since last savings txns (remove outliers)
-savings[, date_diff := difftime(date, shift(date), units = 'days'), user_id]
-savings <- savings[, .SD[(date_diff < quantile(date_diff, probs = .95, na.rm = T)) & (date_diff > 1)]]
-summary(savings)
-
 
 txns_label <- 'Number of transactions'
 
 
-g <- ggplot(savings)
+dt <- read_final_users_data()[is_sa_flow == T & is_debit == F]
+dta <- read_analysis_data()
 
-p1 <- g +
+# dev
+
+ggplot(dta) +
+  geom_histogram(aes(sa_inflows + 1))
+
+ggplot(dta, aes(log(month_income * 1000), log(month_spend * 1000))) +
+  geom_point(shape = '.') +
+  geom_smooth()
+
+
+
+# end dev
+
+
+moy <- ggplot(dt) +
   geom_bar(aes(month(date, label = T))) +
   labs(
     x = 'Month of year',
     y = txns_label
   )
+moy
 
-p2 <- g +
+dom <- ggplot(dt) +
   geom_bar(aes(day(date))) +
   labs(
     x = 'Day of month',
     y = txns_label
   )
+dom
 
-amounts <- savings[, .N, -amount][order(-N)][1:10]
-p3 <- ggplot(amounts) +
+d <- dt[, .N, -amount][order(-N)][1:10]
+amounts <- ggplot(d) +
   geom_bar(aes(N, reorder(factor(amount), N)), stat = 'identity') +
   labs(
     x = txns_label,
     y = 'Amount'
   )
+amounts
 
-p4 <- g +
-  geom_bar(aes(factor(date_diff))) +
+
+cap <- 'Notes: number of days since last transfer into savings account. Number of transactions with delay of more than 35 days are fewer than 5 percent and are not shown.'
+dt <- dt[, ddate := difftime(date, shift(date), units = 'days'), user_id]
+ddate <- ggplot(dt[ddate <= 35]) +
+  geom_bar(aes(factor(ddate))) +
   labs(
-    x = 'Days since last savings txns',
-    y = txns_label
+    x = 'Days since last savings account transfer',
+    y = txns_label,
+    caption = cap
   )
+ddate
 
 
-p1 + p2 + p3 + p4 + plot_layout(ncol = 2) & theme_minimal()
+pw <- moy + dom + amounts + ddate 
+pw + plot_layout(ncol = 2)
+ggsave(file.path(FIGDIR, 'savings.png'))
 
 
-dd <- savings[, .(user_id, date, amount, desc, account_id, date_diff)]
+
+
+
+
 
 
 
@@ -126,29 +139,3 @@ ggsave(file.path(FIGDIR, 'entropy_hists.png'))
 # look into using height and width params
 
 
-
-# Variable densities ---------------------------------------------------------------
-
-facet_kdes <- function(regex, ncol = 3) {
-  vars <- grep(regex, names(dt), value = T, perl = T)
-  data <- melt(dt[, ..vars], measure.vars = vars)
-  ggplot(data) +
-    geom_density(aes(value)) +
-    facet_wrap(~variable, ncol = ncol, scales = 'free')
-}
-
-# txn counts
-facet_kdes('txn_count')
-
-# saving accounts flows
-facet_kdes('^sa_.*flows$')
-
-# tag spends
-facet_kdes('spend')
-
-# income vars
-facet_kdes('income')
-
-# entropy
-facet_kdes('entropy(?!.*z$)', ncol = 2)
-ggsave(file.path(FIGDIR, 'entropy_kdes.png'))

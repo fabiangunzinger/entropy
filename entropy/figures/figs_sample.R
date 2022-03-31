@@ -2,10 +2,12 @@ setwd('~/dev/projects/entropy/entropy/analysis')
 source('helpers.R')
 
 library(ggplot2)
+library(ggthemr)
 library(lubridate)
 library(patchwork)
 library(plyr)
 
+ggthemr('fresh')
 theme_set(theme_minimal())
 
 FIGDIR = '/Users/fgu/dev/projects/entropy/output/figures' 
@@ -24,7 +26,7 @@ income <- base +
   geom_density(aes(year_income)) +
   scale_x_continuous(labels = scales::comma) +
   labs(
-    x = 'Annual income',
+    x = 'Annual income (£)',
     y = 'Density'
   )
   
@@ -45,8 +47,8 @@ reorder_size <- function(x) {
 }
 
 region <- base +
-  geom_bar(aes(x = (..count..) / sum(..count..), y = reorder_size(`region_name`))) +
-  scale_x_continuous(labels = scales::percent) +
+  geom_point(aes(x = (..count..) / sum(..count..), y = reorder_size(`region_name`))) +
+  # scale_x_continuous(labels = scales::percent) +
   labs(
     x = 'Percent',
     y = 'Region'

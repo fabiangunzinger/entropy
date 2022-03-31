@@ -12,14 +12,12 @@ head(dt)
 
 stargazer(
   dt,
-  digits = 2,
   summary.stat = c('mean', 'sd', 'min', 'p25', 'median', 'p75', 'max'),
-  type = 'text'
+  # type = 'text'
+  notes = 'tbd: list variables on which we applied a 1% winsorisation.'
   
-  # title = 'Summary statistics',
-  # label = 'tab:sumstats',
-  # font.size = 'scriptsize',
-  # out = file.path(TABDIR, 'sumstats.tex')
+  title = 'Summary statistics',
+  label = 'tab:sumstats',
+  font.size = 'scriptsize',
+  out = file.path(TABDIR, 'sumstats.tex')
 )
-
-

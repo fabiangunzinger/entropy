@@ -26,4 +26,49 @@
 \end{itemize}
 
 
+\citet{diclemente2018sequences}
+\begin{itemize}
+    \item Nice visualisation of purchasing patterns in figure 1.
+\end{itemize}
 
+
+\citet{hut2022changes}
+\begin{itemize}
+    \item First show that neither illnesses associated with poor diet not other
+        life circumstances cause changes in diet despite the fact that the
+        average diet in the sample is quite poor.
+
+    \item Second part: identify households that do change diet, then ask 1) is
+        behaviour change predictable based on life circumstances, baseline
+        behaviour, or demographics?, and 2) how do hhs change their behaviour
+        (e.g. what food groups are most susceptible to change)?. For 1) they
+        use ml (random forest).
+\end{itemize}
+
+What I could do:
+
+\begin{itemize}
+    \item Create statistics to summarise spending and savings behaviour. Total
+        spend for spend, net save for saving. (How consistent are they within
+        users?)
+
+    \item Identify users who change (reduce spending by a lot and/or increase
+        savings).
+
+    \item Characterise change and try to predict it.
+
+    \item Actually, just focus on savings first, since this is the main policy
+        variable.
+\end{itemize}
+
+What I need for this to work:
+\begin{itemize}
+    \item Spend and savings behaviour should be consistent over time for most
+        users most of the time.
+
+    \item There should be at least some users for whom we observe changes.
+
+    \item If these two are true, then I can't loose, since I'll be able to
+        characterise changes (even if they are different across users) and not
+        being able to predict changes is itself informative.
+\end{itemize}

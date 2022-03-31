@@ -23,6 +23,15 @@ read_txn_data <- function(sample = 'X77') {
   return(dt)
 }
 
+read_final_users_data <- function(sample='X77') {
+  # cannot load txn data for full sample into memory, so using txns
+  # from users in sample that are part of the final analysis data
+  dta <- read_analysis_data()
+  dtt <- read_txn_data(sample)
+  dta_users <- unique(dta$user_id)
+  dt <- dtt[user_id %in% dta_users]
+}
+
 # set fontsize of latex table produced by etable
 set_font = function(x, fontsize){
   if(missing(fontsize)) return(x)
