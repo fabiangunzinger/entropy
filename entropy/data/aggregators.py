@@ -55,24 +55,6 @@ def txn_volume(df):
 
 @aggregator
 @hh.timer
-def spend_txns_count(df):
-    is_spend = df.tag_group.eq("spend") & df.is_debit
-    group_cols = [df.user_id, df.ym]
-    return is_spend.groupby(group_cols).sum().rename("txns_count_spend")
-
-
-@aggregator
-@hh.timer
-def category_spend_txns_count(df):
-    is_spend = df.tag_group.eq("spend") & df.is_debit
-    tag_names = df.tag_spend.cat.rename_categories(
-        lambda x: "count_" + x.replace(" ", "_")
-    )
-    return is_spend.groupby([df.user_id, df.ym, tag_names]).sum().unstack()
-
-
-@aggregator
-@hh.timer
 def txns_counts_by_account_type(df):
     group_cols = [df.user_id, df.ym, df.account_type]
     return (
@@ -379,26 +361,33 @@ def month_spend(df):
 
 @aggregator
 @hh.timer
-def month_cat_spend(df):
-    """Monthly spend per category.
+def month_spend_txn_value_and_counts(df):
+    """Monthly value and count of spend txns per category.
 
-    Expressed in £'000s to ease coefficient comparison.
+    Spend value expressed in £'000s to ease coefficient comparison.
     """
     is_spend = df.tag_group.eq("spend") & df.is_debit
-    spend = df.amount.where(is_spend, np.nan)
-    cols = ["tag", "tag_spend"]
-    frames = []
-    for col in cols:
-        c = (
-            df[col]
-            .where(is_spend, np.nan).cat
-            .rename_categories(lambda x: f"spend_{col}_" + x.replace(' ', '_'))
-        )
-        group_cols = [df.user_id, df.ym, c]
-        frames.append(
-            spend.groupby(group_cols, observed=True).sum().unstack()
-        )
-    return pd.concat(frames, join='inner', axis=1).fillna(0).div(1000)
+    spend_amount = df.amount.where(is_spend, np.nan)
+    group_cols = [df.user_id, df.ym, df.tag_spend]
+
+    spend = (
+        spend_amount.groupby(group_cols, observed=True)
+        .sum()
+        .unstack()
+        .rename(columns=lambda x: 'spend_' + x.replace(' ', '_'))
+        .fillna(0)
+        .div(1000)
+    )
+    
+    counts = (
+        spend_amount.groupby(group_cols, observed=True)
+        .count()
+        .unstack()
+        .rename(columns=lambda x: 'count_' + x.replace(' ', '_'))
+        .fillna(0)
+    )
+
+    return pd.concat([spend, counts], join="inner", axis=1)
 
 
 def _entropy_base_values(df, cat, stat="size", wknd=False):
