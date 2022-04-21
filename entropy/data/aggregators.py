@@ -63,6 +63,16 @@ def spend_txns_count(df):
 
 @aggregator
 @hh.timer
+def category_spend_txns_count(df):
+    is_spend = df.tag_group.eq("spend") & df.is_debit
+    tag_names = df.tag_spend.cat.rename_categories(
+        lambda x: "count_" + x.replace(" ", "_")
+    )
+    return is_spend.groupby([df.user_id, df.ym, tag_names]).sum().unstack()
+
+
+@aggregator
+@hh.timer
 def txns_counts_by_account_type(df):
     group_cols = [df.user_id, df.ym, df.account_type]
     return (
@@ -431,7 +441,7 @@ def _entropy_scores(df, norm=False, zscore=False, smooth=False):
     if smooth:
         probs = (df + 1).div(row_totals + num_unique, axis=0)
     else:
-        probs = (df).div(row_totals, axis=0)
+        probs = df.div(row_totals, axis=0)
     e = stats.entropy(probs, base=2, axis=1)
     if norm:
         e = e / np.log2(num_unique)
@@ -441,7 +451,7 @@ def _entropy_scores(df, norm=False, zscore=False, smooth=False):
 
 
 def _cat_count_ssd(df):
-    """Returns sum of squared differences of tag counts."""
+    """Returns sum of squared differences from mean of tag counts."""
     return (df.sub(df.mean(1), axis=0) ** 2).sum(1)
 
 

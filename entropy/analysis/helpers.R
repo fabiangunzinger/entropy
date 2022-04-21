@@ -40,3 +40,12 @@ set_font = function(x, fontsize){
   x[x == "%end:tab\n"] = paste0("\\end{", fontsize, "}")
   return(x)
 }
+
+
+facet_kdes <- function(regex, ncol = 3) {
+  vars <- grep(regex, names(dt), value = T, perl = T)
+  data <- melt(dt[, ..vars], measure.vars = vars)
+  ggplot(data) +
+    geom_density(aes(value)) +
+    facet_wrap(~variable, ncol = ncol, scales = 'free')
+}

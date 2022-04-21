@@ -1,11 +1,11 @@
-setwd('~/dev/projects/entropy/entropy/analysis')
-source('helpers.R')
-
 library(ggplot2)
 library(ggthemr)
 library(lubridate)
 library(patchwork)
 library(plyr)
+
+source('helpers.R')
+setwd('~/dev/projects/entropy/entropy/analysis')
 
 ggthemr('fresh')
 theme_set(theme_minimal())
@@ -42,17 +42,19 @@ gender <- base +
   scale_y_continuous(labels = scales::percent, name = 'Percent') +
   xlab('Gender')
 
+
 reorder_size <- function(x) {
   factor(x, levels = names(sort(table(x))))
 }
 
 region <- base +
-  geom_point(aes(x = (..count..) / sum(..count..), y = reorder_size(`region_name`))) +
+  geom_bar(aes(y = reorder_size(`region_name`))) +
   # scale_x_continuous(labels = scales::percent) +
   labs(
     x = 'Percent',
     y = 'Region'
   )
+region
 
 income + age + gender + region
 ggsave(file.path(FIGDIR, 'sample_desc.png'))

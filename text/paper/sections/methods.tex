@@ -146,22 +146,6 @@ where an individual makes no purchases in a given spending category. We thus cal
 
 where $N_{SC}$ is the total number of categories.
 
-Figure~\ref{fig:entropy} shows the distribution of spending entropy as well as
-the distributions of the number of spend transactions, the number of distinct
-categories within which these transactions fall, and the proportion of
-transactions in each category.
-
-\begin{figure}[H]
-    \center \newcommand\width{\textwidth} \caption{Transactions distributions}
-    \label{fig:entropy}
-    % \includegraphics[width=\width]{\figdir/txns_breakdowns_and_entropy.png}
-    \includegraphics[width=\width]{\figdir/entropy_hists.png}
-    \fignote{\width}{From top-left to bottom-right: distribution of spending
-    transactions per user-month, breakdown of spending transactions into
-spending categories; breakdown of number of spending categories spent on in
-user-month; distribution of user-month entropy scores.}
-\end{figure}
-
 Issues from imperfect labelling of MDB data:
 \begin{itemize}
 
@@ -223,19 +207,11 @@ Issues from imperfect labelling of MDB data:
 We calculate entropy based on the probability of $(day of week, merchant)$
 tuples, where we follow \citet{guidotti2015behavioral} and bin \textit{day of
 week} into \textit{weekends} and \textit{weekday}, to reduce excessive
-fluctuations. Because banks tend to process weekend transactions on Monday, as shows in
-Figure~\ref{fig:dow_txns}, we cannot distinguish transactions made on Saturdays
+fluctuations. Because banks tend to process weekend transactions on Monday, as
+shown in
+Figure~\ref{fig:spending}, we cannot distinguish transactions made on Saturdays
 or Sundays from those made on Mondays, and thus classify all of them as weekend
 transactions.
-
-\begin{figure}[H]
-    \center \newcommand\width{.7\textwidth} \caption{Transactions by day of week}
-    \label{fig:dow_txns}
-    \includegraphics[width=\width]{\figdir/dow_txns.png}
-    \fignote{\width}{Number of transactions by day of week, based on a 1/1000
-    sample of the full data. Shows that banks process most weekend
-transactions on Mondays.}
-\end{figure}
 
 We drop the about 25 percent of transactions for which we cannot identify a
 merchant. The alternative would be leaving these transactions in the sample and

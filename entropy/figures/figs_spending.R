@@ -14,8 +14,10 @@ theme_update(plot.caption = element_text(hjust = 0), plot.tag = element_text(siz
 
 FIGDIR = '/Users/fgu/dev/projects/entropy/output/figures' 
 
-dt <- read_final_users_data()[tag_group == 'spend' & is_debit]
+num_txns <- 'Number of spend transactions'
+prop_txns_amount <- 'Proportion of transactions and spend'
 
+dt <- read_final_users_data()[tag_group == 'spend' & is_debit]
 
 # number of user-month spend txns
 data <- dt[, .N, .(user_id, ym)]
@@ -79,7 +81,7 @@ dom <- ggplot(data) +
 dom 
 
 # month of year
-data <- dt[, .(txns = .N, spend = sum(amount)), .(user_id, ym, month(date, label = T))]
+data <- dt[, .(txns = .N, spend = sum(amount)), .(user_id, ym, month = lubridate::month(date, label = T))]
 data <- data[, .(txns = mean(txns), spend = mean(spend)), month]
 data <- data[, .(month, txns = txns / sum(txns), spend = spend / sum(spend))]
 data <- melt(data, id.vars = 'month', variable.name = 'var', value.name = 'val')
@@ -119,16 +121,16 @@ tags <- ggplot(data) +
   theme(legend.position = c(0.9, 0.15))
 tags
 
-# txn spend by auto tag
-data <- dt[, .(txns = .N, spend = sum(amount)), tag_auto]
-data <- data[, .(tag_auto, txns = txns / sum(txns), spend = spend / sum(spend))]
+# txn spend by spend tag
+data <- dt[, .(txns = .N, spend = sum(amount)), tag_spend]
+data <- data[, .(tag_spend, txns = txns / sum(txns), spend = spend / sum(spend))]
 data <- data[order(-rank(spend))][1:30]
-data <- melt(data, id.vars = 'tag_auto', variable.name = 'var', value.name = 'val')
-data$tag_auto <- str_to_title(str_replace(data$tag_auto, '_', ' '))
+data <- melt(data, id.vars = 'tag_spend', variable.name = 'var', value.name = 'val')
+data$tag_spend <- str_to_title(str_replace(data$tag_spend, '_', ' '))
 data$var <- str_to_title(data$var)
 cap <- 'Notes: number of transactions and total spend by spend category (157 categories) for top 30 categories.'
-autotags <- ggplot(data) +
-  geom_point(aes(y = reorder(tag_auto, val), x = val, colour = var), size = 1) +
+spendtags <- ggplot(data) +
+  geom_point(aes(y = reorder(tag_spend, val), x = val, colour = var), size = 1) +
   scale_x_continuous(labels = scales::label_percent(accuracy = 1L)) +
   scale_colour_ggthemr_d() +
   labs(
@@ -138,7 +140,7 @@ autotags <- ggplot(data) +
     caption = cap
   ) +
   theme(legend.position = c(0.9, 0.15))
-autotags
+spendtags
 
 # txn spend by merchant
 data <- dt[, .(txns = .N, spend = sum(amount)), merchant]
@@ -194,9 +196,10 @@ account_type <- ggplot(d) +
   )
 account_type
 
-pw <- txns + spend + dow + dom + moy + tags + autotags + merchant + accounts + account_type
+pw <- txns + spend + dow + dom + moy + tags + spendtags + merchant + accounts + account_type
 pw + 
   plot_layout(ncol = 2) +
   plot_annotation(tag_levels = 'A')
 
 ggsave(file.path(FIGDIR, 'spending.png'), width = 20, height = 30, units = 'cm')
+
