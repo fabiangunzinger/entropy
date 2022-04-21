@@ -1,0 +1,89 @@
+---
+title: "Changers"
+author: "Fabian Gunzinger"
+date: "30/03/2022"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+library(Rfast)
+source('helpers.R')
+setwd('~/dev/projects/entropy/entropy/analysis')
+dta <- read_analysis_data()
+```
+
+We want to explore whether we can use the approach of hut2022changes to study savings behaviour (as an addition, once we have the savings version, we could also look at spending behaviour). Following their paper, we'd want to do the following:
+
+1) Test whether savings behaviour changes as a result of life events.
+
+2) Identify users who have changed their savings behaviour and then characterise those changes and test whether they can be predicted based on demographics, baseline behaviour, or life events.
+
+The heart of the analysis is the second part, and we'll start with this. If we don't have time to do the first part, the second part could even stand on its own. For the second part to work, we need enough users for whom we can clearly identify a change. If we have that, we have a paper. Even if changes turn to be hard to characterise because they vary across people, and if they can't be predicted given our covariates, this in itself would be interesting information. In what follows, we want to check whether these two conditions hold in the data. (We're not wild about the term 'changers', which is from Hut and Oster, but for lack of a better alternative, we'll roll with it for now.)
+
+
+## Sample restrictions
+
+As Hut and Oster point out, to avoid picking up mean reversion behaviour we need to define sustained changes as changes over a long time period, which requires that we observe people for a long time. Following them, we require a 12-months pre and post window, so we use only individuals with no missing months that we observe for at least 24 months (this is different from their 30 month balanced panel, which we don't see why we should do that as it would mean loosing data for people we observe for more than 30 months). We also drop outliers: users with sa inflows larger than the 95th percentile of inflows.
+
+```{r}
+q95 <- quantile(dta$sa_inflows, .95)
+users <- dta[, .(max_gap = max(ym - shift(ym), na.rm = T),
+                 num_months = .N,
+                 max_inflows = max(sa_inflows)), user_id][
+                   max_gap == 1 & num_months >= 30 & max_inflows < q95, .(user_id)]
+dt <- dta[users, on = .(user_id)]
+
+summary(dt[, .(max_gap = max(ym - shift(ym), na.rm = T),
+               num_months = .N,
+               max_inflows = max(sa_inflows)), user_id])
+uniqueN(dt$user_id)
+head(dt[, 1:5])
+```
+
+We have a sample of 323 users. This is a lower bound, since we use the entropy data here, and we might be able to relax some of the restrictions put on that sample.
+
+
+## Are there some changers?
+
+Identify positive changers
+
+```{r}
+
+n = 1   # n - 1 is number of exceptional out of pattern months allowed. HO use 2
+c = 1   # The min difference between past and future. HO use 0.05 but for var in [-1, 1]
+wdw = 12   # Rolling window length. HO use 12 (in text, 10 in formula)
+
+nth_largest <- function(x, n = 1) {
+  Rfast::nth(x, n, descending = T)  
+}
+
+nth_smallest <- function(x, n = 1) {
+  Rfast::nth(x, n, descending = F)  
+}
+
+# Subset of needed variables
+d <- dt[, .(month = rank(ym), sa_inflows), user_id][order(user_id, month)]
+
+# Identify positive and negative changes (implements algorighm on p7 in hut2022changes)
+d[, max_past := shift(frollapply(sa_inflows, n = wdw, align = 'right', nth_largest, n)), user_id]
+d[, min_future := frollapply(sa_inflows, n = wdw, align = 'left', nth_smallest, n), user_id]
+d[, min_past := shift(frollapply(sa_inflows, n = wdw, align = 'right', nth_smallest, n)), user_id]
+d[, max_future := frollapply(sa_inflows, n = wdw, align = 'left', nth_largest, n), user_id]
+d[, `:=`(chpos = max_past + c <= min_future, chneg = min_past >= max_future + c)]
+changers <- d[(chpos | chneg)]
+changers[, dmonth := nafill(month - shift(month), 'const', 0), user_id]
+# `unique` drops a few cases where user has more than one change during observation period.
+# We might want to use these, too.
+changers <- unique(changers[dmonth > wdw | dmonth == 0, .SD], by = 'user_id')
+nrow(changers)
+# Sample for plotting
+sample <- changers[sample(.N, 9)]
+changers_data <- d[sample, on = .(user_id)]
+ggplot(changers_data, aes(month, sa_inflows)) +
+  geom_line() +
+  facet_wrap(~user_id, ncol = 3, scales = 'free')
+
+```

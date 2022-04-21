@@ -1,0 +1,147 @@
+---
+title: "Diagnostics"
+author: "Fabian Gunzinger"
+date: "1/4/2022"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(dplyr)
+library(tidyr)
+library(plm)
+library(fixest)
+library(ggplot2)
+library(gglm)
+library(ggfortify)
+library(MatrixModels)
+library(patchwork)
+source('helpers.R')
+setwd('~/dev/projects/entropy/entropy/analysis')
+FIGDIR = '/Users/fgu/dev/projects/entropy/output/figures'
+```
+
+
+Below we perform a set of diagnostics to test the assumptions on our main specification.
+
+```{r}
+dt <- read_analysis_data()
+data <- dt[sa_inflows <= 3000 & sa_outflows <= 3000]
+```
+
+
+```{r}
+controls = c(
+  # fin behaviour
+  'pct_credit',
+  'month_spend',
+  # planning - tbd
+  # hh / ind chars
+  'is_urban',
+  'month_income',
+  'has_month_income',
+  'income_var',
+  'has_rent_pmt',
+  'has_mortgage_pmt',
+  'has_loan_repmt',
+  'has_benefits'
+)
+
+# estimated without fixed-effects so we can calculate hat values (for leverage)
+# see: https://lrberge.github.io/fixest/reference/hatvalues.fixest.html
+# m <- fixest::feols(xpd(has_sa_inflows ~ entropy_tag_spend_s + ..controls + factor(user_id) + factor(ym), ..controls = controls), data=data)
+
+# faster fe version, in case hat values not needed
+m <- fixest::feols(xpd(sa_inflows ~ entropy_tag_spend_s + ..controls +factor(user_id) + factor(ym), ..controls = controls), data=data)
+```
+
+
+
+```{r}
+d <- data.table(
+  fitted = fitted(m),
+  resid = resid(m),
+  std_resid = resid / sigma(m),
+  sqrt_std_resid = sqrt(abs(std_resid))
+)
+
+resid_fitted <- ggplot(d, aes(fitted, resid)) +
+  geom_point(aes(colour = factor(data$has_sa_inflows))) +
+  labs(
+    title = 'Residuals vs fitted',
+    x = 'Fitted',
+    y = 'Residuals',
+    colour = 'Has sa inflows'
+  )
+resid_fitted
+
+
+qq <- ggplot(d, aes(sample = std_resid)) + 
+  geom_qq_line(linetype = "dashed") +
+  stat_qq(alpha = 0.5) +
+  labs(
+    title = "Normal Q-Q",
+    x = "Theoretical Quantiles",
+    y = "Standardised Residuals"
+  )
+
+
+scale_loc <- ggplot(d, aes(fitted, sqrt_std_resid)) +
+  geom_point() +
+  geom_smooth() +
+  labs(
+    title = 'Scale-location',
+    x = 'Fitted values',
+    y = 'Sqrt of standardised residuals'
+  )
+
+resid_leverage <- ggplot() +
+  geom_point(aes(std_resid, hatvalues(m))) +
+  geom_smooth(aes(std_resid, hatvalues(m))) +
+  labs(
+    title = 'Residual vs legerage',
+    x = 'Leverage',
+    y = 'Standardised residuals'
+  )
+
+pw <- resid_fitted + qq + scale_loc
+pw
+# ggsave(file.path(FIGDIR, 'diagnostics.png'))
+```
+
+
+## Model assumptions
+
+Our model is estimated under the following assumptions:
+
+- Linear in parameters
+- Homoskedasticity
+- Independence
+- Normality (y is normally distributed for fixed x)
+
+
+Interpretation:
+
+- Residual vs fitted plot helps check for linearity and homoskedasticity: under linearity, we'd expect residuals to not be too large (as they would be if, for instance, we were to fit a straight line to onto quadratic data), under homoskedasticity we'd expect the size of the residuals to be independent of the fitted values.
+
+- QQ-plot helps check for normality: diagonal line represent ideal normal observations, so the more closely the model residuals lie along that line, the better the assumption of normality holds.
+
+- The scale location plot helps check for homoskedasticity: if the assumption is valid, we expect no pattern (just as in the residual vs fitted plot).
+
+- The residual-leverage plot helps us detect outliers with respect to the independent variables. (Taks a long time to calculate, so not currently done.)
+
+
+```{r}
+resid
+```
+
+
+
+## Useful sources
+
+- https://bookdown.org/dereksonderegger/571/7-Diagnostics-Chapter.html
+
+- http://karthur.org/2019/implementing-fixed-effects-panel-models-in-r.html
+
+- https://github.com/graysonwhite/gglm

@@ -6,20 +6,35 @@
 \subsection{Main results}%
 \label{sub:new_results}
 
+\newpage
+\subsection{Tables}%
+\label{sub:tables}
 \begin{landscape}
-    \foreach \endog in {has_sa_inflows,sa_inflows,sa_netflows,sa_outflows} {
+    % \foreach \endog in {has_sa_inflows,sa_inflows,sa_netflows,sa_outflows} {
+    \foreach \endog in {has_sa_inflows} {
             \input{\tabdir/reg_\endog.tex}
             \input{\tabdir/reg_\endog_s.tex}
         }
 \end{landscape}
 
-
 \newpage
 \subsection{Exploration}%
 \label{sub:exploration}
+\input{\tabdir/reg_has_sa_inflows_explore.tex}
+\input{\tabdir/reg_has_sa_inflows_explore2.tex}
+\input{\tabdir/reg_has_sa_inflows_explore3.tex}
+\input{\tabdir/reg_has_sa_inflows_explore4.tex}
 
-\input{\tabdir/reg_entropy_explore.tex}
+% \newpage
+% \begin{figure}[H]
+%     \caption{Diagnostics}
+%     \label{fig:diagnostics}
+%     \begin{center}
+%         \includegraphics[width=0.9\textwidth]{\figdir/diagnostics.png}
+%     \end{center}
+% \end{figure}
 
+\newpage
 \begin{figure}[H]
     \caption{Entropy and unique tags}
     \label{fig:entropy_tag_vs_nunique}
