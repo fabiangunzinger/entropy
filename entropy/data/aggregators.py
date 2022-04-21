@@ -361,7 +361,7 @@ def month_spend(df):
 
 @aggregator
 @hh.timer
-def month_cat_spend(df):
+def month_spend_txn_value_and_counts(df):
     """Monthly value and count of spend txns per category.
 
     Spend value expressed in £'000s to ease coefficient comparison.
