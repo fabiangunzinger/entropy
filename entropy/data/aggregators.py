@@ -41,6 +41,14 @@ def txns_count(df):
 
 @aggregator
 @hh.timer
+def spend_txns_count(df):
+ is_spend = df.tag_group.eq("spend") & df.is_debit
+ group_cols = [df.user_id, df.ym]
+ return is_spend.groupby(group_cols).sum().rename("txns_count_spend")
+
+
+@aggregator
+@hh.timer
 def txn_volume(df):
     group_cols = [df.user_id, df.ym]
     abs_amount = df.amount.abs()
@@ -70,6 +78,7 @@ def txns_counts_by_account_type(df):
 @aggregator
 @hh.timer
 def category_nunique(df):
+    """Number of unique categories spent on per user-month."""
     is_spend = df.tag_group.eq("spend") & df.is_debit
     cat_vars = ["tag", "tag_spend", "merchant"]
     group_cols = [df.user_id, df.ym]
@@ -396,6 +405,8 @@ def _entropy_base_values(df, cat, stat="size", wknd=False):
     Args:
     df: A txn-level dataframe.
     cat: A column from df to be used for categorising spending transactions.
+    stat: A stat in {'size', 'sum'} to calculate entropy based on counts or 
+      volume, respectively.
     wknd: A Boolean indicating whether spend txns should be categorised
       by (cat, wknd), if True, or by (cat), if False, where wknd is a dummy
       indicating whether a txn is dated as a Sa, So, or Mo.
@@ -439,9 +450,9 @@ def _entropy_scores(df, norm=False, zscore=False, smooth=False):
     return pd.Series(e, index=df.index)
 
 
-def _cat_count_ssd(df):
-    """Returns sum of squared differences from mean of tag counts."""
-    return (df.sub(df.mean(1), axis=0) ** 2).sum(1)
+def _cat_count_std(base_values):
+    """Returns row-wise standard deviation of base_values."""
+    return base_values.std(1)
 
 
 @aggregator
@@ -462,7 +473,7 @@ def cat_based_entropy(df):
                 _entropy_scores(base_values, smooth=True, zscore=True).rename(
                     f"entropy_{cat}_sz"
                 ),
-                _cat_count_ssd(base_values).rename(f"ssd_{cat}"),
+                _cat_count_std(base_values).rename(f"std_{cat}"),
             ]
         )
     return pd.concat(scores, axis=1)
