@@ -375,6 +375,11 @@ def month_spend_txn_value_and_counts(df):
 
     Spend value expressed in £'000s to ease coefficient comparison.
     """
+    def colname(prefix, x):
+        """Turn x into proper column name with prefix."""
+        return prefix + x.replace(',', '').replace(' ', '_')
+
+
     is_spend = df.tag_group.eq("spend") & df.is_debit
     spend_amount = df.amount.where(is_spend, np.nan)
     group_cols = [df.user_id, df.ym, df.tag_spend]
@@ -383,7 +388,7 @@ def month_spend_txn_value_and_counts(df):
         spend_amount.groupby(group_cols, observed=True)
         .sum()
         .unstack()
-        .rename(columns=lambda x: 'spend_' + x.replace(' ', '_'))
+        .rename(columns=lambda x: colname('spend_', x))
         .fillna(0)
         .div(1000)
     )
@@ -392,7 +397,7 @@ def month_spend_txn_value_and_counts(df):
         spend_amount.groupby(group_cols, observed=True)
         .count()
         .unstack()
-        .rename(columns=lambda x: 'count_' + x.replace(' ', '_'))
+        .rename(columns=lambda x: colname('count_', x))
         .fillna(0)
     )
 
