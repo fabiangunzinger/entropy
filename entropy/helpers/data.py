@@ -27,12 +27,12 @@ def txns_and_users(df1, df2):
 
 
 def inspect(df, nrows=2):
-    print("({:,}, {})".format(*df.shape))
+    print("shape: ({:,}, {}), users: {}".format(*df.shape, df.user_id.nunique()))
     display(df.head(nrows))
 
 
 @hh.timer
-def read_raw_data(sample='XX7', **kwargs):
+def read_raw_data(sample="XX7", **kwargs):
     """Read MDB raw data.
 
     Args:
@@ -46,13 +46,13 @@ def read_raw_data(sample='XX7', **kwargs):
 
 
 @hh.timer
-def read_txn_data(sample='XX7', **kwargs):
+def read_txn_data(sample="XX7", **kwargs):
     fp = f"s3://3di-project-entropy/txn_{sample}.parquet"
     return ha.read_parquet(fp, **kwargs)
 
 
 @hh.timer
-def read_analysis_data(sample='XX7', **kwargs):
+def read_analysis_data(sample="XX7", **kwargs):
     fp = f"s3://3di-project-entropy/analysis_{sample}.parquet"
     return ha.read_parquet(fp, **kwargs)
 
@@ -94,7 +94,6 @@ def winsorise(series, pct=1, how="both"):
     else:
         kwargs = dict(upper=upper_pct)
     return series.clip(**kwargs)
-
 
 
 def breakdown(df, group_var, group_var_value, component_var, metric="value", net=False):
