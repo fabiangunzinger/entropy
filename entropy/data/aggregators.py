@@ -42,9 +42,9 @@ def txns_count(df):
 @aggregator
 @hh.timer
 def spend_txns_count(df):
- is_spend = df.tag_group.eq("spend") & df.is_debit
- group_cols = [df.user_id, df.ym]
- return is_spend.groupby(group_cols).sum().rename("txns_count_spend")
+    is_spend = df.tag_group.eq("spend") & df.is_debit
+    group_cols = [df.user_id, df.ym]
+    return is_spend.groupby(group_cols).sum().rename("txns_count_spend")
 
 
 @aggregator
@@ -264,11 +264,7 @@ def has_rent_payments(df):
     is_rent_pmt = df.tag_auto.isin(tags)
     rent_pmts = df.id.where(is_rent_pmt, np.nan)
     return (
-        rent_pmts.groupby(group_cols)
-        .count()
-        .gt(0)
-        .astype(int)
-        .rename("has_rent_pmt")
+        rent_pmts.groupby(group_cols).count().gt(0).astype(int).rename("has_rent_pmt")
     )
 
 
@@ -340,6 +336,39 @@ def region(df):
 
 @aggregator
 @hh.timer
+def generation(df):
+    """Generation of user.
+
+    Source: https://www.beresfordresearch.com/age-range-by-generation/
+    """
+
+    def gen(x):
+        if 1928 <= x <= 1945:
+            gen = "Post War"
+        elif 1946 <= x <= 1964:
+            gen = "Boomers"
+        elif 1965 <= x <= 1980:
+            gen = "Gen X"
+        elif 1981 <= x <= 1996:
+            gen = "Millennials"
+        else:
+            gen = "Gen Z"
+        return gen
+
+    group_cols = [df.user_id, df.ym]
+    gens = ["Post War", "Boomers", "Gen X", "Millennials", "Gen Z"]
+    gen_cats = pd.CategoricalDtype(gens, ordered=True)
+    return (
+        df.groupby(group_cols)
+        .birth_year.first()
+        .map(gen)
+        .astype(gen_cats)
+        .rename("generation")
+    )
+
+
+@aggregator
+@hh.timer
 def overdraft_fees(df):
     """Dummy for whether overdraft fees were paid."""
     pattern = r"(?:od|o/d|overdraft).*(?:fee|interest)"
@@ -375,10 +404,10 @@ def month_spend_txn_value_and_counts(df):
 
     Spend value expressed in £'000s to ease coefficient comparison.
     """
+
     def colname(prefix, x):
         """Turn x into proper column name with prefix."""
-        return prefix + x.replace(',', '').replace(' ', '_')
-
+        return prefix + x.replace(",", "").replace(" ", "_")
 
     is_spend = df.tag_group.eq("spend") & df.is_debit
     spend_amount = df.amount.where(is_spend, np.nan)
@@ -388,16 +417,16 @@ def month_spend_txn_value_and_counts(df):
         spend_amount.groupby(group_cols, observed=True)
         .sum()
         .unstack()
-        .rename(columns=lambda x: colname('spend_', x))
+        .rename(columns=lambda x: colname("spend_", x))
         .fillna(0)
         .div(1000)
     )
-    
+
     counts = (
         spend_amount.groupby(group_cols, observed=True)
         .count()
         .unstack()
-        .rename(columns=lambda x: colname('count_', x))
+        .rename(columns=lambda x: colname("count_", x))
         .fillna(0)
     )
 
@@ -410,7 +439,7 @@ def _entropy_base_values(df, cat, stat="size", wknd=False):
     Args:
     df: A txn-level dataframe.
     cat: A column from df to be used for categorising spending transactions.
-    stat: A stat in {'size', 'sum'} to calculate entropy based on counts or 
+    stat: A stat in {'size', 'sum'} to calculate entropy based on counts or
       volume, respectively.
     wknd: A Boolean indicating whether spend txns should be categorised
       by (cat, wknd), if True, or by (cat), if False, where wknd is a dummy
