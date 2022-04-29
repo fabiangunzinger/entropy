@@ -1,0 +1,164 @@
+\documentclass[a4paper, 11pt]{article}
+\usepackage{/Users/fgu/dev/projects/dotfiles/latex/paper}
+\bibliography{/Users/fgu/dev/projects/dotfiles/latex/fabib}
+\onehalfspacing
+
+\newcommand{\figdir}{../../output/figures}
+\newcommand{\tabdir}{../../output/tables}
+
+\title{\textbf{Evaluation\footnote{This research was supported by Economic and Social Research Council grant number ES/V004867/1. WBS ethics code: E-414-01-20.}}}
+
+\author{
+    Fabian Gunzinger \\ Warwick Business School
+    \and
+    Neil Stewart \\ Warwick Business School
+}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+% \input{sections/abstract.tex}
+
+\tableofcontents
+\newpage
+
+% \input{sections/intro.tex}
+\section{Introduction}%
+\label{sec:introduction}
+
+
+% \input{sections/results.tex}
+\section{Results}%
+\label{sec:results}
+
+\subsection{Descriptive analysis}%
+\label{sub:descriptive_analysis}
+
+
+\subsection{Difference-in-difference analysis}%
+\label{sub:difference_in_difference_analysis}
+
+\subsection{Subgroups}%
+\label{sub:subgroups}
+
+
+\subsection{Alternative window lengths}%
+\label{sub:alternative_window_lengths}
+
+
+% \input{sections/discussion.tex}
+\section{Discussion}%
+\label{sec:discussion}
+
+
+
+% \input{sections/methods.tex}
+\section{Methods}%
+\label{sec:data}
+
+\subsection{Outcomes}%
+\label{sub:outcomes}
+
+Our main outcome variable is savings as a proportion of monthly income, where
+we measure savings as the sum of all savings account inflows. This is a natural
+measure to focus on since Money Dashboard's main promise is to help users spend
+less and save more, as shown in Figure~\ref{fig:mdb_website}.  Furthermore,
+while different users will have different motivations for using the app, it is
+reasonable to assume that for many, these motivations ultimately boil down to
+an increase in savings (which could include, as a first step, a reduction in
+debt).
+
+For a more nuanced understanding of how app use affects savings we consider
+net-savings -- total savings account inflows minus outflows -- as a proportion
+of monthly income to see whether a willingness to save more might be offset by
+a (later) need to withdraw funds, and a dummy variable for whether a user has
+any savings account inflows in a given month to see whether the the app helps
+users save at all.
+
+To investigate possible channels, we consider total spend, highly discretionary
+spend, banking charges, the total amount of borrowing, as well as payday
+borrowing, all as proportion of monthly income.\footnote{As pointed out in
+    \citet{carlin2017fintech}, incurring overdraft fees is not an unambiguously
+negative outcome, as the opportunity to go into overdraft confers a benefit to
+the consumer. For further discussions on fees, see \citet{jorring2019financial,
+stango2009consumers}.}
+
+We think of these additional outcomes as exploratory and do not make any
+adjustments for multiple hypothesis testing.\footnote{For a recent
+game-theoretically motivated discussion of when and how to correct for multiple
+hypothesis testing, see \citet{viviano2021should}.} An alternative approach
+would be to group outcomes in the spirit of the approach proposed by
+\citet{anderson2008multiple}. We do not do that because we think that the
+amount of savings is a clear main outcome to focus on, while gropuing outcomes
+is most natural in settings where multiple sets of outcomes are of equal
+interest (such as outcomes of educational interventions on different student
+age cohorts, as \citet{anderson2008multiple}).
+
+
+\subsection{Analysis plan (temp)}%
+\label{sub:analysis_plan_temp_}
+\begin{itemize}
+    \item Show descriptive results (simple fig of behaviour change pre-post)
+
+    \item Follow sakaguchi2022default (i.d. use dynamic TWFE DiD with synthetic
+        control), but use sun2022estimating and the
+        fixest implementation thereof to account for dynamic TWFE contamination
+        issue
+        \href{https://lrberge.github.io/fixest/articles/fixest_walkthrough.html#staggered-difference-in-differences-sun-and-abraham-2020}{paper}
+
+    \item Main results: Figure and associated table akin to
+        sakaguchi2022default Figure 2 and Table 6.
+
+    \item Subgroup analysis: same Fig an Tab as in main analysis, but with line
+        for each subgroup. One figure for each of: gender, generations, income
+        terciles, per-adoption average savings tercile (inspired by
+        \citet{carlin2017fintech}, see Fig 5 and Table 4).
+
+    \item Robustness check with 12 and 18 month data windows.
+
+\end{itemize}
+
+\subsection{Descriptive analysis}%
+\label{sub:descriptive_analysis}
+
+\subsection{Difference-in-difference}%
+\label{sub:difference_in_difference}
+
+\subsection{Subgroups}%
+\label{sub:subgroups}
+
+To analyse which groups benefit most from adopting Money Dashboard, we split
+our sample by gender, generation, income quartiles, and pre-adoption savings
+behaviour.
+
+We define generations as follows: boomers were born between 1946 and 1964, Gen
+X between 1965 and 1980, Millennials between 1981 and 1996, and Gen Z after
+1997.\footnote{Based on age ranges provides by
+    \href{https://www.beresfordresearch.com/age-range-by-generation/}{Beresford
+Research}.}
+
+
+
+\newpage
+\printbibliography
+\newpage
+
+% \input{sections/appendix.tex}
+\appendix
+
+\section{Money Dashboard application}%
+\label{sec:money_dashboard_application}
+
+\begin{figure}[htpb]
+    \centering
+    \caption{Money Dashboard website screenshot}%
+    \includegraphics[width=0.8\linewidth]{mdb_website}
+    \label{fig:mdb_website}
+\end{figure}
+\fignote{\textwidth}{Screenshot from the top of the Money Dashboard website, at
+\href{https://www.moneydashboard.com}{moneydashboard.com}, accessed on 29 April
+2022.}
+
+\end{document}
