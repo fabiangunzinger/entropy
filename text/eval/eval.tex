@@ -29,31 +29,6 @@
 \label{sec:introduction}
 
 
-% \input{sections/results.tex}
-\section{Results}%
-\label{sec:results}
-
-\subsection{Descriptive analysis}%
-\label{sub:descriptive_analysis}
-
-
-\subsection{Difference-in-difference analysis}%
-\label{sub:difference_in_difference_analysis}
-
-\subsection{Subgroups}%
-\label{sub:subgroups}
-
-
-\subsection{Alternative window lengths}%
-\label{sub:alternative_window_lengths}
-
-
-% \input{sections/discussion.tex}
-\section{Discussion}%
-\label{sec:discussion}
-
-
-
 % \input{sections/methods.tex}
 \section{Methods}%
 \label{sec:data}
@@ -62,39 +37,34 @@
 \label{sub:outcomes}
 
 Our main outcome variable is savings as a proportion of monthly income, where
-we measure savings as the sum of all savings account inflows. This is a natural
-measure to focus on since Money Dashboard's main promise is to help users spend
-less and save more, as shown in Figure~\ref{fig:mdb_website}.  Furthermore,
-while different users will have different motivations for using the app, it is
-reasonable to assume that for many, these motivations ultimately boil down to
-an increase in savings (which could include, as a first step, a reduction in
-debt).
+we measure savings as the sum of all savings account inflows. For a more
+nuanced understanding of how app use affects savings we also consider net-savings --
+total savings account inflows minus outflows -- as a proportion of monthly
+income to see whether a willingness to save more might be offset by a (later)
+need to withdraw funds, and a dummy variable for whether a user has any savings
+account inflows in a given month to see whether the app helps users save at
+all. To investigate possible channels, we consider total spend, highly
+discretionary spend, banking charges, the total amount of borrowing, as well as
+payday borrowing, all as proportion of monthly income. We think of these
+additional outcomes as exploratory and do not make any adjustments for multiple
+hypothesis testing.\footnote{For a recent game-theoretically motivated
+discussion of when and how to correct for multiple hypothesis testing, see
+\citet{viviano2021should}.}
 
-For a more nuanced understanding of how app use affects savings we consider
-net-savings -- total savings account inflows minus outflows -- as a proportion
-of monthly income to see whether a willingness to save more might be offset by
-a (later) need to withdraw funds, and a dummy variable for whether a user has
-any savings account inflows in a given month to see whether the the app helps
-users save at all.
-
-To investigate possible channels, we consider total spend, highly discretionary
-spend, banking charges, the total amount of borrowing, as well as payday
-borrowing, all as proportion of monthly income.\footnote{As pointed out in
-    \citet{carlin2017fintech}, incurring overdraft fees is not an unambiguously
-negative outcome, as the opportunity to go into overdraft confers a benefit to
-the consumer. For further discussions on fees, see \citet{jorring2019financial,
-stango2009consumers}.}
-
-We think of these additional outcomes as exploratory and do not make any
-adjustments for multiple hypothesis testing.\footnote{For a recent
-game-theoretically motivated discussion of when and how to correct for multiple
-hypothesis testing, see \citet{viviano2021should}.} An alternative approach
-would be to group outcomes in the spirit of the approach proposed by
-\citet{anderson2008multiple}. We do not do that because we think that the
-amount of savings is a clear main outcome to focus on, while gropuing outcomes
-is most natural in settings where multiple sets of outcomes are of equal
-interest (such as outcomes of educational interventions on different student
-age cohorts, as \citet{anderson2008multiple}).
+An alternative approach, based on \citet{anderson2008multiple}, would be to
+group outcomes into ``savings'', ``spending'', ``borrowing'', and ``fees'', and
+consider them as different dimensions of a latent variable of interest which we
+might call ``financial management skills''. We do not do that for two reasons:
+first and foremost, because we think it is natural to think of the amount saved
+as the ultimate outcome and of other outcomes as providing a more nuanced
+understanding of savings behaviour or as suggesting possible channels through
+which app use affects savings. Thinking of savings as the main goal is also
+reflected in Money Dashboard's main promise, which is to help users spend less
+and save more, as shown in Figure~\ref{fig:mdb_website}. Second, as pointed out
+in \citet{carlin2017fintech}, incurring overdraft fees is not an unambiguous
+sign of a financial mistake, as the opportunity to go into overdraft confers a
+benefit to the consumer.\footnote{For further discussions on fees, see
+\citet{jorring2020financial, stango2009consumers}.}
 
 
 \subsection{Analysis plan (temp)}%
@@ -120,11 +90,91 @@ age cohorts, as \citet{anderson2008multiple}).
 
 \end{itemize}
 
+\subsection{Difference-in-difference}%
+\label{sub:difference_in_difference}
+
+Control group design:
+\begin{itemize}
+
+    \item We only have data for a self-selected group of people who choose to
+        use Money Dashboard. By virtue of signing up to an app that helps them
+        manage their money, these users are different from those who don't sign
+        up. As a result, we are unable to answer the question of whether use of
+        Money Dashboard helps the average person in the population as a whole
+        save more.\footnote{One way to get closer to that answer is to
+            re-weight our sample on observable demographic variables so as to
+            match the UK population as a whole. But our sample differs from the
+            population as a whole both is ways that are observable (demographic
+            variables) and unobservable (self-awareness that they need help
+            managing their money, cognitive resources to engage with the app,
+            motivation to do so). Re-weighting would only help us deal with the
+        first of these.} Instead, we are answering the question whether Money
+        Dashboard succeeds in helping its \textit{users} save more.
+
+    \item Money Dashboard can access up to three years of historic data for
+        each account a user links to their account.
+
+    \item Each user for whom we have sufficient data thus serves as both a
+        treatment unit and a potential control unit.
+
+    \item We use a difference-in-differences design to estimate the effect of
+        app use. Because we do not have a separate control group, we use the
+        per-signup data of Money Dashboard users as control periods and use
+        matching to find comparable control user for each tretment user.
+
+    \item To perform the matching, we proceed as follows:
+
+    \item For treatment units, we select data for six months before and after
+        signup, where the month of the signup is treated as the first of the
+        six after-signup months. For each user, we then calculate the mean
+        value of each covariate for the pre-signup period.
+
+    \item We construct potential control units as all 12-month data windows we
+        observe before signup, and for each potential control unit calculate
+        the mean value of each covariate for the first six months.
+
+    \item We use matching proceedure introduced in \citet{ho2007matching} and
+        implemented in the \textit{MatchIt} R-package \citep{stuart2011matchit} to
+        find most similar comparison unit for each treatment unit.
+
+    \item Matching method:
+
+\end{itemize}
+
+Estimating treatment effects
+\begin{itemize}
+
+    \item Our estimate is the ATT, not the ATE. 
+
+    \item First, we present pre and post signup comparisons without matching
+        (i.e. control group is user pre-signup).
+
+    \item Second, we present (static) pre-post using matched comparisons.
+
+    \item Third, we present dynamic pre-post using matched comparisons. Need to
+        think about how this relates to \citet{sun2021estimating}, who propose
+        an unbiased estimator for dynamic two-way FE event study designs. I
+        think our analysis nests theirs, since we might still want to include
+        fixed and time effects, though I need to think about this. (Reason to
+        do so: we won't be able to match perfectly, so including user and time
+        fixed effects to control for unit and time invariant variation still
+        seems useful).
+
+    \item As alternative to matching, consider synthetic controls for
+        disaggregated data \citep{abadie2021penalized}.
+
+\end{itemize}
+
+
+% \input{sections/results.tex}
+\section{Results}%
+\label{sec:results}
+
 \subsection{Descriptive analysis}%
 \label{sub:descriptive_analysis}
 
-\subsection{Difference-in-difference}%
-\label{sub:difference_in_difference}
+\subsection{Difference-in-difference analysis}%
+\label{sub:difference_in_difference_analysis}
 
 \subsection{Subgroups}%
 \label{sub:subgroups}
@@ -138,6 +188,17 @@ X between 1965 and 1980, Millennials between 1981 and 1996, and Gen Z after
 1997.\footnote{Based on age ranges provides by
     \href{https://www.beresfordresearch.com/age-range-by-generation/}{Beresford
 Research}.}
+
+\subsection{Alternative window lengths}%
+\label{sub:alternative_window_lengths}
+
+% \input{sections/discussion.tex}
+\section{Discussion}%
+\label{sec:discussion}
+
+
+
+
 
 
 
