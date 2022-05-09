@@ -1,19 +1,16 @@
 library(data.table)
-library(estimatr)
-library(gglm)
 library(glue)
 library(fixest)
-library(modelsummary)
-library(plm)
-library(purrr)
-library(stargazer)
-library(xtable)
 
 source('helpers.R')
 Sys.setenv(AWS_PROFILE='3di', AWS_DEFAULT_REGION='eu-west-2')
 setwd('~/dev/projects/entropy/entropy/analysis')
 
-TABDIR = '/Users/fgu/dev/projects/entropy/output/tables'
+TABDIR = '../../output/tables'
+
+dt = read_analysis_data()
+dt$avg_spend <- dt$month_spend / dt$txns_count_spend * 1000
+names(dt)
 
 setFixest_etable(
   postprocess.tex = set_font,
@@ -42,15 +39,6 @@ setFixest_dict(c(
   entropy_groc_z = "Entropy (groceries)",
   entropy_groc_sz = "Entropy (groceries, smooth)",
   
-  spend_communication = 'Spend communication',
-  spend_finance = 'Spend finance',
-  spend_hobbies = 'Spend hobbies',
-  spend_household = 'Spend household',
-  spend_other_spend = 'Spend other',
-  spend_motor = 'Spend motor',
-  spend_retail = 'Spend retail',
-  spend_services = 'Spend services',
-  spend_travel = 'Spend travel',
   pct_credit = "Paid with credit (%)",
   month_spend = 'Month spend',
   is_urban = 'Urban',
@@ -70,91 +58,88 @@ setFixest_dict(c(
   user_id = 'User id',
   ym = 'Calendar month',
   
-  txns_count_spend = 'Spend txns',
-  nunique_tag_spend = 'Unique categories',
-  ssd_tag_spend = 'Category count variation'
+  txns_count_spend = 'N',
+  nunique_tag_spend = 'Cnz',
+  std_tag_spend = 'Counts std all',
+  avg_spend = 'Average spend'
 ))
-
-
-dt = read_analysis_data()
-# temporarily truncate manually. decide how to handle.
-data <- dt[sa_inflows <= 3000 & sa_outflows <= 3000]
-names(data)
-
-note <- "Notes: Spend and income variables are in \\pounds'000."
-endogs = c('has_sa_inflows', 'sa_inflows', 'sa_netflows', 'sa_outflows')
-cat_spends <- grep('spend_(?!month)', names(dt), value = T, perl = T)
-controls = c(
-  # fin behaviour
-  'pct_credit',
-  'month_spend',
-  # planning - tbd
-  # hh / ind chars
-  'is_urban',
-  'month_income',
-  'has_month_income',
-  'income_var',
-  'has_rent_pmt',
-  'has_mortgage_pmt',
-  'has_loan_repmt',
-  'has_benefits'
-)
-
-
-# Explore effect of nunique and ssd ------------------------------------------------
 
 setFixest_fml(
   ..endog = ~has_sa_inflows,
-  ..exog = ~entropy_tag_spend_z,
-  ..exog_s = ~entropy_tag_spend_z + entropy_tag_spend_sz,
-  ..comps = ~sw0(txns_count_spend,
-                 nunique_tag_spend,
-                 ssd_tag_spend,
-                 txns_count_spend + nunique_tag_spend + ssd_tag_spend),
+  ..exog = ~sw(entropy_tag_spend_z, entropy_tag_spend_sz),
+  ..comps = ~mvsw(entropy_tag_spend_z, avg_spend + nunique_tag_spend + std_tag_spend),
+  ..controls = c(
+    # fin behaviour
+    'pct_credit',
+    'month_spend',
+    grep('^spend_', names(data), value = T),
+    # planning - tbd
+    # household / individual characteristics
+    'is_urban',
+    'month_income',
+    'has_month_income',
+    'income_var',
+    'has_rent_pmt',
+    'has_mortgage_pmt',
+    'has_loan_repmt',
+    'has_benefits'
+  ),
   ..fe = ~user_id + ym
 )
 
-etable(
-  fixest::feols(..endog ~ ..exog + ..comps | ..fe, data=data),
-  fixest::feols(..endog ~ ..exog_s + ..comps | ..fe, data=data),
-  title = glue('Entropy exploration'),
-  order = c('[Ee]ntropy'),
-  notes = c(note),
-  tex = T,
-  fontsize = 'tiny',
-  file=file.path(TABDIR, glue('reg_has_sa_inflows_explore.tex')),
-  label = glue('tab:reg_has_sa_inflows_explore'),
-  replace = T
-)
-
-setFixest_fml(
-  ..endog = ~entropy_tag_spend_z,
-  ..exog = ~sw(entropy_tag_spend_sz,
-                txns_count_spend,
-                nunique_tag_spend,
-                ssd_tag_spend,
-                entropy_tag_spend_sz + txns_count_spend + nunique_tag_spend + ssd_tag_spend),
-  ..fe = ~user_id + ym
-)
+# Explore effect of components ------------------------------------------------
 
 etable(
-  fixest::feols(..endog ~ ..exog | ..fe, data=data),
-  title = glue('Entropy exploration'),
-  order = c('[Ee]ntropy'),
-  notes = c(note),
-  tex = T,
-  fontsize = 'tiny',
-  file=file.path(TABDIR, glue('reg_has_sa_inflows_explore.tex')),
-  label = glue('tab:reg_has_sa_inflows_explore'),
-  replace = T
+  fixest::feols(..endog ~ ..comps + ..controls | ..fe, data=dt),
+  title = 'Components exploration',
+  order = c('[Ee]ntropy', 'Average', 'Cnz', 'Counts std'),
+  drop = c('spend_')
+  # ,
+  # notes = c(note),
+  # tex = T,
+  # fontsize = 'tiny',
+  # file=file.path(TABDIR, glue('reg_has_sa_inflows_explore.tex'))
+  # label = glue('tab:reg_has_sa_inflows_explore'),
+  # replace = T
 )
 
 
+etable(
+  fixest::feols(entropy_tag_spend_z ~ avg_spend + nunique_tag_spend +  std_tag_spend | ..fe, data=dt),
+  title = 'Components exploration',
+  order = c('[Ee]ntropy', 'Average', 'Cnz', 'Counts std'),
+  drop = c('spend_')
+  # ,
+  # notes = c(note),
+  # tex = T,
+  # fontsize = 'tiny',
+  # file=file.path(TABDIR, glue('reg_has_sa_inflows_explore.tex')),
+  # label = glue('tab:reg_has_sa_inflows_explore'),
+  # replace = T
+)
 
-cor(data[, .(entropy_tag_spend_z, entropy_tag_spend_sz, txns_count_spend, nunique_tag_spend, ssd_tag_spend)])
+
+# Main results ---------------------------------------------------------------------
+
+etable(
+  fixest::feols(..endog ~ ..exog + ..controls | ..fe, data=dt),
+  title = 'Entropy exploration',
+  order = c('[Ee]ntropy', 'Average', 'Cnz', 'Counts std'),
+  drop = c('spend_')
+  # ,
+  # notes = c(note),
+  # tex = T,
+  # fontsize = 'tiny',
+  # file=file.path(TABDIR, glue('reg_has_sa_inflows_explore.tex')),
+  # label = glue('tab:reg_has_sa_inflows_explore'),
+  # replace = T
+)
+
 
 
 # Effect of entropy on spending ----------------------------------------------------
+
+# Code out of date, but leaving overall setup to conveniently produce robustness checks.
 
 for (endog in endogs) {
   
@@ -195,7 +180,9 @@ for (endog in endogs) {
   
 
 
-# Effect of entropy on overdraft fees ----------------------------------------------
+# Effect of entropy on overdraft fees -----------------------------------------------
+
+# Data no longer contains all muggleton2020evidence controls, but keeping code for now in case we want to replicate again.
 
 muggleton_controls = c(
   'spend_communication',
