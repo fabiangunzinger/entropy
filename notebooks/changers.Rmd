@@ -87,3 +87,8 @@ ggplot(changers_data, aes(month, sa_inflows)) +
   facet_wrap(~user_id, ncol = 3, scales = 'free')
 
 ```
+
+
+## Stuff to think about
+
+- Think of possibility that people might stop savings after 12 months once fixed term savings account mature (and they might forget to reopen another one, at least for a while)

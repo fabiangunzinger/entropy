@@ -202,7 +202,7 @@ def savings_accounts_flows(df):
     Series with user-month index and calculated variables.
     """
     sa_flows = df.amount.where(df.is_sa_flow == 1, 0)
-    in_out = df.is_debit.map({True: "sa_inflows", False: "sa_outflows"})
+    in_out = df.is_debit.map({False: "sa_inflows", True: "sa_outflows"})
     group_vars = [df.user_id, df.ym, in_out]
     return (
         sa_flows.groupby(group_vars)
