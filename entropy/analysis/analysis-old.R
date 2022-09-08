@@ -12,6 +12,7 @@ dt = read_analysis_data()
 dt$avg_spend <- dt$month_spend / dt$txns_count_spend * 1000
 names(dt)
 
+
 setFixest_etable(
   postprocess.tex = set_font,
   se.below = T,
@@ -69,31 +70,33 @@ setFixest_fml(
   ..exog = ~sw(entropy_tag_spend_z, entropy_tag_spend_sz),
   ..comps = ~mvsw(entropy_tag_spend_z, avg_spend + nunique_tag_spend + std_tag_spend),
   ..controls = c(
-    # fin behaviour
-    'pct_credit',
-    'month_spend',
-    grep('^spend_', names(data), value = T),
-    # planning - tbd
-    # household / individual characteristics
-    'is_urban',
-    'month_income',
-    'has_month_income',
-    'income_var',
-    'has_rent_pmt',
-    'has_mortgage_pmt',
-    'has_loan_repmt',
-    'has_benefits'
+  # fin behaviour
+  'pct_credit',
+  'month_spend',
+  grep('^spend_', names(data), value = T),
+  # planning - tbd
+  # household / individual characteristics
+  'is_urban',
+  'month_income',
+  'has_month_income',
+  'income_var',
+  'has_rent_pmt',
+  'has_mortgage_pmt',
+  'has_loan_repmt',
+  'has_benefits'
   ),
   ..fe = ~user_id + ym
 )
 
+
 # Explore effect of components ------------------------------------------------
+
 
 etable(
   fixest::feols(..endog ~ ..comps + ..controls | ..fe, data=dt),
-  title = 'Components exploration',
-  order = c('[Ee]ntropy', 'Average', 'Cnz', 'Counts std'),
-  drop = c('spend_')
+  title = 'Components exploration'
+  # order = c('[Ee]ntropy', 'Average', 'Cnz', 'Counts std')
+  # drop = c('spend_')
   # ,
   # notes = c(note),
   # tex = T,
@@ -122,7 +125,7 @@ etable(
 # Main results ---------------------------------------------------------------------
 
 etable(
-  fixest::feols(..endog ~ ..exog + ..controls | ..fe, data=dt),
+  fixest::feols(..endog ~ ..exog + ..controls | ..fe, data=dtt),
   title = 'Entropy exploration',
   order = c('[Ee]ntropy', 'Average', 'Cnz', 'Counts std'),
   drop = c('spend_')

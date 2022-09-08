@@ -3,18 +3,51 @@
 \section{Introduction}%
 \label{sec:introduction}
 
-Overall plan for paper
+This paper investigates whether they way people spend their money is associated
+with how much they spend and save.
+
+The question is important because even though around a quarter of adults in the
+UK and the US are unable to cover irregular expenses like car and medical
+bills,\footnote{In the UK, 25 percent of adults would be unable to cover an
+    unexpected bill of \pounds300 \citep{philipps2021supporting}, while in the
+US, about 30 percent would be unable to cover a \$400 bill
+\citep{fed2022economic}.} there is little research that studies why people have
+low levels of ``emergency savings'' and test ways to help them build such
+savings.\footnote{In contrast, there is a large body of research on pension
+    savigns.  Well-documented behavioural biases that help explain undersaving
+    are, among others, present bias \citep{laibson1997golden,
+    laibson2019intertemporal}, inertia \citep{madrian2001power},
+    over-extrapolation \citep{choi2009reinforcement}, and limited self-control
+    and willpower \citep{thaler1981economic, benhabib2005modeling,
+    fudenberg2006dual, loewenstein2004animal, gul2001temptation}. One danger of
+    viewing low savings mainly as a result of behavioural biases is that while
+    these biases likely do play some role and designing environments and tools
+    to help correct them are thus part of the solution, it is at least
+    conceivable that this is an area where the focus on behaviour-level
+    solutions distracts from an effort to find more effective society-level
+    solutions, a danger inherent in behavioural science research convincingly
+    highlighted in \citet{chater2022frame}: if the main problem is that many
+    people are unable to earn enough to save, then the effectiveness of helping
+them manage their low incomes more effectively pales in comparison with efforts
+to help them earn more.}
+
+Spending profiles are of interest because:
 \begin{itemize}
-    \item Question: is the way people spend related to how they save? (I.e. is
-        there a relationship between spend profiles and savings beheaviour?)
+    \item Research in psychology suggests that disorder is maladaptive and associated with a
+        range of negative outcomes such as impaired executive function
+        \citep{vernon2016predictors}, lower cognitive inhibition
+        \citep{mittal2015cognitive}, and activation of anxiety-related neural
+        circuits \citep{hirsh2012psychological}.
 
-    \item Analysis: at user-month level (initially) and user-level (maybe
-        later)
-
-
+    \item In the study of human behaviour, more chaotic behaviour has been
+        found to predict the a higher number of visits to and higher spend in supermarkets
+        \citep{guidotti2015behavioral}, higher calorie intake
+        \citep{skatova2019those} and financial distress
+        \citep{muggleton2020evidence}.
 \end{itemize}
 
 
+Contribution:
 \begin{itemize}
 
     \item We can think of total savings as the sum of long-term and short-term
@@ -35,75 +68,24 @@ Overall plan for paper
         number of transactions have such tags, and we do not pursue this
     further.}
 
-\end{itemize}
-
-Old version - reuse what is useful.
-
-\begin{itemize}
-
-    % what we do
-
-    \item This paper explores the effect of spending profiles on financial
-        outcomes.
-
-    \item Spend profile: distribution of txn spend txns across txn categories.
-
-    \item Financial outcomes: spending, saving, overdraft fees
-
-    % why it's important
-
-    \item Financial wellbeing is important.
-
-    \item People in UK and US also don't have enough to cover unexpected
-        outlays. (See reports)
-
-    \item This has important consequences:
-
-        \begin{itemize}
-
-            \item Short-term: financial well-being (see reports)
-
-            \item Long-term (viscious cycle): scarcity hypothesis - makes it
-                harder to focus on important things (plan for retirement, focus
-                on healthy lifestyle, support children, ...) and might lead to
-                vicious cycle (less savings leading to increased risk of
-                financial hardship leading to more stress leading to less
-                savings...)
-
-        \end{itemize}
-
-    \item Spending and savings behaviour is important component - it's not all
-        about lack of income.
-
-    \item Structure paper:
-
-        \begin{itemize}
-
-            \item Part I: describtive states of when people spend, save, and pay od fees
-
-            \item Part II: define measures that characterise spend profile
-
-            \item Part III: regression analysis
-
-            \item Part IV: cluster analysis: do outcomes differ by groups? (poss sep ml
-                focused paper)
-
-            \item Part V: predict non-saving, high-spend, and od fee months (poss in
-                separate paper with above section)
-
-        \end{itemize}
-
-    % contribution
-
-    \item While there is large literature on long-term / pension savings, very
-        little work on short-term financial spending and savings behaviour.
-
     \item In doing so, we aim to contribute to three literatures:
 
     \begin{itemize}
 
-        % update once we have results 
-        \item Main 1: Understanding emergency savings behaivour (nest, aspen reports)
+        \item Main 1: Understanding emergency savings behaivour (nest, aspen
+            reports), \citep{sabat2019rules} for sources on short-term savings
+            literature, \citet{colby2013savings} for lit on savings goals
+
+            \begin{itemize}
+
+                \item \citet{colby2013savings} has useful literature review on
+                    short-term savings and suggests that subgoals can increase
+                    willingness to forego short-amounts in the present because
+                    they move the reference point in a prospect-theory
+                    framework.
+
+            \end{itemize}
+
 
         \item Main 2: Understanding effect of behavioural entropy - eliciting
             useful personality characteristics from large-scale data
@@ -114,32 +96,35 @@ Old version - reuse what is useful.
         \item Also 2: Use of high-frequency transaction data (itself a sub-literature of
             use of newly available large-scale datasets)
     \end{itemize}
-    \item
+\end{itemize}
+
+Structure
+
+\begin{itemize}
+
+    \item Part I: describtive states of how and when people spend and save
+
+    \item Part II: define measures that characterise spend profile
+
+    \item Part III: regression analysis
+
 \end{itemize}
 
 
-
-% Literature:
-
-% \citet{sabat2019rules} literature discussion on how much people should save. 
-
+Literature:
+\begin{itemize}
+    \item Savings lit: \citet{lunt1991psychological, oaten2007improvements, }
+\end{itemize}
 % \citet{muggleton2020evidence} find that consumption entropy over categories
 % correlates with financial distress.
 
 % \citet{davenport2020spending} study the impact of COVID-19 on the spending and
 % savings behaviour of MDB users.
 
-% \citet{baker2021household} summarises literature that uses mass financial
-% transaction data to study household financial behaviour.
-
 % \citet{becker2017does} finds that access to a fintech money management app
 % increases first-time savings and savings account balances among 65,000 customers
 % of a large European bank but that update is negatively correlated with financial
 % sophistication.
-
-% \citet{colby2013savings} has useful literature review on short-term savings and
-% suggests that subgoals can increase willingness to forego short-amounts in the
-% present because they move the reference point in a prospect-theory framework.
 
 % We use the following nomenclature throughout:
 % \begin{description}
