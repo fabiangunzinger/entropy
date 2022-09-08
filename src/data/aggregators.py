@@ -4,6 +4,7 @@ Functions to create columns for analysis dataset at user-month frequency.
 """
 
 import os
+import functools
 
 import numpy as np
 import pandas as pd
@@ -135,11 +136,15 @@ def income(df):
 
     has_mt_income = month_income.gt(0).astype(int).rename("has_month_income")
 
-    data = pd.merge(month_income, year_income, left_index=True, right_index=True)
-    data = pd.merge(data, month_income_mean, left_index=True, right_index=True)
-    data = pd.merge(data, income_variability, left_index=True, right_index=True)
-    data = pd.merge(data, has_mt_income, left_index=True, right_index=True)
-    return data.droplevel("year")
+    idx_merge = functools.partial(pd.merge, left_index=True, right_index=True)
+
+    return (
+        month_income
+        .pipe(idx_merge, year_income)
+        .pipe(idx_merge, month_income_mean)
+        .pipe(idx_merge, income_variability)
+        .pipe(idx_merge, has_mt_income)
+    ).droplevel("year")
 
 
 @aggregator
