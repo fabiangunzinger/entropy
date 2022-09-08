@@ -94,49 +94,6 @@ def benefits(df):
 
 @aggregator
 @hh.timer
-def has_rent_payments(df):
-    """Dummies for rent payments.
-
-    Classifying "mortgage or rent" auto tags as mortgages since data inspectio
-    suggests that this is accurate for majority of cases.
-
-    Cases where user makes both rent and mortgage payment in same month account
-    for less than 2.5% of test dataset, so ignoring this issue.
-    """
-    group_cols = [df.user_id, df.ym]
-    tags = ["rent"]
-    is_rent_pmt = df.tag_auto.isin(tags)
-    rent_pmts = df.id.where(is_rent_pmt, np.nan)
-    return (
-        rent_pmts.groupby(group_cols).count().gt(0).astype(int).rename("has_rent_pmt")
-    )
-
-
-@aggregator
-@hh.timer
-def has_mortgage_payments(df):
-    """Dummies for mortgage payments.
-
-    Classifying "mortgage or rent" auto tags as mortgages since data
-    inspectio suggests that this is accurate for majority of cases.  Cases
-    where user makes both rent and mortgage payment in same month account
-    for less than 2.5% of test dataset, so ignoring this issue.
-    """
-    group_cols = [df.user_id, df.ym]
-    tags = ["mortgage or rent", "mortgage payment"]
-    is_mortgage_pmt = df.tag_auto.isin(tags)
-    mortgage_pmts = df.id.where(is_mortgage_pmt, np.nan)
-    return (
-        mortgage_pmts.groupby(group_cols)
-        .count()
-        .gt(0)
-        .astype(int)
-        .rename("has_mortgage_pmt")
-    )
-
-
-@aggregator
-@hh.timer
 def overdraft_fees(df):
     """Dummy for whether overdraft fees were paid."""
     pattern = r"(?:od|o/d|overdraft).*(?:fee|interest)"
@@ -149,15 +106,17 @@ def overdraft_fees(df):
 @aggregator
 @hh.timer(on=TIMER_ON)
 def income(df):
-    """Month and year income."""
+    """Month and year income in '000s for easier coefficient comparison."""
     is_income_pmt = df.tag_group.eq("income") & ~df.is_debit
-    inc_pmts = df.amount.where(is_income_pmt, 0).mul(-1)
+    inc_pmts = df.amount.where(is_income_pmt, 0).mul(-1).div(1000)
     year = df.date.dt.year.rename("year")
 
     month_income = (
         inc_pmts.groupby([df.user_id, df.ym, year]).sum().rename("month_income")
     )
+
     year_income = inc_pmts.groupby([df.user_id, year]).sum().rename("year_income")
+
     month_income_mean = (
         inc_pmts.groupby([df.user_id, df.ym, year])
         .sum()
@@ -205,6 +164,7 @@ def savings_accounts_flows(df):
             outflows_norm=lambda df: df.outflows / month_income,
             has_pos_netflows=lambda df: (df.netflows > 0).astype(int),
             pos_netflows=lambda df: df.netflows * df.has_pos_netflows,
+            has_inflows=lambda df: (df.inflows > 0).astype(int),
         )
         .replace([np.inf, -np.inf, np.nan], 0)
     )
