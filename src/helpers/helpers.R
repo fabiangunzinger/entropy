@@ -3,8 +3,8 @@ library(glue)
 
 
 read_analysis_data <- function(sample) {
-  fn <- if (!missing(sample)) glue('eval_{sample}.parquet') else 'eval.parquet'
-  fp <- file.path('s3://3di-project-eval', fn)
+  fn <- if (!missing(sample)) glue('entropy_{sample}.parquet') else 'entropy.parquet'
+  fp <- file.path('s3://3di-project-entropy', fn)
   df <- data.frame(aws.s3::s3read_using(arrow::read_parquet, object=fp))
   num_users <- length(unique(df$user_id))
   num_user_months <- nrow(df)
