@@ -19,8 +19,8 @@ def validator(func):
 
 @validator
 def no_missing_values(df):
-    exceptions = ['dspend_mean']
-    assert df.drop(exceptions, axis='columns').notna().all().all()
+    exceptions = ["dspend_mean", "income_var"]
+    assert df.drop(exceptions, axis="columns").notna().all().all()
     return df
 
 

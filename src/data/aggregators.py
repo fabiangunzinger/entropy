@@ -176,15 +176,11 @@ def income(df):
 
     has_mt_income = month_income.gt(0).astype(int).rename("has_month_income")
 
-    return pd.concat(
-        [
-            month_income,
-            year_income,
-            month_income_mean,
-            income_variability,
-            has_mt_income,
-        ]
-    ).droplevel("year")
+    data = pd.merge(month_income, year_income, left_index=True, right_index=True)
+    data = pd.merge(data, month_income_mean, left_index=True, right_index=True)
+    data = pd.merge(data, income_variability, left_index=True, right_index=True)
+    data = pd.merge(data, has_mt_income, left_index=True, right_index=True)
+    return data.droplevel("year")
 
 
 @aggregator
