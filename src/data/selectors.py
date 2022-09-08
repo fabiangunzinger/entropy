@@ -98,7 +98,7 @@ def has_current_account(df):
 @counter
 def year_income(df, min_income=cf.MIN_YEAR_INCOME):
     """At least \pounds5,000 of annual income"""
-    cond = df.groupby("user_id").month_income_mean.min().ge(min_income / 12)
+    cond = df.groupby("user_id").month_income_mean.min().ge(min_income / 12 / 1000)
     users = cond[cond].index
     return df[df.user_id.isin(users)]
 
@@ -139,7 +139,7 @@ def complete_demographic_info(df):
 def drop_testers(df):
     """Drop test users
 
-    App was launched sometime in 2011, so to ensure we only have users that 
+    App was launched sometime in 2011, so to ensure we only have users that
     were not testers, we drop all users registering before 2012.
     """
     cond = df.groupby("user_id").user_reg_ym.first().ge("2012-01")
