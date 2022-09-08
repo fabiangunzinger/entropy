@@ -2,9 +2,9 @@ library(data.table)
 library(glue)
 library(fixest)
 
-source('helpers.R')
 Sys.setenv(AWS_PROFILE='3di', AWS_DEFAULT_REGION='eu-west-2')
 setwd('~/dev/projects/entropy/entropy/analysis')
+source('helpers.R')
 
 TABDIR = '../../output/tables'
 
@@ -89,6 +89,54 @@ setFixest_fml(
 )
 
 
+
+# Effect of entropy on spending ----------------------------------------------------
+
+# Code out of date, but leaving overall setup to conveniently produce robustness checks.
+
+endogs <- c("has_sa_inflows")
+
+for (endog in endogs) {
+  
+  # unsmoothed entropy
+  exog <- grep('entropy_.*_z$', names(dt), value = T)  
+  print(
+    etable(
+      fixest::feols(.[endog] ~ sw(.[,exog]) + ..controls | sw0(user_id + ym), dt),
+      # fixest::feols(xpd(.[endog] ~ sw(.[,exog]) + ..controls | sw0(user_id + ym),
+      #                   ..controls = controls), data=data),
+    title = glue('{endog} on unsmoothed entropy'),
+    order = c('[Ee]ntropy', '!(Intercept)')
+    # ,
+    # notes = c(note),
+    # tex = T,
+    # fontsize = 'tiny',
+    # file=file.path(TABDIR, glue('reg_{endog}.tex')),
+    # label = glue('tab:reg_{endog}'),
+    # replace = T
+    )
+  )
+  
+  # smoothed entropy
+  exog <- grep('entropy_.*_sz$', names(dt), value = T)
+  print(
+    etable(
+      fixest::feols(.[endog] ~ sw(.[,exog]) + ..controls | sw0(user_id + ym), dt),
+      title = glue('{endog} on smoothed entropy'),
+      order = c('[Ee]ntropy', '!(Intercept)')
+      # ,
+      # notes = c(note),
+      # tex = T,
+      # fontsize = 'tiny',
+      # file=file.path(TABDIR, glue('reg_{endog}_s.tex')),
+      # label = glue('tab:reg_{endog}_s'),
+      # replace = T
+    )
+  )
+}
+  
+
+
 # Explore effect of components ------------------------------------------------
 
 
@@ -122,10 +170,8 @@ etable(
 )
 
 
-# Main results ---------------------------------------------------------------------
-
 etable(
-  fixest::feols(..endog ~ ..exog + ..controls | ..fe, data=dtt),
+  fixest::feols(..endog ~ ..exog + ..controls | ..fe, data=dt),
   title = 'Entropy exploration',
   order = c('[Ee]ntropy', 'Average', 'Cnz', 'Counts std'),
   drop = c('spend_')
@@ -137,50 +183,6 @@ etable(
   # label = glue('tab:reg_has_sa_inflows_explore'),
   # replace = T
 )
-
-
-
-# Effect of entropy on spending ----------------------------------------------------
-
-# Code out of date, but leaving overall setup to conveniently produce robustness checks.
-
-for (endog in endogs) {
-  
-  # unsmoothed entropy
-  exog <- grep('entropy_.*_z$', names(dt), value = T)  
-  print(
-    etable(
-      fixest::feols(xpd(.[endog] ~ sw(.[,exog]) + ..controls | sw0(user_id + ym),
-                        ..controls = controls), data=data),
-    title = glue('{endog} on unsmoothed entropy'),
-    order = c('[Ee]ntropy', '!(Intercept)'),
-    notes = c(note),
-    tex = T,
-    fontsize = 'tiny',
-    file=file.path(TABDIR, glue('reg_{endog}.tex')),
-    label = glue('tab:reg_{endog}'),
-    replace = T
-    )
-  )
-  
-  # smoothed entropy
-  exog <- grep('entropy_.*_sz$', names(dt), value = T)  
-  print(
-    etable(
-      fixest::feols(xpd(.[endog] ~ sw(.[,exog]) + ..controls | sw0(user_id + ym),
-                        ..controls = controls), data=data),
-      title = glue('{endog} on smoothed entropy'),
-      order = c('[Ee]ntropy', '!(Intercept)'),
-      notes = c(note),
-      tex = T,
-      fontsize = 'tiny',
-      file=file.path(TABDIR, glue('reg_{endog}_s.tex')),
-      label = glue('tab:reg_{endog}_s'),
-      replace = T
-    )
-  )
-}
-  
 
 
 # Effect of entropy on overdraft fees -----------------------------------------------
