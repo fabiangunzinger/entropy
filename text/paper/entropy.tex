@@ -1,4 +1,4 @@
-\documentclass[a4paper, 11pt]{article}
+\documentclass[a4paper, 12pt]{article}
 \usepackage{/Users/fgu/dev/projects/dotfiles/latex/paper}
 \bibliography{/Users/fgu/dev/projects/dotfiles/latex/fabib}
 \onehalfspacing
@@ -6,48 +6,38 @@
 \newcommand{\figdir}{../../output/figures}
 \newcommand{\tabdir}{../../output/tables}
 
-\title{\textbf{Entropy\footnote{This research was supported by Economic and Social Research Council grant number ES/V004867/1. WBS ethics code: E-414-01-20.}}}
+\title{\textbf{Entropy\footnote{We are grateful to Redzo Mujcic and and Zvi
+Safra for helpful comments. The research was supported by Economic and Social
+Research Council grant number ES/V004867/1. WBS ethics code: E-414-01-20.
+Gunzinger: Warwick Business School, fabian.gunzinger@warwick.ac.uk; Stewart:
+Warwick Business School, neil.stewart@wbs.ac.uk.}}}
 
-\author{
-    Fabian Gunzinger \\ Warwick Business School
-    \and
-    Neil Stewart \\ Warwick Business School
-}
+\author{Fabian Gunzinger \and Neil Stewart}
 
 \date{\today}
-
-% Nature human behaviour article format guidelines
-% https://www.nature.com/nathumbehav/content
-% <= 5000 words
-% <= 8 display items (figures and tables)
-% Structure:
-% Abstract <= 150 words with no references
-% Intro (no headings)
-% Results (with subheadings)
-% Discussion (no headings)
-% Methods (with subheadings)
 
 \begin{document}
 
 \maketitle
 
-\input{sections/abstract.tex}
+% \input{sections/abstract.tex}
 
 \tableofcontents
 \newpage
 
 \input{sections/intro.tex}
 
+\input{sections/methods.tex}
+
 \input{sections/results.tex}
 
 \input{sections/discussion.tex}
-
-\input{sections/methods.tex}
 
 \newpage
 \printbibliography
 
 \appendix
+
 \input{sections/appendix.tex}
 
 \end{document}

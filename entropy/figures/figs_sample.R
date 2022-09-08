@@ -49,7 +49,7 @@ reorder_size <- function(x) {
 
 region <- base +
   geom_bar(aes(y = reorder_size(`region_name`))) +
-  # scale_x_continuous(labels = scales::percent) +
+  scale_x_continuous(labels = scales::percent) +
   labs(
     x = 'Percent',
     y = 'Region'

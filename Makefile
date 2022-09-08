@@ -1,36 +1,33 @@
-SHELL = /bin/sh
-
-SAMPLES := 777 X77 XX7
-FIGDATA := s3://3di-project-entropy/entropy_XX7.parquet
 
 
-.PHONY: pptest
-.PHONY: test
-test:
-	python -m pytest --cov=entropy
+.PHONY: all
+all: sumstats figures msg
 
 
-.PHONY: data
-data: $(SAMPLES)
-
-$(SAMPLES):
-	@printf '\nMaking sample $@...\n'
-	@python -m entropy.data.make_data $@
+.PHONY: sumstats
+sumstats:
+	@printf '\n Updating sumstats table...\n'
+	@Rscript src/analysis/sumstats.R
 
 
-.PHONY: rawdata
-rawdata: raw_777 raw_X77 raw_XX7
+.PHONY: figures sampdesc 
 
-raw_777:
-	@printf '\nMaking sample 777...\n'
-	@python -m entropy.data.make_data 777 --from-raw
+figures: sampdesc 
 
-raw_X77:
-	@printf '\nMaking sample X77...\n'
-	@python -m entropy.data.make_data X77 --from-raw
+sampdesc:
+	@printf '\n Updating sample description plots...\n'
+	@Rscript src/figures/sample_description.R
 
-raw_XX7:
-	@printf '\nMaking sample XX7...\n'
-	@python -m entropy.data.make_data XX7 --from-raw
+msg:
+	@printf '\n All done.\n'
 
+
+.PHONY: data testdata
+data:
+	@printf '\nProducing analysis data...\n'
+	@python -m src.data.make_data
+
+testdata:
+	@printf '\nProducing test analysis data...\n'
+	@python -m src.data.make_data --piece 0
 
