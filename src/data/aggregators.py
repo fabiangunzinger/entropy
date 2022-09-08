@@ -149,15 +149,17 @@ def overdraft_fees(df):
 @aggregator
 @hh.timer(on=TIMER_ON)
 def income(df):
-    """Month and year income."""
+    """Month and year income in '000s for easier coefficient comparison."""
     is_income_pmt = df.tag_group.eq("income") & ~df.is_debit
-    inc_pmts = df.amount.where(is_income_pmt, 0).mul(-1)
+    inc_pmts = df.amount.where(is_income_pmt, 0).mul(-1).div(1000)
     year = df.date.dt.year.rename("year")
 
     month_income = (
         inc_pmts.groupby([df.user_id, df.ym, year]).sum().rename("month_income")
     )
+
     year_income = inc_pmts.groupby([df.user_id, year]).sum().rename("year_income")
+
     month_income_mean = (
         inc_pmts.groupby([df.user_id, df.ym, year])
         .sum()
