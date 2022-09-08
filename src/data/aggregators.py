@@ -94,49 +94,6 @@ def benefits(df):
 
 @aggregator
 @hh.timer
-def has_rent_payments(df):
-    """Dummies for rent payments.
-
-    Classifying "mortgage or rent" auto tags as mortgages since data inspectio
-    suggests that this is accurate for majority of cases.
-
-    Cases where user makes both rent and mortgage payment in same month account
-    for less than 2.5% of test dataset, so ignoring this issue.
-    """
-    group_cols = [df.user_id, df.ym]
-    tags = ["rent"]
-    is_rent_pmt = df.tag_auto.isin(tags)
-    rent_pmts = df.id.where(is_rent_pmt, np.nan)
-    return (
-        rent_pmts.groupby(group_cols).count().gt(0).astype(int).rename("has_rent_pmt")
-    )
-
-
-@aggregator
-@hh.timer
-def has_mortgage_payments(df):
-    """Dummies for mortgage payments.
-
-    Classifying "mortgage or rent" auto tags as mortgages since data
-    inspectio suggests that this is accurate for majority of cases.  Cases
-    where user makes both rent and mortgage payment in same month account
-    for less than 2.5% of test dataset, so ignoring this issue.
-    """
-    group_cols = [df.user_id, df.ym]
-    tags = ["mortgage or rent", "mortgage payment"]
-    is_mortgage_pmt = df.tag_auto.isin(tags)
-    mortgage_pmts = df.id.where(is_mortgage_pmt, np.nan)
-    return (
-        mortgage_pmts.groupby(group_cols)
-        .count()
-        .gt(0)
-        .astype(int)
-        .rename("has_mortgage_pmt")
-    )
-
-
-@aggregator
-@hh.timer
 def overdraft_fees(df):
     """Dummy for whether overdraft fees were paid."""
     pattern = r"(?:od|o/d|overdraft).*(?:fee|interest)"
