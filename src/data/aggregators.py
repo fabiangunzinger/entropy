@@ -205,6 +205,7 @@ def savings_accounts_flows(df):
             outflows_norm=lambda df: df.outflows / month_income,
             has_pos_netflows=lambda df: (df.netflows > 0).astype(int),
             pos_netflows=lambda df: df.netflows * df.has_pos_netflows,
+            has_inflows=lambda df: (df.inflows > 0).astype(int),
         )
         .replace([np.inf, -np.inf, np.nan], 0)
     )
