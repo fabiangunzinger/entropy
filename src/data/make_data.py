@@ -72,26 +72,24 @@ def main(argv=None):
         argv = sys.argv[1:]
     args = parse_args(argv)
 
-    # Use supplied test piece or all pieces
+    # Use supplied test piece or all pieces and name datafile accordingly
     pieces = args.piece if args.piece else range(10)
-    filepaths = [get_filepath(piece) for piece in pieces]
-
-    # Save as piece data or full data
-    fn = f"entropy_XX{args.piece}.parquet" if args.piece else "entropy.parquet"
-    fp = os.path.join(config.AWS_PROJECT, fn)
+    pieces_paths = [get_filepath(piece) for piece in pieces]
+    filename = f"entropy_XX{args.piece}.parquet" if args.piece else "entropy.parquet"
+    filepath = os.path.join(config.AWS_PROJECT, filename)
 
     data = (
-        pd.concat(clean_piece(fp) for fp in filepaths)
+        pd.concat(clean_piece(path) for path in pieces_paths)
         .reset_index(drop=True)
         .pipe(transform_variables)
         .pipe(io.write_parquet, os.path.join(config.AWS_PROJECT, "debug.parquet"))
         .pipe(validate_data)
-        .pipe(io.write_parquet, fp)
+        .pipe(io.write_parquet, filepath)
     )
 
     selection_table = hd.make_selection_table(sl.sample_counts)
-    fp = os.path.join(config.TABDIR, "sample_selection.tex")
-    hd.write_selection_table(selection_table, fp)
+    table_path = os.path.join(config.TABDIR, "sample_selection.tex")
+    hd.write_selection_table(selection_table, table_path)
 
     with pd.option_context("max_colwidth", 25):
         print(selection_table)
