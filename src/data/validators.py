@@ -30,7 +30,7 @@ def at_least_min_year_income(df, min_income=config.MIN_YEAR_INCOME):
     return df
 
 
-@validator
+# @validator
 def min_month_spend(df, min_spend=config.MIN_MONTH_SPEND):
     assert df.month_spend.min() >= min_spend / 1000
     return df
