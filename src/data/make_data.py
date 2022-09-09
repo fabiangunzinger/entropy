@@ -82,6 +82,7 @@ def main(argv=None):
         .pipe(transform_variables)
         .pipe(validate_data)
     )
+
     fn = f"entropy_XX{args.piece}.parquet" if args.piece else "entropy.parquet"
     fp = os.path.join(config.AWS_PROJECT, fn)
     io.write_parquet(data, fp)
