@@ -76,16 +76,18 @@ def main(argv=None):
     pieces = args.piece if args.piece else range(10)
     filepaths = [get_filepath(piece) for piece in pieces]
 
+    # Save as piece data or full data
+    fn = f"entropy_XX{args.piece}.parquet" if args.piece else "entropy.parquet"
+    fp = os.path.join(config.AWS_PROJECT, fn)
+
     data = (
         pd.concat(clean_piece(fp) for fp in filepaths)
         .reset_index(drop=True)
         .pipe(transform_variables)
+        .pipe(io.write_parquet, os.path.join(config.AWS_PROJECT, "debug.parquet"))
         .pipe(validate_data)
+        .pipe(io.write_parquet, fp)
     )
-
-    fn = f"entropy_XX{args.piece}.parquet" if args.piece else "entropy.parquet"
-    fp = os.path.join(config.AWS_PROJECT, fn)
-    io.write_parquet(data, fp)
 
     selection_table = hd.make_selection_table(sl.sample_counts)
     fp = os.path.join(config.TABDIR, "sample_selection.tex")
