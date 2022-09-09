@@ -60,6 +60,11 @@ def get_filepath(piece):
     return os.path.join(config.AWS_PIECES, f"mdb_XX{piece}.parquet")
 
 
+def write_debug_data(df):
+    filename = os.path.join(config.AWS_PROJECT, "debug.parquet")
+    io.write_parquet(df, filename)
+
+
 def parse_args(args):
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--piece", help="Piece in [0,9] to process")
@@ -82,7 +87,7 @@ def main(argv=None):
         pd.concat(clean_piece(path) for path in pieces_paths)
         .reset_index(drop=True)
         .pipe(transform_variables)
-        .pipe(io.write_parquet, os.path.join(config.AWS_PROJECT, "debug.parquet"))
+        .pipe(write_debug_data)
         .pipe(validate_data)
         .pipe(io.write_parquet, filepath)
     )
