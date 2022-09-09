@@ -98,7 +98,7 @@ def has_current_account(df):
 @counter
 def year_income(df, min_income=cf.MIN_YEAR_INCOME):
     """At least \pounds5,000 of annual income"""
-    cond = df.groupby("user_id").month_income_mean.min().ge(min_income / 12 / 1000)
+    cond = df.groupby("user_id").month_income_mean.min().ge(min_income / 12)
     users = cond[cond].index
     return df[df.user_id.isin(users)]
 

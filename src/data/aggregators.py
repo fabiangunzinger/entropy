@@ -109,7 +109,7 @@ def overdraft_fees(df):
 def income(df):
     """Month and year income in '000s for easier coefficient comparison."""
     is_income_pmt = df.tag_group.eq("income") & ~df.is_debit
-    inc_pmts = df.amount.where(is_income_pmt, 0).mul(-1).div(1000)
+    inc_pmts = df.amount.where(is_income_pmt, 0).mul(-1)
     year = df.date.dt.year.rename("year")
 
     month_income = (
