@@ -191,9 +191,9 @@ def user_registration_ym(df):
 @aggregator
 @hh.timer(on=TIMER_ON)
 def month_spend(df):
-    """Total monthly spend."""
+    """Total monthly spend in '000s of pounds for simpler coefficient comparison."""
     is_spend = df.tag_group.eq("spend") & df.is_debit
-    spend = df.amount.where(is_spend, np.nan)
+    spend = df.amount.where(is_spend, np.nan).div(1000)
     group_cols = [df.user_id, df.ym]
     return spend.groupby(group_cols).sum().rename("month_spend")
 
