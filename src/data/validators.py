@@ -36,7 +36,7 @@ def min_month_spend(df, min_spend=config.MIN_MONTH_SPEND):
     return df
 
 
-@validator
+# @validator
 def min_month_txns(df, min_txns=config.MIN_MONTH_TXNS):
     assert df.txns_count.min() >= min_txns
     return df
