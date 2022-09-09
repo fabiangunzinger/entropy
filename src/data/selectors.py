@@ -116,7 +116,7 @@ def month_min_txns(df, min_txns=cf.MIN_MONTH_TXNS):
 @counter
 def month_min_spend(df, min_spend=cf.MIN_MONTH_SPEND):
     """At least \pounds200 of monthly spend"""
-    cond = df.groupby("user_id").month_spend.min().ge(min_spend)
+    cond = df.groupby("user_id").month_spend.min().ge(min_spend / 1000)
     users = cond[cond].index
     return df[df.user_id.isin(users)]
 

@@ -17,26 +17,26 @@ def validator(func):
     return func
 
 
-# @validator
+@validator
 def no_missing_values(df):
-    exceptions = ["dspend_mean", "income_var"]
-    assert df.drop(exceptions, axis="columns").notna().all().all()
+    exceptions = "^(?!entropy|std|dspend)"
+    assert df.filter(regex=exceptions).notna().all().all()
     return df
 
 
-# @validator
+@validator
 def at_least_min_year_income(df, min_income=config.MIN_YEAR_INCOME):
-    assert df.month_income_mean.min() >= min_income / 12 / 1000
+    assert df.month_income_mean.min() >= (min_income / 12 / 1000)
     return df
 
 
-# @validator
+@validator
 def min_month_spend(df, min_spend=config.MIN_MONTH_SPEND):
     assert df.month_spend.min() >= min_spend / 1000
     return df
 
 
-# @validator
+@validator
 def min_month_txns(df, min_txns=config.MIN_MONTH_TXNS):
     assert df.txns_count.min() >= min_txns
     return df
