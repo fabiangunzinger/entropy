@@ -96,9 +96,10 @@ def has_current_account(df):
 
 @selector
 @counter
-def year_income(df, min_income=cf.MIN_YEAR_INCOME):
+def year_income(df, min_year_income=cf.MIN_YEAR_INCOME):
     """At least \pounds5,000 of annual income"""
-    cond = df.groupby("user_id").month_income_mean.min().ge(min_income / 12 / 1000)
+    min_month_income = round(min_year_income / 12, 2)
+    cond = df.groupby("user_id").month_income_mean.min().ge(min_month_income)
     users = cond[cond].index
     return df[df.user_id.isin(users)]
 
@@ -116,7 +117,7 @@ def month_min_txns(df, min_txns=cf.MIN_MONTH_TXNS):
 @counter
 def month_min_spend(df, min_spend=cf.MIN_MONTH_SPEND):
     """At least \pounds200 of monthly spend"""
-    cond = df.groupby("user_id").month_spend.min().ge(min_spend / 1000)
+    cond = df.groupby("user_id").month_spend.min().ge(min_spend)
     users = cond[cond].index
     return df[df.user_id.isin(users)]
 
