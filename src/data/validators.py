@@ -24,25 +24,25 @@ def no_missing_values(df):
     return df
 
 
-@validator
+# @validator
 def at_least_min_year_income(df, min_income=config.MIN_YEAR_INCOME):
     assert df.month_income_mean.min() >= (min_income / 12 / 1000)
     return df
 
 
-@validator
+# @validator
 def min_month_spend(df, min_spend=config.MIN_MONTH_SPEND):
     assert df.month_spend.min() >= min_spend / 1000
     return df
 
 
-@validator
+# @validator
 def min_month_txns(df, min_txns=config.MIN_MONTH_TXNS):
     assert df.txns_count.min() >= min_txns
     return df
 
 
-@validator
+# @validator
 def complete_demographic_info(df):
     assert df.filter(regex="is_female|age|region").isna().sum().sum() == 0
     return df
