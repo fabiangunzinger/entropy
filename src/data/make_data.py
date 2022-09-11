@@ -83,6 +83,7 @@ def main(argv=None):
     filename = f"entropy_XX{args.piece}.parquet" if args.piece else "entropy.parquet"
     filepath = os.path.join(config.AWS_PROJECT, filename)
 
+    return pieces_paths
     data = (
         pd.concat(clean_piece(path) for path in pieces_paths)
         .reset_index(drop=True)
