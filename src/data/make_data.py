@@ -63,6 +63,7 @@ def get_filepath(piece):
 def write_debug_data(df):
     filename = os.path.join(config.AWS_PROJECT, "debug.parquet")
     io.write_parquet(df, filename)
+    return df
 
 
 def parse_args(args):
@@ -83,7 +84,6 @@ def main(argv=None):
     filename = f"entropy_XX{args.piece}.parquet" if args.piece else "entropy.parquet"
     filepath = os.path.join(config.AWS_PROJECT, filename)
 
-    return pieces_paths
     data = (
         pd.concat(clean_piece(path) for path in pieces_paths)
         .reset_index(drop=True)
