@@ -1,0 +1,49 @@
+
+\begin{table}[htbp]
+   \centering
+   \tiny
+   \begin{threeparttable}[b]
+      \caption{\label{tab:reg_netflows_lagged_sz} Effect of lagged entropy on netflows}
+      \begin{tabular}{lcccccc}
+         \tabularnewline \midrule \midrule
+         Dependent Variable: & \multicolumn{6}{c}{netflows}\\
+         Model:                           & (1)                  & (2)                  & (3)                  & (4)                  & (5)                  & (6)\\  
+         \midrule
+         \emph{Variables}\\
+         Entropy (merchant, smooth)       & -105.098$^{***}$     &                      &                      &                      &                      &   \\   
+                                          & [-140.631; -69.564]  &                      &                      &                      &                      &   \\   
+         entropy\_merchant\_sz\_lag       &                      & -32.860$^{*}$        &                      &                      &                      &   \\   
+                                          &                      & [-69.108; 3.387]     &                      &                      &                      &   \\   
+         Entropy (48 cats, smooth)        &                      &                      & -95.511$^{***}$      &                      &                      &   \\   
+                                          &                      &                      & [-131.922; -59.100]  &                      &                      &   \\   
+         entropy\_tag\_spend\_sz\_lag     &                      &                      &                      & -30.136$^{*}$        &                      &   \\   
+                                          &                      &                      &                      & [-65.196; 4.924]     &                      &   \\   
+         Entropy (9 cats, smooth)         &                      &                      &                      &                      & -27.227$^{*}$        &   \\   
+                                          &                      &                      &                      &                      & [-56.073; 1.618]     &   \\   
+         entropy\_tag\_sz\_lag            &                      &                      &                      &                      &                      & 6.085\\   
+                                          &                      &                      &                      &                      &                      & [-20.915; 33.086]\\   
+         Month spend                      & -171.028$^{***}$     & -160.965$^{***}$     & -163.976$^{***}$     & -159.344$^{***}$     & -157.487$^{***}$     & -157.637$^{***}$\\   
+                                          & [-199.107; -142.949] & [-188.301; -133.629] & [-190.945; -137.007] & [-186.276; -132.413] & [-183.541; -131.433] & [-184.078; -131.196]\\   
+         Month income                     & 133.402$^{***}$      & 134.260$^{***}$      & 135.624$^{***}$      & 134.998$^{***}$      & 137.411$^{***}$      & 135.465$^{***}$\\   
+                                          & [106.549; 160.255]   & [107.370; 161.150]   & [108.771; 162.477]   & [108.194; 161.801]   & [110.561; 164.261]   & [108.661; 162.270]\\   
+         Has income in month              & -230.320$^{***}$     & -227.508$^{***}$     & -230.530$^{***}$     & -228.392$^{***}$     & -218.574$^{***}$     & -226.983$^{***}$\\   
+                                          & [-357.287; -103.352] & [-352.205; -102.812] & [-357.757; -103.302] & [-353.128; -103.656] & [-345.013; -92.134]  & [-351.468; -102.499]\\   
+         Income variability               & 6.372                & 7.306                & 6.623                & 7.406                & 6.641                & 7.475\\   
+                                          & [-8.563; 21.308]     & [-6.874; 21.486]     & [-8.143; 21.390]     & [-6.697; 21.509]     & [-8.043; 21.324]     & [-6.558; 21.509]\\   
+         \midrule
+         \emph{Fixed-effects}\\
+         User id                          & Yes                  & Yes                  & Yes                  & Yes                  & Yes                  & Yes\\  
+         Calendar month                   & Yes                  & Yes                  & Yes                  & Yes                  & Yes                  & Yes\\  
+         \midrule
+         \emph{Fit statistics}\\
+         Observations                     & 102,237              & 98,895               & 102,302              & 98,957               & 102,302              & 98,957\\  
+         R$^2$                            & 0.04347              & 0.04444              & 0.04319              & 0.04444              & 0.04282              & 0.04441\\  
+         Within R$^2$                     & 0.01589              & 0.01513              & 0.01554              & 0.01509              & 0.01516              & 0.01505\\  
+         \midrule \midrule
+         \multicolumn{7}{l}{\emph{Clustered (User id) co-variance matrix, 95\% confidence intervals in brackets}}\\
+         \multicolumn{7}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+      \end{tabular}
+   \end{threeparttable}
+\end{table}
+
+

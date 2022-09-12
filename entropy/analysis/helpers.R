@@ -32,16 +32,6 @@ read_final_users_data <- function(sample='X77') {
   dt <- dtt[user_id %in% dta_users]
 }
 
-# set fontsize of latex table produced by etable
-set_font = function(x, fontsize){
-  if(missing(fontsize)) return(x)
-  dreamerr::check_arg_plus(fontsize, "match(tiny, scriptsize, footnotesize, small, normalsize, large, Large)")
-  x[x == "%start:tab\n"] = paste0("\\begin{", fontsize, "}")
-  x[x == "%end:tab\n"] = paste0("\\end{", fontsize, "}")
-  return(x)
-}
-
-
 facet_kdes <- function(regex, ncol = 3) {
   vars <- grep(regex, names(dt), value = T, perl = T)
   data <- melt(dt[, ..vars], measure.vars = vars)

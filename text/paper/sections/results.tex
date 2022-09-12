@@ -1,45 +1,18 @@
 % !TEX root = ../entropy.tex
 
-\section{Results}%
+\section{Spending profiles predict savings}%
 \label{sec:results}
 
 \subsection{Main results}%
 \label{sub:new_results}
 
-\newpage
-\subsection{Tables}%
-\label{sub:tables}
-\begin{landscape}
-    % \foreach \endog in {has_sa_inflows,sa_inflows,sa_netflows,sa_outflows} {
-    \foreach \endog in {has_sa_inflows} {
-            \input{\tabdir/reg_\endog.tex}
-            \input{\tabdir/reg_\endog_s.tex}
-        }
-\end{landscape}
+\def\yvars{has_inflows,inflows, has_investments,investments, dspend}
+\foreach \y in \yvars {
+    \input{\tabdir/reg_\y.tex}
+}
 
-\newpage
-\subsection{Exploration}%
-\label{sub:exploration}
-\input{\tabdir/reg_has_sa_inflows_explore.tex}
-\input{\tabdir/reg_has_sa_inflows_explore2.tex}
-\input{\tabdir/reg_has_sa_inflows_explore3.tex}
-% \input{\tabdir/reg_has_sa_inflows_explore4.tex}
 
-% \newpage
-% \begin{figure}[H]
-%     \caption{Diagnostics}
-%     \label{fig:diagnostics}
-%     \begin{center}
-%         \includegraphics[width=0.9\textwidth]{\figdir/diagnostics.png}
-%     \end{center}
-% \end{figure}
-
-\newpage
-\begin{figure}[H]
-    \caption{Entropy and unique tags}
-    \label{fig:entropy_tag_vs_nunique}
-    \begin{center}
-        \includegraphics[width=0.9\textwidth]{\figdir/entropy_tag_vs_nunique.png}
-    \end{center}
-\end{figure}
-
+\begin{itemize}
+    \item Discuss discrepancies depending on entropy measure and discuss next
+        steps.
+\end{itemize}

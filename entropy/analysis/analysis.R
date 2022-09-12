@@ -1,20 +1,27 @@
 library(data.table)
 library(glue)
 library(fixest)
+library(tidyverse)
 
-Sys.setenv(AWS_PROFILE='3di', AWS_DEFAULT_REGION='eu-west-2')
-setwd('~/dev/projects/entropy/src/analysis')
-source('../helpers/helpers.R')
-source('fixest_settings.R')
+source('src/config.R')
+source('src/helpers/helpers.R')
+source('src/analysis/fixest_settings.R')
 
 
-df = read_analysis_data("XX0")
+# Load data and add lagged entropy variables
+df <- read_analysis_data("XX0") %>% 
+  group_by(user_id) %>% 
+  mutate(
+    across(contains('entropy'), ~lag(.x, n=1), .names = "{.col}_lag"),
+    has_investments = ifelse(investments > 0, 1, 0)
+    ) 
+  mutate() %>% 
+  
+
 names(df)
-
 
 setFixest_fml(
   ..endog = ~has_sa_inflows,
-  ..exog = ~sw(entropy_tag_spend_z, entropy_tag_spend_sz),
   ..comps = ~mvsw(entropy_tag_spend_z, avg_spend + nunique_tag_spend + std_tag_spend),
   ..controls = c(
     # fin behaviour
@@ -36,45 +43,114 @@ setFixest_fml(
 )
 
 
-# Effect of entropy ---------------------------------------------------------------
 
-endogs <- c("has_inflows", "has_netflows", "inflows", "netflows", "investments", "dspend")
+yvars <- c("has_inflows", "inflows", "has_investments", "investments", "dspend")
 
-for (endog in endogs) {
-  
-  # unsmoothed entropy
-  exog <- grep('entropy_.*_z$', names(dt), value = T)  
+
+
+# Main results --------------------------------------------------------------------
+
+entropy_vars <- function(df) {
+  entropy_z <- grep('^entropy_(tag|merchant).*_z$', names(df), value = T)
+  entropy_sz <- grep('^entropy_(tag|merchant).*_sz$', names(df), value = T)
+  c(entropy_z, entropy_sz)
+}
+
+for (y in yvars) {
+  entropy <- entropy_vars(df)
   print(
     etable(
-      fixest::feols(.[endog] ~ sw(.[,exog]) + ..controls | sw0(user_id + ym), df),
-      title = glue('{endog} on unsmoothed entropy'),
-      order = c('[Ee]ntropy', '!(Intercept)')
-    # ,
-    # notes = c(note),
-    # tex = T,
-    # fontsize = 'tiny',
-    # file=file.path(TABDIR, glue('reg_{endog}.tex')),
-    # label = glue('tab:reg_{endog}'),
-    # replace = T
-    )
-  )
-  
-  # smoothed entropy
-  exog <- grep('entropy_.*_sz$', names(dt), value = T)
-  print(
-    etable(
-      fixest::feols(.[endog] ~ sw(.[,exog]) + ..controls | sw0(user_id + ym), df),
-      title = glue('{endog} on smoothed entropy'),
-      order = c('[Ee]ntropy', '!(Intercept)')
-      # ,
-      # notes = c(note),
-      # tex = T,
-      # fontsize = 'tiny',
-      # file=file.path(TABDIR, glue('reg_{endog}_s.tex')),
-      # label = glue('tab:reg_{endog}_s'),
-      # replace = T
+      fixest::feols(.[y] ~ sw(.[,entropy]) + ..controls | user_id + ym, df),
+      title = glue('Effect of entropy on {y}'),
+      order = c('[Ee]ntropy', '!(Intercept)'),
+      tex = T,
+      fontsize = 'tiny',
+      file=file.path(TABDIR, glue('reg_{y}.tex')),
+      label = glue('tab:reg_{y}'),
+      replace = T
     )
   )
 }
-  
 
+
+
+
+# Lagged entropy ------------------------------------------------------------------
+
+
+sort(grep('entropy_(tag|merchant).*_z', names(df), value = T))
+
+
+for (y in yvars) {
+  
+  # Unsmoothed entropy
+  entropy <- sort(grep('entropy_(tag|merchant).*_z', names(df), value = T))
+  print(
+    etable(
+      fixest::feols(.[y] ~ sw(.[,entropy]) + ..controls | user_id + ym, df),
+      title = glue('Effect of lagged entropy on {y}'),
+      order = c('[Ee]ntropy'),
+      tex = T,
+      fontsize = 'tiny',
+      file=file.path(TABDIR, glue('reg_{y}_lagged_z.tex')),
+      label = glue('tab:reg_{y}_lagged_z'),
+      replace = T
+    )
+  )
+  
+  # Smoothed entropy
+  entropy <- sort(grep('entropy_(tag|merchant).*_sz', names(df), value = T))
+  print(
+    etable(
+      fixest::feols(.[y] ~ sw(.[,entropy]) + ..controls | user_id + ym, df),
+      title = glue('Effect of lagged entropy on {y}'),
+      order = c('[Ee]ntropy'),
+      tex = T,
+      fontsize = 'tiny',
+      file=file.path(TABDIR, glue('reg_{y}_lagged_sz.tex')),
+      label = glue('tab:reg_{y}_lagged_sz'),
+      replace = T
+    )
+  )
+}
+
+
+
+
+# Control for non-zero counts -----------------------------------------------------
+
+
+# nuniques <- list(
+#   "entropy_tag_z" = "nunique_tag",
+#   "entropy_tag_sz" = "nunique_tag",
+#   "entropy_tag_spend_z" = "nunique_tag_spend",
+#   "entropy_tag_spend_sz" = "nunique_tag_spend",  
+#   "entropy_merchant_z" = "nunique_merchant",
+#   "entropy_merchant_sz" = "nunique_merchant"
+# )
+# 
+# yvars <- c("has_inflows")
+# 
+# entropy_vars <- grep('entropy_(tag|merchant).*(s)?z$', names(df), value = T)
+# 
+# 
+# for (y in yvars) {
+#   for (e in entropy_vars) {
+#     print(
+#       etable(
+#         feols(.[y] ~ .[e] + ..controls | user_id + ym, df),
+#         feols(.[y] ~ .[e] + .[nuniques[e]] + ..controls | user_id + ym, df),
+#         feols(.[y] ~ .[e] + ..controls | user_id + ym, df),
+#         feols(.[y] ~ .[e] + .[nuniques[e]] + ..controls | user_id + ym, df),
+#         title = glue('Effect of entropy on {y}'),
+#         order = c('[Ee]ntropy', '!(Intercept)')
+#         # ,
+#         # tex = T,
+#         # fontsize = 'tiny',
+#         # file=file.path(TABDIR, glue('reg_{y}.tex')),
+#         # label = glue('tab:reg_{y}'),
+#         # replace = T
+#       )
+#     )    
+#   }
+# }

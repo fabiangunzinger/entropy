@@ -1,0 +1,49 @@
+
+\begin{table}[htbp]
+   \centering
+   \tiny
+   \begin{threeparttable}[b]
+      \caption{\label{tab:reg_has_pos_netflows_lagged_z} Effect of lagged entropy on has\_pos\_netflows}
+      \begin{tabular}{lcccccc}
+         \tabularnewline \midrule \midrule
+         Dependent Variable: & \multicolumn{6}{c}{has\_pos\_netflows}\\
+         Model:                          & (1)              & (2)              & (3)              & (4)              & (5)              & (6)\\  
+         \midrule
+         \emph{Variables}\\
+         Entropy (merchant)              & 0.013$^{***}$    &                  &                  &                  &                  &   \\   
+                                         & [0.003; 0.022]   &                  &                  &                  &                  &   \\   
+         entropy\_merchant\_z\_lag       &                  & 0.013$^{***}$    &                  &                  &                  &   \\   
+                                         &                  & [0.004; 0.022]   &                  &                  &                  &   \\   
+         Entropy (48 cats)               &                  &                  & 0.006            &                  &                  &   \\   
+                                         &                  &                  & [-0.004; 0.016]  &                  &                  &   \\   
+         entropy\_tag\_spend\_z\_lag     &                  &                  &                  & 0.015$^{***}$    &                  &   \\   
+                                         &                  &                  &                  & [0.005; 0.025]   &                  &   \\   
+         Entropy (9 cats)                &                  &                  &                  &                  & 0.004            &   \\   
+                                         &                  &                  &                  &                  & [-0.005; 0.013]  &   \\   
+         entropy\_tag\_z\_lag            &                  &                  &                  &                  &                  & 0.017$^{***}$\\   
+                                         &                  &                  &                  &                  &                  & [0.008; 0.026]\\   
+         Month spend                     & -0.006$^{***}$   & -0.006$^{***}$   & -0.006$^{***}$   & -0.006$^{***}$   & -0.006$^{***}$   & -0.006$^{***}$\\   
+                                         & [-0.008; -0.004] & [-0.008; -0.004] & [-0.008; -0.004] & [-0.008; -0.004] & [-0.008; -0.004] & [-0.008; -0.004]\\   
+         Month income                    & 0.018$^{***}$    & 0.019$^{***}$    & 0.019$^{***}$    & 0.018$^{***}$    & 0.019$^{***}$    & 0.018$^{***}$\\   
+                                         & [0.016; 0.021]   & [0.016; 0.021]   & [0.016; 0.021]   & [0.016; 0.021]   & [0.016; 0.021]   & [0.016; 0.021]\\   
+         Has income in month             & 0.055$^{***}$    & 0.052$^{***}$    & 0.056$^{***}$    & 0.052$^{***}$    & 0.056$^{***}$    & 0.052$^{***}$\\   
+                                         & [0.033; 0.076]   & [0.029; 0.075]   & [0.034; 0.077]   & [0.029; 0.075]   & [0.034; 0.078]   & [0.029; 0.075]\\   
+         Income variability              & 0.001$^{*}$      & 0.001$^{*}$      & 0.001            & 0.001            & 0.001            & 0.001$^{*}$\\   
+                                         & [-0.000; 0.002]  & [-0.000; 0.002]  & [-0.000; 0.002]  & [-0.000; 0.002]  & [-0.000; 0.002]  & [-0.000; 0.002]\\   
+         \midrule
+         \emph{Fixed-effects}\\
+         User id                         & Yes              & Yes              & Yes              & Yes              & Yes              & Yes\\  
+         Calendar month                  & Yes              & Yes              & Yes              & Yes              & Yes              & Yes\\  
+         \midrule
+         \emph{Fit statistics}\\
+         Observations                    & 102,237          & 98,895           & 102,302          & 98,957           & 102,302          & 98,957\\  
+         R$^2$                           & 0.23708          & 0.23963          & 0.23685          & 0.23952          & 0.23684          & 0.23958\\  
+         Within R$^2$                    & 0.00601          & 0.00593          & 0.00589          & 0.00594          & 0.00588          & 0.00602\\  
+         \midrule \midrule
+         \multicolumn{7}{l}{\emph{Clustered (User id) co-variance matrix, 95\% confidence intervals in brackets}}\\
+         \multicolumn{7}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+      \end{tabular}
+   \end{threeparttable}
+\end{table}
+
+

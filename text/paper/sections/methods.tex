@@ -34,6 +34,30 @@ not address this.\footnote{For an example of how re-weighing can be used to
 mitigate the non-representative issue, see \citet{bourquin2020effects}.}
 
 
+\paragraph{Data issues}%
+\label{par:data_issues}
+
+\citet{bourquin2020effects} argue that because some of the accounts in the data
+will be joint accounts, units of observations should be tought of as
+"households" rather than "users". We do not agree that this is the most prudent
+approach. The validity of thinking of units as households depends on the
+proportion of users in the data who add joint accounts and on the proportion of
+transactions -- out of a user's total number of transactions -- additionally
+observed as a result. Given that the sample is skewed towards younger
+individuals we think it is unlikely that a majority of them has added joint
+accounts. Furthermore, it seems reasonable to assume that in most cases, joint
+accounts are mainly used for common household expenditures similar that are
+similar to those of a single user (albeit in higher amounts), and are thus
+unlikely to alter the observed spending profile much. Thus, we think of units
+of observations as individuals, not households. 
+
+Some accounts might be business accounts. Using versions of the algorightms
+used by \citet{bourquin2020effects} to identify such accounts showed, however,
+that such accounts only make up a tiny percentage of overall accounts and would
+not influence our results. We thus do not exclude them.
+
+
+
 \subsection{Preprocessing and sample selection}%
 \label{par:preprocessing_and_sample_selection}
 
@@ -48,7 +72,7 @@ Appendix~\ref{sec:data}.
 \begin{table}[H]
 \centering
 \caption{Sample selection}\label{tab:selection}
-\input{\tabdir/sample_selection_XX7.tex}
+\input{\tabdir/sample_selection.tex}
 \end{table}
 
 
@@ -227,6 +251,95 @@ We consider purchases at Tesco, Sainsbury's, Asda, Morrisons, Aldi, Co-op,
 Lidl, Waitrose, Iceland, and Ocado, which have a combined market share of 96.5
 percent.
 
+\paragraph{Additional entropy notes}%
+
+In equation~\ref{equ:entropy} we have defined entropy as $H =
+-\sum{p_i}log(p_i)$ and pointed out that it can loosely be interpreted as the
+predictability of an individual's spending behaviour. In this section, we
+provide a more detailed discussion of the formula.
+
+The building blocks of entropy is the information content of a single event.
+The key intuition \citet{shannon1948mathematical} aimed to capture was that
+learning of the occurrence of a low-probability event is more informative than
+learning of the occurrence of a high-probability event. The information of an
+event $I(E)$ is thus inversely proportional to is probability $p(E)$. One way
+to capture this would be to define the information of event E as $I(E) =
+\frac{1}{p(E)}$. Yet this implied that an event that is certain to occur had
+information 1, when it would make sense to have information 0. To remedy this
+(and also satisfy additional desireable characteristics of an information
+function), we can can use the log of the expression. Hence, the information of
+event E, often called \textit{Shannon information}, \textit{self-information},
+or just \textit{information}, is defined as:
+
+\begin{equation}
+    I(E) = log\left(\frac{1}{p(E)}\right) = -log(p(E))
+\end{equation}
+
+Entropy, often called \textit{Information entropy}, \textit{Shannon entropy},
+or just \textit{entropy}, is the information of a random variable and captures
+the expected amount of information of an event drawn at random from the
+probability distribution of the random variable. It is calcualted as:
+
+\begin{equation}
+    H(X) = -\sum_x p(x) \times log(p(x)) = \sum_x p(x)I(x) = \mathbb{E} I(x).
+\end{equation}
+
+% For a single event, the key intution was that the less likely an event, the
+% more information is conveyed when it occurs. The related idea for distributions
+% is similar: the more skewed a distribution, the more uncertain the autcome, the
+% higher its entropy. The minimal entropy distribution is thus the uniform
+% distribution.
+
+\edit{todo: Discuss link to spending behaviour}
+% --todo-- correct the above, it's incorrect. uniform is max entropy
+% distribution. Link to spending behaviour.
+
+
+
+% -p Why does entropy (when calculated using base 2 logarithms) also represent the number of bits required to convey the average outcome of a distribution? [Wikipedia](https://en.wikipedia.org/wiki/Entropy_&28information_theory%29#Introduction) (in the second to last paragraph of the introduction) explains this well. Basically, its because if there are some events with very high probability, then these events could be transmitted with short codes of only a few bits, so that most of the time, only a few bits have to be transmitted to send the message.
+
+% The choice of the base for the
+% logarithm varies by application and determines the units of $I(E)$. Base 2
+% means that information is expressed in bits. The natural logarithm, another
+% popular choice, expresses information in \textit{nats}.
+
+\paragraph{Entropy calculation}%
+\label{sub:entropy_calculation}
+
+
+Entropy can be calculated along a number of dimensions.
+
+\begin{itemize}
+    \item Category-based vs time-based vs category-time based
+        \citep{guidotti2015behavioral, krumme2013predictability}
+
+    \item Count-based vs value-based
+
+    \item Intratemporal vs intertemporal \citep{krumme2013predictability}
+
+        \begin{itemize}
+            \item Based on behaviour within a given time period or changes in
+                behaviour across time periods.
+        \end{itemize}
+        
+\end{itemize}
+
+Desireable features of entropy variable:
+
+\begin{itemize}
+    \item Based on a large enough number of categories so that spend on many of
+        them can reasonably be interpreted as chaotic (the 9 LBG tags seem
+        insufficient for this, especially because most of them are vital life
+        expenses). Use of auto tags or merchant seems preferable.
+
+    \item 
+\end{itemize}
+
+
+
+
+
+
 
 \subsection{Control variables}%
 \label{sub:control_variables}
@@ -308,6 +421,15 @@ Individual and household characteristics
 Table~\ref{tab:sumstats} provides summary statistics.
 
 \input{\tabdir/sumstats.tex}
+
+Figure~\ref{fig:sample_desc}
+\begin{figure}[H]
+    \caption{Demographic characteristics of Money Dashboard users}
+    \label{fig:sample_desc}
+    \begin{center}
+        \includegraphics[width=.9\textwidth]{\figdir/sample_desc.png}
+    \end{center}
+\end{figure}
 
 Figure~\ref{fig:entropy_kdes}
 \begin{figure}[H]

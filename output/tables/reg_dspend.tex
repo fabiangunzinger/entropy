@@ -1,0 +1,49 @@
+
+\begin{table}[htbp]
+   \centering
+   \tiny
+   \begin{threeparttable}[b]
+      \caption{\label{tab:reg_dspend} Effect of entropy on dspend}
+      \begin{tabular}{lcccccc}
+         \tabularnewline \midrule \midrule
+         Dependent Variable: & \multicolumn{6}{c}{dspend}\\
+         Model:                     & (1)                & (2)                & (3)                & (4)                  & (5)                  & (6)\\  
+         \midrule
+         \emph{Variables}\\
+         Entropy (9 cats)           & -72.998$^{***}$    &                    &                    &                      &                      &   \\   
+                                    & [-87.457; -58.539] &                    &                    &                      &                      &   \\   
+         Entropy (48 cats)          &                    & 31.937$^{***}$     &                    &                      &                      &   \\   
+                                    &                    & [15.330; 48.545]   &                    &                      &                      &   \\   
+         Entropy (merchant)         &                    &                    & 196.649$^{***}$    &                      &                      &   \\   
+                                    &                    &                    & [181.041; 212.257] &                      &                      &   \\   
+         Entropy (9 cats, smooth)   &                    &                    &                    & -178.947$^{***}$     &                      &   \\   
+                                    &                    &                    &                    & [-188.792; -169.103] &                      &   \\   
+         Entropy (48 cats, smooth)  &                    &                    &                    &                      & -309.886$^{***}$     &   \\   
+                                    &                    &                    &                    &                      & [-322.797; -296.976] &   \\   
+         Entropy (merchant, smooth) &                    &                    &                    &                      &                      & -289.275$^{***}$\\   
+                                    &                    &                    &                    &                      &                      & [-305.714; -272.837]\\   
+         Month spend                & 128.850$^{***}$    & 126.539$^{***}$    & 118.586$^{***}$    & 122.593$^{***}$      & 104.103$^{***}$      & 88.101$^{***}$\\   
+                                    & [120.906; 136.795] & [118.498; 134.579] & [110.750; 126.423] & [114.933; 130.252]   & [97.208; 110.997]    & [81.709; 94.494]\\   
+         Month income               & 15.203$^{***}$     & 14.436$^{***}$     & 12.799$^{***}$     & 14.653$^{***}$       & 8.878$^{***}$        & 3.904$^{**}$\\   
+                                    & [10.541; 19.865]   & [9.794; 19.079]    & [8.265; 17.333]    & [10.173; 19.132]     & [4.999; 12.758]      & [0.202; 7.605]\\   
+         Has income in month        & 37.609$^{**}$      & 27.544$^{*}$       & 6.106              & 25.156$^{*}$         & -10.570              & -1.731\\   
+                                    & [7.686; 67.532]    & [-2.338; 57.425]   & [-22.688; 34.899]  & [-2.903; 53.214]     & [-35.101; 13.960]    & [-25.196; 21.735]\\   
+         Income variability         & 1.766              & 1.890              & 2.232$^{*}$        & 1.521                & 1.638                & 0.986\\   
+                                    & [-0.849; 4.381]    & [-0.736; 4.517]    & [-0.336; 4.799]    & [-0.923; 3.964]      & [-0.396; 3.672]      & [-0.836; 2.807]\\   
+         \midrule
+         \emph{Fixed-effects}\\
+         User id                    & Yes                & Yes                & Yes                & Yes                  & Yes                  & Yes\\  
+         Calendar month             & Yes                & Yes                & Yes                & Yes                  & Yes                  & Yes\\  
+         \midrule
+         \emph{Fit statistics}\\
+         Observations               & 102,302            & 102,302            & 102,237            & 102,302              & 102,302              & 102,237\\  
+         R$^2$                      & 0.67540            & 0.67423            & 0.68455            & 0.69522              & 0.72670              & 0.74462\\  
+         Within R$^2$               & 0.22733            & 0.22453            & 0.24932            & 0.27450              & 0.34944              & 0.39228\\  
+         \midrule \midrule
+         \multicolumn{7}{l}{\emph{Clustered (User id) co-variance matrix, 95\% confidence intervals in brackets}}\\
+         \multicolumn{7}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+      \end{tabular}
+   \end{threeparttable}
+\end{table}
+
+
