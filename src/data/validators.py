@@ -25,7 +25,7 @@ def no_missing_values(df):
 
 
 # @validator
-def at_least_min_year_income(df, min_year_income=cf.MIN_YEAR_INCOME):
+def min_year_income(df, min_year_income=cf.MIN_YEAR_INCOME):
     min_month_income = round(min_year_income / 12, 2)
     assert df.month_income_mean.min() >= (min_month_income)
     return df
