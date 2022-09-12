@@ -424,6 +424,22 @@ def loan_repayments(df):
     return loan_rpmts.groupby(group_vars).sum().rename("loan_rpmts")
 
 
+@aggregator
+@hh.timer
+def category_nunique(df):
+    """Number of unique categories spent on per user-month."""
+    is_spend = df.tag_group.eq("spend") & df.is_debit
+    cat_vars = ["tag", "tag_spend", "merchant"]
+    group_cols = [df.user_id, df.ym]
+    return (
+        df[cat_vars]
+        .where(is_spend, np.nan)
+        .groupby(group_cols)
+        .nunique()
+        .rename(columns=lambda x: "nunique_" + x)
+    )
+
+
 DSPEND_GROUPS = {
     "other": [
         "beauty products",
