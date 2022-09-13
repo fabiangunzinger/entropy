@@ -1,0 +1,49 @@
+
+\begin{table}[htbp]
+   \centering
+   \tiny
+   \begin{threeparttable}[b]
+      \caption{\label{tab:reg_investments_nolag} Effect of entropy on NULL}
+      \begin{tabular}{lcccccc}
+         \tabularnewline \midrule \midrule
+         Dependent Variable: & \multicolumn{6}{c}{investments}\\
+         Model:                     & (1)             & (2)             & (3)             & (4)             & (5)             & (6)\\  
+         \midrule
+         \emph{Variables}\\
+         Entropy (9 cats)           & 2.245$^{***}$   &                 &                 &                 &                 &   \\   
+                                    & [1.146; 3.344]  &                 &                 &                 &                 &   \\   
+         Entropy (48 cats)          &                 & 2.950$^{***}$   &                 &                 &                 &   \\   
+                                    &                 & [1.726; 4.173]  &                 &                 &                 &   \\   
+         Entropy (merchant)         &                 &                 & 2.134$^{***}$   &                 &                 &   \\   
+                                    &                 &                 & [0.879; 3.389]  &                 &                 &   \\   
+         Entropy (9 cats, smooth)   &                 &                 &                 & 0.225           &                 &   \\   
+                                    &                 &                 &                 & [-0.542; 0.993] &                 &   \\   
+         Entropy (48 cats, smooth)  &                 &                 &                 &                 & -0.655          &   \\   
+                                    &                 &                 &                 &                 & [-1.643; 0.333] &   \\   
+         Entropy (merchant, smooth) &                 &                 &                 &                 &                 & -1.046$^{**}$\\   
+                                    &                 &                 &                 &                 &                 & [-2.078; -0.013]\\   
+         Month spend                & 2.150$^{***}$   & 2.086$^{***}$   & 2.088$^{***}$   & 2.189$^{***}$   & 2.135$^{***}$   & 2.049$^{***}$\\   
+                                    & [1.714; 2.587]  & [1.649; 2.523]  & [1.649; 2.527]  & [1.751; 2.627]  & [1.695; 2.574]  & [1.607; 2.492]\\   
+         Month income               & 3.372$^{***}$   & 3.363$^{***}$   & 3.370$^{***}$   & 3.389$^{***}$   & 3.376$^{***}$   & 3.349$^{***}$\\   
+                                    & [2.782; 3.963]  & [2.773; 3.954]  & [2.779; 3.961]  & [2.798; 3.979]  & [2.785; 3.968]  & [2.757; 3.941]\\   
+         Has income in month        & 0.602           & 0.453           & 0.525           & 0.857           & 0.772           & 0.760\\   
+                                    & [-2.393; 3.597] & [-2.545; 3.451] & [-2.473; 3.524] & [-2.138; 3.852] & [-2.223; 3.767] & [-2.235; 3.756]\\   
+         Income variability         & 0.701$^{***}$   & 0.700$^{***}$   & 0.702$^{***}$   & 0.701$^{***}$   & 0.701$^{***}$   & 0.699$^{***}$\\   
+                                    & [0.188; 1.214]  & [0.187; 1.214]  & [0.188; 1.215]  & [0.188; 1.214]  & [0.188; 1.214]  & [0.186; 1.212]\\   
+         \midrule
+         \emph{Fixed-effects}\\
+         User id                    & Yes             & Yes             & Yes             & Yes             & Yes             & Yes\\  
+         Calendar month             & Yes             & Yes             & Yes             & Yes             & Yes             & Yes\\  
+         \midrule
+         \emph{Fit statistics}\\
+         Observations               & 1,043,727       & 1,043,727       & 1,043,416       & 1,043,727       & 1,043,727       & 1,043,416\\  
+         R$^2$                      & 0.32155         & 0.32156         & 0.32143         & 0.32153         & 0.32153         & 0.32143\\  
+         Within R$^2$               & 0.00220         & 0.00222         & 0.00220         & 0.00217         & 0.00218         & 0.00219\\  
+         \midrule \midrule
+         \multicolumn{7}{l}{\emph{Clustered (User id) co-variance matrix, 95\% confidence intervals in brackets}}\\
+         \multicolumn{7}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+      \end{tabular}
+   \end{threeparttable}
+\end{table}
+
+

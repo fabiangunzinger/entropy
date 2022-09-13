@@ -1,18 +1,39 @@
 % !TEX root = ../entropy.tex
 
-\section{Spending profiles predict savings}%
+\section{Spending profiles predict emergency savings}%
 \label{sec:results}
 
-\subsection{Main results}%
-\label{sub:new_results}
+Table~\ref{tab:reg_has_inflows_main} shows the effect of entropy on the
+probability of having emergency savings. Columns (1)-(3) show results for
+unsmoothed entropy based on 9 categories, 48 categories, and merchant names,
+respectively. Columns (4)-(6) results for smoothed entropy based on the same
+variables. All models include user and year-month fixed effects, and standard
+errors are clustered at the user-level. Confidence intervals are shown in
+brakets.
 
-\def\yvars{has_inflows,inflows, has_investments,investments, dspend}
-\foreach \y in \yvars {
-    \input{\tabdir/reg_\y.tex}
-}
+\input{\tabdir/reg_has_inflows_main.tex}
+
+Results for unsmoothed entropy suggest that a one unit increase in entropy is
+associated with an increase in the probability of a user making at least one
+transfer into their savings accounts of between 1.5 and 2.7 percentage points
+-- an effect up to two times larger than that of a \pounds1000 increase in
+monthly income.
+
+Conversely, the effect for unsmooth entropy is smaller in magnitude but runs in
+the reverse direction: a one-unit increase in the smoothed entropy score is
+associated with a reduction in the probability of transferring money into
+savings account of between 0.4 and 1.6 percentage points -- an effect that, in
+absolute magnitude, is about equal to that of a \pounds1000 increase in monthly
+income.
+
+Overall, then, the effect of entropy in spending profiles is statistically and
+economically significant, and robust across different definitions. In other
+words, the scores seem to pick up a feature of the spending distribution that
+is predictive of savings behaviour.
+
+But how can we account for the opposite sign for smoothed and unsmoothed
+entropy scores? We don't have the answer to this yet... 
 
 
-\begin{itemize}
-    \item Discuss discrepancies depending on entropy measure and discuss next
-        steps.
-\end{itemize}
+
+

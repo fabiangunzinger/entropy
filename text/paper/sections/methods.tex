@@ -57,7 +57,6 @@ that such accounts only make up a tiny percentage of overall accounts and would
 not influence our results. We thus do not exclude them.
 
 
-
 \subsection{Preprocessing and sample selection}%
 \label{par:preprocessing_and_sample_selection}
 
@@ -65,9 +64,7 @@ We restrict our sample to users for whom we can observe a regular income, can
 be reasonably sure that they have added all their bank account to MDB, and for
 whom we observe at least six months of data. Table~\ref{tab:selection}
 summarises the sample selection steps we applied to a 1 percent sample of the
-raw data, associated data losses, and the size of our final sample. A detailed
-description of the entire data cleaning and selection process is provided in
-Appendix~\ref{sec:data}.
+raw data, associated data losses, and the size of our final sample.
 
 \begin{table}[H]
 \centering
@@ -76,9 +73,8 @@ Appendix~\ref{sec:data}.
 \end{table}
 
 
-
 \subsection{Dependent variables}
-\label{par:outcome_variable_}
+\label{sub:dependent_variables}
 
 Identifying savings transactions: We classify as payments into savings accounts
 all savings account credits of \pounds5 or more that are not identified as
@@ -90,329 +86,96 @@ can tell, the only account for a small fraction of total transactions.}
 Dummy for savings txn in current month. Motivation: \citet{mps2018building} finds that
 saving habit is often more important than amount saved.
 
-Gross and net inflows into savings accounts in current month. We winsorise the
-top end of the distribution at the 1 percent level.
 
+\subsection{Spending profiles}%
+\label{sub:spending_profiles}
 
-
-
-\subsection{Spending profile}%
-\label{par:variable_of_interest_}
-
-\begin{itemize}
-    \item Two ways to characterise spend profile: intra-period and
-        inter-period. For proof-of-concept study, we focus on former, and on
-        calendar month as period.\footnote{For intra-period characterisation,
-        consistency over time will be particularly interesting. Might be able
-    to capture this using Jensen-Shannon divergence.}
-\end{itemize}
-
-
-Measures of spending profiles:
-\begin{itemize}
-    \item Tag-based entropy
-
-    \item Smoothed tag-based entropy
-
-    \item Grocery-shops based entropy
-
-    \item Composite measure based on PCA from combination of base entropy
-        scores (similar to \citet{eagle2010network}
-\end{itemize}
-
-
-\paragraph{Tag-based entropy}%
-\label{par:tag_based_entropy}
-
-Our variable of interest is spending entropy, a measure of how predictable an
-individual's spending pattern is at a given point in time, which we interpret
-more broadly as a measure of the degree to which an individual's life is
-chaotic. Entropy is a cornerstone of information theory, where it measures the
-amount of information contained in an event. In the behavioural sciences,
-behavioural entropy has recently been shown to predict the frequency of grocery
-visits and the per-capita spend per visit \citep{guidotti2015behavioral}, the
-amount of calories consumed \citep{skatova2019those}, and the propensity for
-financial distress \citep{muggleton2020evidence}.
-
-We calculate spending entropy using the formula proposed by
-\citet{shannon1948mathematical}, which defines entropy as:\footnote{Shannon
-    entropy is customarily denoted as $H$ following Shannon's own naming after
-    Ludwig Boltzman's 1872 H-theorem in statistical mechanics, to which it is
-analagous.}
+We define a user's spending profile as the distribution of the number of
+spending transactionas across different spend categories.\footnote{There are a
+    number of alternative ways to characterise spend profiles. We could
+    calculate profiles based on the distribution of transaction values rather
+    than counts. We could also calculate profiles based on inter-temporal
+    rather than intra-temporal distributions, focusing on consistency of
+    purchasing behaviour over time rather than on predictability at any given
+    time \citep{krumme2013predictability}. Further, we could focus on
+    time-based rather than category-based measures, focusing, for instance, on
+    whether purchases of the same type tend to occur on the same day of the
+    week \citep{guidotti2015behavioral}. Finally, one could also create
+composite measures based on principal component analysis, an approach used in
+\citet{eagle2010network}. We leave these extensions for future research.} To
+summarise these distributions, we calculate spending entropy, based on the
+formula proposed by \citet{shannon1948mathematical}, which defines entropy
+as:\footnote{Shannon entropy is customarily denoted as $H$ following Shannon's
+    own naming after Ludwig Boltzman's 1872 H-theorem in statistical mechanics,
+to which it is analagous.}
 
 \begin{equation}
 \label{equ:entropy}
     H = -\sum{p_i}log(p_i),
 \end{equation}
 
-where $p_i$ is the probability that an individual makes a purchase in spending
-category $i$, and $log$ is the base 2 logarithm.
+\noindent where $p_i$ is the probability that an individual makes a purchase in spending
+category $i$, and $log$ is the base 2 logarithm.\footnote{The choice of the
+    base for the logarithm varies by application and determines the units of
+    $I(E)$. Base 2 means that information is expressed in bits. The natural
+logarithm, another popular choice, expresses information in \textit{nats}.}
 
-\edit{We normalise $H$ by $log(N_{SC})$, the entropy of completely random shopping
-    behaviour, so that it takes value between 0 and 1.\footnote{$log(N_{SC})$ is
-    the probability of a completely random shopping pattern because for in this
-case, for $N_{SC}$ different spending categories, we would have $p_i = 1 /
-N_{SC}$ for each category $i$ so that $H = -N_{SC}p_ilog(p_i) = -log(p_i) =
-log(N_{SC})$.}}
+Entropy is a cornerstone of information theory, where it measures the amount of
+information contained in an event. In the behavioural sciences, behavioural
+entropy has recently been shown to predict the frequency of grocery visits and
+the per-capita spend per visit \citep{guidotti2015behavioral}, the amount of
+calories consumed \citep{skatova2019those}, and the propensity for financial
+distress \citep{muggleton2020evidence}.
 
-The higher the value of
-entropy, the less predictable an individuals spending pattern.
+In the context of spending profiles, higher entropy means that transactions are
+more equal across different spending categories, which makes it hard to predict
+the next transaction, whereas low entropy profiles have the bulk of
+transactions in a few dominant categories (such as groceries and
+transportation) and have relatively few transactions in other
+categories.\footnote{For further discussion on how to interpret
+Equation~\ref{equ:entropy}, see Appendix~\ref{sec:entropy}.}
 
-To calculate entropy scores, we group spending into 9 spending categories (SC)
-based on the classification used by Lloyds Banking Group as discussed in
-\citet{muggleton2020evidence}. Also following that paper, we use additive
-smoothing to calcualte probabilities to avoid taking logs of zeroes in cases
-where an individual makes no purchases in a given spending category. We thus calculate $p_i$ as: 
+We calculate entropy based on three sets of spend categories. The first measure
+is based on 9 spending categories used by
+\citet{muggleton2020evidence}.\footnote{The precise mapping from MDB
+    transaction tags into these 9 categories is available on
+\href{https://github.com/fabiangunzinger/entropy/blob/7fa9c565bf8959ea92a9d4fe2245da0864e19c27/src/data/txn_classifications.py\#L249}{Github}.}
+The second measure is based on our own, more fine-grained, categorisation into
+48 different categories.\footnote{The precise mapping from MDB transaction tags
+into these 48 categories is available on
+\href{https://github.com/fabiangunzinger/entropy/blob/7fa9c565bf8959ea92a9d4fe2245da0864e19c27/src/data/txn_classifications.py\#L503}{Github}.}
+The third measure is based on merchant names, as labelled by Money Dashboard.
 
-\begin{equation}
-    p_i = \frac{\text{Count of purchases in $SC_i$} + 1}{\text{Count of
-    all purchases} + N_{SC}},
-\end{equation}
-
-where $N_{SC}$ is the total number of categories.
-
-Issues from imperfect labelling of MDB data:
-\begin{itemize}
-
-    \item Transaction tagging in the MDB data is imperfect: about 20 percent of
-        transactions have no tag.
-
-    \item This creates two issues for entropy calculation.
-
-    \item First, entropy scores of high-entropy individuals are biased
-        downwards - relatively more than those of low-entropy individuals.
-        Reason: missing tags are not random: more common transactions such as
-        groceries or take-away purchases are more likely to be tagged ...
-
-    \item All zero count-cases: ... Solution: require minimum number of txns in
-        two different labels (for all categories we use to calculate entropy).
-        Two to avoid 0 entropy cases that are unlikely to be genuine but
-        probably artefacts of missing labelling.
-        
-\end{itemize}
-
-\paragraph{Auto-tag-based entropy}
-\label{par:auto_tag_entropy}
-
-\begin{itemize}
-    \item Use apriori algorithm
-
-    \item minsup: minimum number of baskets a pattern is required to appear
-        (else it's dropped)
-
-    \item In our context: baseket is collection of auto tags with positive txsn
-        counts in a user month, while pattern is pattern of such auto tags.
-
-    \item Patterns also called 'representative baskets'.
-
-    \item Algorithm steps (adapted from guidotti2015behavioural)
-
-        \begin{itemize}
-            \item Identify all patterns (representative baskets)
-
-            \item Discard representative baskets that appear in fewer than
-                minsup months we observe for a user. 
-
-            \item Assign representative basked to each of the user's months.
-
-            \item Calculate probabilities of observing a representative basked
-                based on occurrences across all of a user's month. E.g. user
-                with 5 months of data with representative baskets [1, 1, 2, 3,
-                4] has representative basket probabilitis 2/5 for repr basket
-                1, and 1/5 for repr baskets 2-4.
-
-            \item Calculate user-leven entropy based on probabilities.
-        \end{itemize}
-\end{itemize}
-
-
-\paragraph{Shopping-time based entropy}
-\label{par:shopping_time_based_entropy}
-
-We calculate entropy based on the probability of $(day of week, merchant)$
-tuples, where we follow \citet{guidotti2015behavioral} and bin \textit{day of
-week} into \textit{weekends} and \textit{weekday}, to reduce excessive
-fluctuations. Because banks tend to process weekend transactions on Monday, as
-shown in
-Figure~\ref{fig:spending}, we cannot distinguish transactions made on Saturdays
-or Sundays from those made on Mondays, and thus classify all of them as weekend
-transactions.
-
-We drop the about 25 percent of transactions for which we cannot identify a
-merchant. The alternative would be leaving these transactions in the sample and
-treating ``unknown merchant'' as a single merchant. But for user-months for
-which the merchant is unknown for all transactions, this would lead to an
-entropy score of 0, which is undesireable.
-
-\paragraph{Grocery shop entropy}%
-\label{par:grocery_shop_entropy}
-
-We consider purchases at Tesco, Sainsbury's, Asda, Morrisons, Aldi, Co-op,
-Lidl, Waitrose, Iceland, and Ocado, which have a combined market share of 96.5
-percent.
-
-\paragraph{Additional entropy notes}%
-
-In equation~\ref{equ:entropy} we have defined entropy as $H =
--\sum{p_i}log(p_i)$ and pointed out that it can loosely be interpreted as the
-predictability of an individual's spending behaviour. In this section, we
-provide a more detailed discussion of the formula.
-
-The building blocks of entropy is the information content of a single event.
-The key intuition \citet{shannon1948mathematical} aimed to capture was that
-learning of the occurrence of a low-probability event is more informative than
-learning of the occurrence of a high-probability event. The information of an
-event $I(E)$ is thus inversely proportional to is probability $p(E)$. One way
-to capture this would be to define the information of event E as $I(E) =
-\frac{1}{p(E)}$. Yet this implied that an event that is certain to occur had
-information 1, when it would make sense to have information 0. To remedy this
-(and also satisfy additional desireable characteristics of an information
-function), we can can use the log of the expression. Hence, the information of
-event E, often called \textit{Shannon information}, \textit{self-information},
-or just \textit{information}, is defined as:
+We also handle categories with zero transaction counts in two different ways.
+To calculate what we call ``unsmoothed'' entropy scores, we calculate the
+$p_i$s in Equation~\ref{equ:entropy} as simple frequentist probabilities
 
 \begin{equation}
-    I(E) = log\left(\frac{1}{p(E)}\right) = -log(p(E))
+    p_i^{us} = \frac{T_i}{\sum_{i=1}^{N}Ti},
 \end{equation}
 
-Entropy, often called \textit{Information entropy}, \textit{Shannon entropy},
-or just \textit{entropy}, is the information of a random variable and captures
-the expected amount of information of an event drawn at random from the
-probability distribution of the random variable. It is calcualted as:
+\noindent where $T_i$ is the number of transactions in spend category $i$ and
+$N$ the number of categories. To avoid taking the log of zero for categories
+with zero transactions, the sum in Equation~\ref{equ:entropy} is taken over
+categories with positive transaction counts only.\footnote{This is
+automatically handled by the entropy
+\href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.entropy.html}{implementation}
+of Python's SciPy package, which is what we use to calculate entropy scores.}
+To calculate ``smoothed'' entropy scores, we apply additive smoothing to
+calculate propabilities as
 
 \begin{equation}
-    H(X) = -\sum_x p(x) \times log(p(x)) = \sum_x p(x)I(x) = \mathbb{E} I(x).
+    p_i^{s} = \frac{T_i + 1}{\sum_{i=1}^{N}Ti + N}.
 \end{equation}
 
-% For a single event, the key intution was that the less likely an event, the
-% more information is conveyed when it occurs. The related idea for distributions
-% is similar: the more skewed a distribution, the more uncertain the autcome, the
-% higher its entropy. The minimal entropy distribution is thus the uniform
-% distribution.
+Because categories with a zero transaction count will have a numerator of 1,
+the sum in Equation~\ref{equ:entropy} will be taken over all categories.
 
-\edit{todo: Discuss link to spending behaviour}
-% --todo-- correct the above, it's incorrect. uniform is max entropy
-% distribution. Link to spending behaviour.
-
-
-
-% -p Why does entropy (when calculated using base 2 logarithms) also represent the number of bits required to convey the average outcome of a distribution? [Wikipedia](https://en.wikipedia.org/wiki/Entropy_&28information_theory%29#Introduction) (in the second to last paragraph of the introduction) explains this well. Basically, its because if there are some events with very high probability, then these events could be transmitted with short codes of only a few bits, so that most of the time, only a few bits have to be transmitted to send the message.
-
-% The choice of the base for the
-% logarithm varies by application and determines the units of $I(E)$. Base 2
-% means that information is expressed in bits. The natural logarithm, another
-% popular choice, expresses information in \textit{nats}.
-
-\paragraph{Entropy calculation}%
-\label{sub:entropy_calculation}
-
-
-Entropy can be calculated along a number of dimensions.
-
-\begin{itemize}
-    \item Category-based vs time-based vs category-time based
-        \citep{guidotti2015behavioral, krumme2013predictability}
-
-    \item Count-based vs value-based
-
-    \item Intratemporal vs intertemporal \citep{krumme2013predictability}
-
-        \begin{itemize}
-            \item Based on behaviour within a given time period or changes in
-                behaviour across time periods.
-        \end{itemize}
-        
-\end{itemize}
-
-Desireable features of entropy variable:
-
-\begin{itemize}
-    \item Based on a large enough number of categories so that spend on many of
-        them can reasonably be interpreted as chaotic (the 9 LBG tags seem
-        insufficient for this, especially because most of them are vital life
-        expenses). Use of auto tags or merchant seems preferable.
-
-    \item 
-\end{itemize}
-
-
-
-
-
-
-
-\subsection{Control variables}%
-\label{sub:control_variables}
-
-We classify potential determinants of savings behaviour into \textit{financial behaviours},
-\textit{financial planning}, and \textit{individual or household
-characteristics}, a classification frequently used in policy research on
-the financial wellbeing \citep{can2019improving,cfpb2017financial, mps2018building}.
-
-Financial behaviour
-
-\begin{itemize}
-    \item Regular savings, dummy for 10 out of last 12 months
-
-    \item Proportion of purchases paid with credit card. This is only about 6
-        percent in our final sample, whereas it is 12 percent in the full
-        sample.\footnote{Across the UK, the proportion of credit pard purchases
-            is about 17 percent in a typical month \citep{ukfinance2021card}.
-            The proportion in our data is likely lower because the sample is
-        skewed towards more affluent individuals.}
-
-    \item Month total and category spend (category spend for robustness)
-\end{itemize}
-
-Planning
-\begin{itemize}
-    \item Regular login, dummy for 1 / month in 10 out of last 12 months. Have
-        login data for about 50 percent of sample, so best to work with full
-        sample once I use it. Implement once I can do that. -- not yet
-        implemented --
-\end{itemize}
-
-Individual and household characteristics
-\begin{itemize}
-    \item Gender
-
-    \item Age
-
-    \item Urban
-
-    \item Region
-
-    \item Year income, winsorised at the 1 percent level. We include
-        year-rather than month-income because the latter can be quite variable
-        (e.g. irregular work, changing jobs, etc.), and we assume people to
-        base their consumption on their annual income. (Could test this in
-        appendix: is correlation between annual and spend stronger than between
-        monthly and spend?)
-
-    % \item Month income, winsorised at top 1 percent-level.
-
-    \item Regular income, dummy for 10 out of last 12 months
-
-    \item Month income std -- not implemented yet --
-
-    \item Income current month, dummy for month income > 0
-
-    \item Has children, imperfect -- not yet implemented --
-
-    \item Index of multiple deprivations from nspl -- not implemented yet --
-
-    \item Received benefits
-
-    \item Receives pension
-
-    \item Housing tenure: mortgage, rent, other (owning outright implied)
-
-    \item Takes out (payday) loan
-
-    \item Total balance or balance / avg. month spend -- not yet implemented --
-\end{itemize}
-
-
+The imperfect transaction labelling in the MDB data creates a downward bias in
+entropy scores for high-entropy individuals. This happens because unlabelled
+transactions tend to be transactions that are rare (i.e. not grocery or Amazon
+purchases), and it is high-entropy individuals that are more likely to engage
+in rare transactions.
 
 
 \subsection{Summary statistics}%
@@ -440,28 +203,37 @@ Figure~\ref{fig:entropy_kdes}
 \end{figure}
 
 
-
-
 \subsection{Model specification}%
 \label{par:model_specification}
 
 We estimate models of the form: 
 
 \begin{equation}
-    s_{i,t} = \alpha_i + \lambda_t + \beta H_{i,t} + x^\prime_{i,t} \delta +
+    y_{i,t} = \alpha_i + \lambda_t + \beta H_{i,t} + x^\prime_{i,t} \delta +
     \epsilon_{i,t},
 \end{equation}
 
-where $s_{i,t}$ is an indicator variable equal to one if individual $i$ made
-one or more transfers to any of their savings account in month $t$ and zero
-otherwise, $H_{it}$ is $i$'s spending entropy in month $t$, $x_{i,t}$ a vector
+\noindent where $y_{i,t}$ is an indicator variable equal to one if individual $i$ made
+one or more transfers to any of their savings account in year-month period $t$ and zero
+otherwise, $H_{it}$ is $i$'s spending entropy in year-month period $t$, $x_{i,t}$ a vector
 of control variables, $\alpha_i$ an individual fixed effect, $\lambda_t$ a
-calendar month fixed effect, and $\epsilon_{i, t}$ the error term.
+year-month fixed effect, and $\epsilon_{i, t}$ the error term.
 
-Issues to think about:
-\begin{itemize}
-    \item Unbalanced panel is not random - people using MDB for longer are
-        different. Should we just use first x months for every user? E.g. first
-        year?
-\end{itemize}
+The vector of controls includes month spend, month income, an indicator for
+whether a user had positive income in a given month, and income
+variability, calculated as the standard deviation of month income over the
+previous 12 months.
+
+Note that while we might in principle be worried about reverse causality, since
+making payments into savings accounts might lead to a non-zero count in an
+additional spend category and thus change entropy, this is not a concern here.
+As discussed in Section~\ref{sub:dependent_variables} and
+Section~\ref{sub:spending_profiles}, we define savings as inflows into savings
+accounts and define entropy based on the classification of spend transactions
+on current accounts. If a user pays money from their current into one of their
+savings account, this will usually be labelled in their current account as a
+transfer and not enter the calculation of their entropy score. In
+Appendix~\ref{sec:robustness}, we provide robustness checks using lagged
+entropy scores and controlling for the number of non-zero categories, which
+broadly leave the results unchanged.
 

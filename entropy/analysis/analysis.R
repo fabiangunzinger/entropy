@@ -9,7 +9,7 @@ source('src/analysis/fixest_settings.R')
 
 
 # Load data and add lagged entropy variables
-df <- read_analysis_data("XX0") %>% 
+df <- read_debug_data() %>% 
   group_by(user_id) %>% 
   mutate(
     across(contains('entropy'), ~lag(.x, n=1), .names = "{.col}_lag"),

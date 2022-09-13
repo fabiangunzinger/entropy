@@ -1,0 +1,62 @@
+% !TEX root = ../entropy.tex
+
+\section{Robustness}%
+\label{sec:robustness}
+
+As discussed in Section~\ref{sec:estimation}, one concern one might have about
+our results in Section~\ref{sec:main_results} is reverse causality:
+transferring money into savings accounts might change the distribution of spend
+categories and thus change entropy. As noted previously, this is not a major
+concern because of the way we calculate savings and spend profiles: savings are
+calculated as the sum of inflows into savings accounts, while spend profiles
+are based on the classification of spend transactions in current accounts, and
+transfers from current to savings accounts are labelled as such and not treated
+as spend transactions.
+
+However, because transaction labelling is imperfect, it is possible that some
+transfers are misclassified as spends and included in the calculation of
+entropy scores. Two ways to deal with this is to use lagged entropy scores and
+to explicitly control for the number of non-zero spend categories used to
+calculate entropy scores. Here, we show that our results remain qualitatively
+unchanged with both of these approaches.
+
+Table~\ref{tab:reg_has_inflows_lag} presents results similar to the main
+results in the main text, but using entropy lagged by one year-month period as
+the independent variable of interest, while Table~\ref{tab:reg_has_inflows_cnz}
+adds the number of non-zero spend categories as an additional control.
+
+\def\yvars{has_inflows}
+\foreach \y in \yvars {
+    \input{\tabdir/reg_\y_cnz.tex}
+    \input{\tabdir/reg_\y_lag.tex}
+}
+
+
+% \subsection{Old stuff}%
+% \label{sub:old_stuff}
+% \newpage
+% \subsection{Exploration}%
+% \label{sub:exploration}
+% \input{\tabdir/reg_has_sa_inflows_explore.tex}
+% \input{\tabdir/reg_has_sa_inflows_explore2.tex}
+% \input{\tabdir/reg_has_sa_inflows_explore3.tex}
+% % \input{\tabdir/reg_has_sa_inflows_explore4.tex}
+
+% \newpage
+% \begin{figure}[H]
+%     \caption{Diagnostics}
+%     \label{fig:diagnostics}
+%     \begin{center}
+%         \includegraphics[width=0.9\textwidth]{\figdir/diagnostics.png}
+%     \end{center}
+% \end{figure}
+
+% \newpage
+% \begin{figure}[H]
+%     \caption{Entropy and unique tags}
+%     \label{fig:entropy_tag_vs_nunique}
+%     \begin{center}
+%         \includegraphics[width=0.9\textwidth]{\figdir/entropy_tag_vs_nunique.png}
+%     \end{center}
+% \end{figure}
+

@@ -13,6 +13,7 @@ set_font = function(x, fontsize){
 setFixest_etable(
   postprocess.tex = set_font,
   se.below = T,
+  depvar = F,
   digits = 'r3',
   coefstat = 'confint',
   style.tex = style.tex(
@@ -37,7 +38,16 @@ setFixest_dict(c(
   entropy_groc_z = "Entropy (groceries)",
   entropy_groc_sz = "Entropy (groceries, smooth)",
   
-  pct_credit = "Paid with credit (%)",
+  entropy_tag_z_lag = "Entropy lag (9 cats)",
+  entropy_tag_sz_lag = "Entropy lag (9 cats, smooth)",
+  entropy_tag_spend_z_lag = "Entropy lag (48 cats)",
+  entropy_tag_spend_sz_lag = "Entropy lag (48 cats, smooth)",
+  entropy_merchant_z_lag = "Entropy lag (merchant)",
+  entropy_merchant_sz_lag = "Entropy lag (merchant, smooth)",
+  entropy_groc_z_lag = "Entropy lag (groceries)",
+  entropy_groc_sz_lag = "Entropy lag (groceries, smooth)",
+  
+  prop_credit = "Paid with credit (proportion)",
   month_spend = 'Month spend',
   is_urban = 'Urban',
   is_female = 'Female',
@@ -53,11 +63,14 @@ setFixest_dict(c(
   has_mortgage_pmt = 'Mortgage payment',
   has_rent_pmt = 'Rent payment',
   
-  user_id = 'User id',
-  ym = 'Calendar month',
-  
+  user_id = 'User',
+  ym = 'Year-month',
+
   txns_count_spend = 'N',
-  nunique_tag_spend = 'Cnz',
   std_tag_spend = 'Counts std all',
-  avg_spend = 'Average spend'
+  avg_spend = 'Average spend',
+  
+  nunique_tag_spend = "Unique categories",
+  nunique_tag = 'Unique categories',
+  nunique_merchant = "Unique categories"
 ))

@@ -13,6 +13,13 @@ read_analysis_data <- function(sample) {
   return(df)
 }
 
+read_debug_data <- function() {
+  fn = glue('debug.parquet')
+  bucket = 's3://3di-project-entropy'
+  fp = file.path(bucket, fn)
+  dt = setDT(aws.s3::s3read_using(arrow::read_parquet, object=fp))
+  return(dt)
+}
 
 read_s3parquet <- function(filepath) {
   # Wrapper to conveniently read parquet files from S3.
@@ -47,4 +54,17 @@ figure <- function(filepath, width=2000, height=1000, pointsize=30, ...) {
     pointsize = pointsize,
     ...
   )
+}
+
+entropy_vars <- function(df) {
+  entropy_z <- grep('^entropy_(tag|merchant).*_z$', names(df), value = T)
+  entropy_sz <- grep('^entropy_(tag|merchant).*_sz$', names(df), value = T)
+  c(entropy_z, entropy_sz)
+}
+
+
+lagged_entropy_vars <- function(df) {
+  entropy_z <- grep('^entropy_(tag|merchant).*_z_lag$', names(df), value = T)
+  entropy_sz <- grep('^entropy_(tag|merchant).*_sz_lag$', names(df), value = T)
+  c(entropy_z, entropy_sz)
 }

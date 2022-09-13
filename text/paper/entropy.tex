@@ -1,4 +1,4 @@
-
+\documentclass[a4paper, 11pt]{article}
 \usepackage{/Users/fgu/dev/projects/dotfiles/latex/paper}
 \bibliography{/Users/fgu/dev/projects/dotfiles/latex/fabib}
 \onehalfspacing
@@ -6,11 +6,12 @@
 \newcommand{\figdir}{../../output/figures}
 \newcommand{\tabdir}{../../output/tables}
 
-\title{\textbf{Entropy\footnote{We are grateful to Redzo Mujcic and and Zvi
-Safra for helpful comments. The research was supported by Economic and Social
-Research Council grant number ES/V004867/1. WBS ethics code: E-414-01-20.
-Gunzinger: Warwick Business School, fabian.gunzinger@warwick.ac.uk; Stewart:
-Warwick Business School, neil.stewart@wbs.ac.uk.}}}
+\title{\textbf{Spending profiles predict savings\footnote{We are grateful to
+            Redzo Mujcic and and Zvi Safra for helpful comments. The research
+            was supported by Economic and Social Research Council grant number
+            ES/V004867/1. WBS ethics code: E-414-01-20.  Gunzinger: Warwick
+Business School, fabian.gunzinger@warwick.ac.uk; Stewart: Warwick Business
+School, neil.stewart@wbs.ac.uk.}}}
 
 \author{Fabian Gunzinger \and Neil Stewart}
 
@@ -39,9 +40,12 @@ Warwick Business School, neil.stewart@wbs.ac.uk.}}}
 
 \newpage
 \printbibliography
+\newpage
 
 \appendix
 
-\input{sections/more_results.tex}
+\input{sections/entropy_details.tex}
+
+\input{sections/robustness.tex}
 
 \end{document}

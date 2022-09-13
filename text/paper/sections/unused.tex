@@ -27,3 +27,25 @@
 \input{\tabdir/reg_entropy_odfees.tex}
 
 
+\paragraph{Shopping-time based entropy}
+\label{par:shopping_time_based_entropy}
+
+We calculate entropy based on the probability of $(day of week, merchant)$
+tuples, where we follow \citet{guidotti2015behavioral} and bin \textit{day of
+week} into \textit{weekends} and \textit{weekday}, to reduce excessive
+fluctuations. Because banks tend to process weekend transactions on Monday, as
+shown in Figure~\ref{fig:spending}, we cannot distinguish transactions made on
+Saturdays or Sundays from those made on Mondays, and thus classify all of them
+as weekend transactions. We drop the about 25 percent of transactions for which
+we cannot identify a merchant. The alternative would be leaving these
+transactions in the sample and treating ``unknown merchant'' as a single
+merchant. But for user-months for which the merchant is unknown for all
+transactions, this would lead to an entropy score of 0, which is undesireable.
+
+\paragraph{Grocery shop entropy}%
+\label{par:grocery_shop_entropy}
+
+We consider purchases at Tesco, Sainsbury's, Asda, Morrisons, Aldi, Co-op,
+Lidl, Waitrose, Iceland, and Ocado, which have a combined market share of 96.5
+percent.
+
