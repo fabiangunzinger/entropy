@@ -1,7 +1,10 @@
 % !TEX root = ../entropy.tex
 
-\section{Robustness}%
-\label{sec:robustness}
+\section{Additional results}%
+\label{sec:additional_results}
+
+\subsection{Endogeneity}%
+\label{sub:endogeneity}
 
 As discussed in Section~\ref{sec:estimation}, one concern one might have about
 our results in Section~\ref{sec:main_results} is reverse causality:
@@ -31,6 +34,21 @@ adds the number of non-zero spend categories as an additional control.
     \input{\tabdir/reg_\y_lag.tex}
 }
 
+
+\subsection{Further results by financial resilience}%
+\label{sub:results_by_financial_resilience}
+
+The Tables below show results presented in
+Section~\ref{sub:effect_of_financial_resilience} for alternative entropy
+variables. 
+
+\def\evars{entropy_tag, entropy_merchant}
+\foreach \e in \evars {
+    \input{\tabdir/reg_has_inflows_\e_z_inc_quint.tex}
+    \input{\tabdir/reg_has_inflows_\e_sz_inc_quint.tex}
+    \input{\tabdir/reg_has_inflows_\e_z_inc_var_quint.tex}
+    \input{\tabdir/reg_has_inflows_\e_sz_inc_var_quint.tex}
+}
 
 % \subsection{Old stuff}%
 % \label{sub:old_stuff}

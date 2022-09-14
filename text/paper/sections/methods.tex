@@ -168,14 +168,18 @@ calculate propabilities as
     p_i^{s} = \frac{T_i + 1}{\sum_{i=1}^{N}Ti + N}.
 \end{equation}
 
-Because categories with a zero transaction count will have a numerator of 1,
-the sum in Equation~\ref{equ:entropy} will be taken over all categories.
+That is: we add 1 to each category's transaction count and divide by the sum of
+the total number of transactions and the number of categories. Because
+categories with a zero transaction count will have a numerator of 1, the sum in
+Equation~\ref{equ:entropy} will be taken over all categories.
 
-The imperfect transaction labelling in the MDB data creates a downward bias in
-entropy scores for high-entropy individuals. This happens because unlabelled
-transactions tend to be transactions that are rare (i.e. not grocery or Amazon
-purchases), and it is high-entropy individuals that are more likely to engage
-in rare transactions.
+One slight limitation introduced by the imperfect transaction labelling in the
+MDB data is that entropy scores for high-entropy individuals will be biased
+downwards. This happens because unlabelled transactions tend to be transactions
+that are rare (i.e. not grocery or Amazon purchases), and it is high-entropy
+individuals that are more likely to engage in rare transactions. Because our
+analysis mainly relies on relative entropy levels, this is not of major
+consequence and we do not pursue this further.
 
 
 \subsection{Summary statistics}%
@@ -236,7 +240,7 @@ accounts and define entropy based on the classification of spend transactions
 on current accounts. If a user pays money from their current into one of their
 savings account, this will usually be labelled in their current account as a
 transfer and not enter the calculation of their entropy score. In
-Appendix~\ref{sec:robustness}, we provide robustness checks using lagged
+Appendix~\ref{sub:endogeneity}, we provide robustness checks using lagged
 entropy scores and controlling for the number of non-zero categories, which
 broadly leave the results unchanged.
 

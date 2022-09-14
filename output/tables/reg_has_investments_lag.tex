@@ -3,7 +3,7 @@
    \centering
    \tiny
    \begin{threeparttable}[b]
-      \caption{\label{tab:reg_has_investments_lag} Effect of entropy on P(transfer into investment accounts)}
+      \caption{\label{tab:reg_has_investments_lag} Effect of entropy on P(has investments)}
       \begin{tabular}{lcccccc}
          \tabularnewline \midrule \midrule
          Model:                         & (1)            & (2)            & (3)            & (4)             & (5)              & (6)\\  
@@ -31,15 +31,15 @@
                                         & [0.000; 0.001] & [0.000; 0.001] & [0.000; 0.001] & [0.000; 0.001]  & [0.000; 0.001]   & [0.000; 0.001]\\   
          \midrule
          \emph{Fixed-effects}\\
-         User id                        & Yes            & Yes            & Yes            & Yes             & Yes              & Yes\\  
-         Calendar month                 & Yes            & Yes            & Yes            & Yes             & Yes              & Yes\\  
+         User                           & Yes            & Yes            & Yes            & Yes             & Yes              & Yes\\  
+         Year-month                     & Yes            & Yes            & Yes            & Yes             & Yes              & Yes\\  
          \midrule
          \emph{Fit statistics}\\
          Observations                   & 1,009,843      & 1,009,843      & 1,009,554      & 1,009,843       & 1,009,843        & 1,009,554\\  
          R$^2$                          & 0.60283        & 0.60291        & 0.60290        & 0.60278         & 0.60280          & 0.60282\\  
          Within R$^2$                   & 0.00204        & 0.00225        & 0.00221        & 0.00192         & 0.00198          & 0.00201\\  
          \midrule \midrule
-         \multicolumn{7}{l}{\emph{Clustered (User id) co-variance matrix, 95\% confidence intervals in brackets}}\\
+         \multicolumn{7}{l}{\emph{Clustered (User) co-variance matrix, 95\% confidence intervals in brackets}}\\
          \multicolumn{7}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
       \end{tabular}
    \end{threeparttable}

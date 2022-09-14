@@ -27,7 +27,7 @@ options(ggplot2.discrete.fill = palette)
 
 # Variable labels
 varlabs <- c(
-  has_sa_inflows = "Has savings",
+  has_inflows = "Has savings",
   sa_inflows = "Savings accounts inflows",
   sa_outflows = "Savings accounts outflows",
   sa_netflows = "Savings accounts net-inflows",

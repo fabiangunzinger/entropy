@@ -3,34 +3,25 @@
 \section{Introduction}%
 \label{sec:introduction}
 
-This paper documents variation in spending profiles of a large set of users of
-a financial management app and shows that spending profiles are related to how
-much users save and spend.
+This paper documents variations in spending profiles and payments into
+emergency savings for a large set of users of a financial management app
+and shows that spending profiles predict emergency savings.
 
-We can think of total savings as the sum of long-term and short-term savings.
-Long-term savings are savings for retirement, either individually or through an
-employer-linked pension scheme. These kinds of savings, and especially savings
-through pension schemes, are well researched. In contrast, there is almost no
-research on short-term savings, which comprise savings for particular goals
-such as a new car, a holiday, or a wedding, and emergency savings to have a
-buffer for unexpected events. (See nest2021supporting for more on emergency
-savings) We aim to close this gap. In our data, we cannot distinguish between
-goal-oriented and emergency savings, so we focus on total short-term
-savings\footnote{MDB allows users to create custom tags and some users use them
-to indicate the intended use for their savings transactions (e.g. "wedding",
-"holidays"). But only a very small number of transactions have such tags, and
-we do not pursue this further.}
-
-Studying the determinants of``emergency savings'' is important because even
-though around a quarter of adults in the UK and the US are unable to cover
-irregular expenses like car and medical bills,\footnote{In the UK, 25 percent
-    of adults would be unable to cover an unexpected bill of \pounds300
-\citep{philipps2021supporting}, while in the US, about 30 percent would be
-unable to cover a \$400 bill \citep{fed2022economic}.} there is little research
-that studies why people have low levels of ``emergency savings'' and test ways
-to help them build such savings.\footnote{In contrast, there is a large body of
-    research on pension savigns.  Well-documented behavioural biases that help
-    explain undersaving are, among others, present bias
+We define emergency savings as inflows into savings accounts. These savings
+will be made up of savings for particular goals -- a new car, a holiday, a
+wedding -- and savings directed towards building up a buffer for financial
+emergencies. Because in our data we cannot distinguish between these two cases,
+we refer to all of them as emergency savings.\footnote{MDB allows users to
+    create custom tags and some users use them to indicate the intended use for
+    their savings transactions (e.g. ``wedding'', ``holidays''). But only a very
+small number of transactions have such tags, and we do not pursue this
+further.} These short-term savings are distinct from long-term savings aimed to
+build up funds for retirement, either through individually owned pension and
+investment vehicles or employer-linked pension schemes. Both kinds of saving
+are important for financial well-being, yet while there is a large literature
+on pension savings, little is known about how people save for the
+short-term.\footnote{Well-documented behavioural biases that help explain
+    undersaving for pensions are, among others, present bias
     \citep{laibson1997golden, laibson2019intertemporal}, inertia
     \citep{madrian2001power}, over-extrapolation \citep{choi2009reinforcement},
     and limited self-control and willpower \citep{thaler1981economic,
@@ -46,7 +37,18 @@ that many people are unable to earn enough to save, then the effectiveness of
 helping them manage their low incomes more effectively pales in comparison with
 efforts to help them earn more.}
 
-Studying spending profiles are of interest because:
+Studying the determinants of emergency savings is important because around a
+quarter of adults in the UK and the US are unable to cover irregular expenses
+like car and medical bills: In the UK, 25 percent of adults would be unable to
+cover an unexpected bill of \pounds300 \citep{philipps2021supporting}, while in
+the US, about 30 percent would be unable to cover a \$400 bill
+\citep{fed2022economic}. Similarly, resarch in the UK has shown that having
+\pounds1000 in savings reduces by more than half a household's chances of
+falling into debt that leads to financial problems
+\citep{philipps2021supporting}.
+
+
+Studying spending profiles is of interest because:
 \begin{itemize}
 
     \item Our understanding of how people spend their money is based on survey
@@ -62,87 +64,64 @@ Studying spending profiles are of interest because:
         associated with a range of negative outcomes such as impaired executive
         function \citep{vernon2016predictors}, lower cognitive inhibition
         \citep{mittal2015cognitive}, and activation of anxiety-related neural
-        circuits \citep{hirsh2012psychological}.
-
-    \item In the study of human behaviour, more chaotic behaviour has been
-        found to predict the a higher number of visits to and higher spend in
-        supermarkets \citep{guidotti2015behavioral}, higher calorie intake
+        circuits \citep{hirsh2012psychological}. In the study of human
+        behaviour, more chaotic behaviour has been found to predict the a
+        higher number of visits to and higher spend in supermarkets
+        \citep{guidotti2015behavioral}, higher calorie intake
         \citep{skatova2019those} and financial distress
         \citep{muggleton2020evidence}.
 
 \end{itemize}
 
 
-Contribution:
+We hypothesise that less predictable spending patterns are associated with a
+lower probability for making payments into emergency savings accounts. Possible
+channels:
+\begin{itemize}
+    \item Disorder (personal life or environment): leads to more impulsive
+        shopping behaviour and makes forgetting to save more likely.
+
+    \item Scarcity: life challenges focus attention away from deliberate
+        shopping, causing hore impulse purchases, and make fortetting to save
+        more likely.
+\end{itemize}
+
+
+
+What we do: 
 \begin{itemize}
 
-    \item Systematically documenting ``emergency savings'' patterns.
+    \item Systematically documenting emergency savings patterns.
 
     \item Systematically documenting variation in spending profiles.
 
-    \item Showing that within-user irregularity in spending profiles is
-        associated with lower ``emergency savings'' and higher ``discretionary
-        spending''.
+    \item Showing that unpredictability in spending profiles is
+        associated with lower emergency savings.
 
 \end{itemize}
 
 
-Literature:
+Contribution to literatures:
 \begin{itemize}
 
-    \item Main 1: Understanding emergency savings behaivour (nest, aspen
+    \item Understanding emergency savings behaivour (nest, aspen
         reports), \citep{sabat2019rules} for sources on short-term savings
         literature, \citet{colby2013savings} for lit on savings goals.  See
         \citet{colby2013savings} has useful literature review on short-term
         savings and suggests that subgoals can increase willingness to forego
         short-amounts in the present because they move the reference point in a
-        prospect-theory framework. Policy literature:
-        \citep{can2019improving,cfpb2017financial, mps2018building}.
+        prospect-theory framework. \citet{philipps2021supporting} present
+        results from an employer-linked initiative that offers employees to
+        have a portion of their salary automatically transferred into a savings
+        pot. Policy literature: \citep{can2019improving,cfpb2017financial,
+        mps2018building}. Older literature:Savings lit:
+        \citet{lunt1991psychological, oaten2007improvements}
 
+    \item Understanding effect of behavioural entropy - eliciting
+        useful personality characteristics from large-scale data.
 
-
-    \item Main 2: Understanding effect of behavioural entropy - eliciting
-        useful personality characteristics from large-scale data
-
-    \item Also 2: Use of high-frequency transaction data (itself a
-        sub-literature of use of newly available large-scale datasets)
-
-\end{itemize}
-
-
-Structure of paper:
-
-
-\begin{itemize}
-
-    \item Part I: describtive states of how and when people spend and save
-
-    \item Part II: define measures that characterise spend profile
-
-    \item Part III: regression analysis
+    \item Use of high-frequency transaction data (itself a
+        sub-literature of use of newly available large-scale datasets).
 
 \end{itemize}
-
-
-Literature:
-\begin{itemize}
-    \item Savings lit: \citet{lunt1991psychological, oaten2007improvements, }
-\end{itemize}
-% \citet{muggleton2020evidence} find that consumption entropy over categories
-% correlates with financial distress.
-
-% \citet{davenport2020spending} study the impact of COVID-19 on the spending and
-% savings behaviour of MDB users.
-
-% \citet{becker2017does} finds that access to a fintech money management app
-% increases first-time savings and savings account balances among 65,000 customers
-% of a large European bank but that update is negatively correlated with financial
-% sophistication.
-
-% We use the following nomenclature throughout:
-% \begin{description}
-%     \item[user] individual
-%     \item[tag] spending category
-% \end{description}
-
 

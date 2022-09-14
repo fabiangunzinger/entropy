@@ -1,4 +1,3 @@
-library(data.table)
 library(glue)
 library(fixest)
 library(tidyverse)
@@ -14,9 +13,11 @@ df <- read_debug_data() %>%
   mutate(
     across(contains('entropy'), ~lag(.x, n=1), .names = "{.col}_lag"),
     has_investments = ifelse(investments > 0, 1, 0),
-    dspend = dspend / 1000
+    dspend = dspend / 1000,
+    month_income_quint = ntile(month_income, 5),
+    income_var_quint = ntile(income_var, 5)
     )
-  
+
 names(df)
 
 setFixest_fml(
@@ -27,8 +28,8 @@ setFixest_fml(
 )
 
 titles <- list(
-  "has_inflows" = "P(transfer into savings accounts)",
-  "has_investments" = "P(transfer into investment accounts)"
+  "has_inflows" = "P(has savings)",
+  "has_investments" = "P(has investments)"
 )
 
 # Main results --------------------------------------------------------------------
@@ -54,7 +55,25 @@ for (y in yvars) {
 }
 
 
+# Lagged entropy ------------------------------------------------------------------
 
+lab <- "lag"
+
+for (y in yvars) {
+  entropy <- lagged_entropy_vars(df)
+  print(
+    etable(
+      fixest::feols(.[y] ~ sw(.[,entropy]) + ..controls | ..fe, df),
+      title = glue('Effect of entropy on {titles[y]}'),
+      order = c('[Ee]ntropy', '!Unique'),
+      tex = T,
+      fontsize = 'tiny',
+      file=file.path(TABDIR, glue('reg_{y}_{lab}.tex')),
+      label = glue('tab:reg_{y}_{lab}'),
+      replace = T
+    )
+  )
+}
 
 
 # Control for non-zero counts -----------------------------------------------------
@@ -76,7 +95,7 @@ nuniques <- list(
   "entropy_merchant_sz_lag" = "nunique_merchant"
 )
 
-evars <- lagged_entropy_vars(df)
+evars <- entropy_vars(df)
 
 for (y in yvars) {
   results <- list()
@@ -99,25 +118,64 @@ for (y in yvars) {
 }
 
 
+# Results by income quintiles -----------------------------------------------------
 
-
-# Lagged entropy ------------------------------------------------------------------
-
-lab <- "lag"
+lab <- "inc_quint"
+yvars <- c("has_inflows")
+evars <- entropy_vars(df)
+controls = c('month_spend', 'month_income', 'income_var')
 
 for (y in yvars) {
-  entropy <- lagged_entropy_vars(df)
-  print(
-    etable(
-      fixest::feols(.[y] ~ sw(.[,entropy]) + ..controls | ..fe, df),
-      title = glue('Effect of entropy on {titles[y]}'),
-      order = c('[Ee]ntropy', '!Unique'),
-      tex = T,
-      fontsize = 'tiny',
-      file=file.path(TABDIR, glue('reg_{y}_{lab}.tex')),
-      label = glue('tab:reg_{y}_{lab}'),
-      replace = T
+  for (e in evars) {
+    results <- list()
+    for (q in 1:5) {
+      data = df %>% filter(month_income_quint == q)
+      results[[q]] <- feols(.[y] ~ sw(.[,e]) + .[controls] | ..fe, data)
+    }
+    print(
+      etable(
+        results,
+        title = glue('Effect of entropy on {titles[y]} by income quintile'),
+        headers=list("_Income quintile:"=list(1, 2, 3, 4, 5)),
+        order = c('[Ee]ntropy', '!(Intercept)'),
+        tex = T,
+        fontsize = 'tiny',
+        file=file.path(TABDIR, glue('reg_{y}_{e}_{lab}.tex')),
+        label = glue('tab:reg_{y}_{e}_{lab}'),
+        replace = T
+      )
     )
-  )
-}
+  }
+}  
+
+
+# Results by income variability quintiles -------------------------------------------
+
+
+lab <- "inc_var_quint"
+yvars <- c("has_inflows")
+evars <- entropy_vars(df)
+
+for (y in yvars) {
+  for (e in evars) {
+    results <- list()
+    for (q in 1:5) {
+      data = df %>% filter(income_var_quint == q)
+      results[[q]] <- feols(.[y] ~ sw(.[,e]) + ..controls | ..fe, data)
+    }
+    print(
+      etable(
+        results,
+        title = glue('Effect of entropy on {titles[y]} by income variability quintile'),
+        headers=list("_Income variability quintile:"=list(1, 2, 3, 4, 5)),
+        order = c('[Ee]ntropy', '!(Intercept)'),
+        tex = T,
+        fontsize = 'tiny',
+        file=file.path(TABDIR, glue('reg_{y}_{e}_{lab}.tex')),
+        label = glue('tab:reg_{y}_{e}_{lab}'),
+        replace = T
+      )
+    )
+  }
+}  
 

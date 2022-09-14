@@ -1,0 +1,39 @@
+
+\begin{table}[htbp]
+   \centering
+   \tiny
+   \begin{threeparttable}[b]
+      \caption{\label{tab:reg_has_inflows_entropy_tag_z_inc_var_quint} Effect of entropy on P(has savings) by income variability quintile}
+      \begin{tabular}{lccccc}
+         \tabularnewline \midrule \midrule
+         Model:                       & (1)             & (2)             & (3)             & (4)             & (5)\\  
+         Income variability quintile: & 1               & 2               & 3               & 4               & 5 \\   
+         \midrule
+         \emph{Variables}\\
+         Entropy (9 cats)             & 0.011$^{***}$   & 0.005$^{*}$     & 0.012$^{***}$   & 0.016$^{***}$   & 0.011$^{***}$\\   
+                                      & [0.006; 0.016]  & [-0.001; 0.010] & [0.006; 0.018]  & [0.010; 0.022]  & [0.006; 0.017]\\   
+         Month spend                  & 0.008$^{***}$   & 0.008$^{***}$   & 0.007$^{***}$   & 0.007$^{***}$   & 0.007$^{***}$\\   
+                                      & [0.007; 0.009]  & [0.007; 0.009]  & [0.006; 0.008]  & [0.006; 0.009]  & [0.006; 0.008]\\   
+         Month income                 & 0.015$^{***}$   & 0.010$^{***}$   & 0.011$^{***}$   & 0.010$^{***}$   & 0.010$^{***}$\\   
+                                      & [0.012; 0.017]  & [0.008; 0.012]  & [0.010; 0.013]  & [0.009; 0.012]  & [0.009; 0.011]\\   
+         Has income in month          & 0.094$^{***}$   & 0.077$^{***}$   & 0.065$^{***}$   & 0.057$^{***}$   & 0.068$^{***}$\\   
+                                      & [0.075; 0.113]  & [0.057; 0.096]  & [0.048; 0.082]  & [0.041; 0.072]  & [0.054; 0.083]\\   
+         Income variability           & -0.001          & 0.006$^{**}$    & -0.000          & 0.001           & -0.004$^{***}$\\   
+                                      & [-0.003; 0.002] & [0.001; 0.011]  & [-0.004; 0.003] & [-0.001; 0.002] & [-0.007; -0.001]\\   
+         \midrule
+         \emph{Fixed-effects}\\
+         User                         & Yes             & Yes             & Yes             & Yes             & Yes\\  
+         Year-month                   & Yes             & Yes             & Yes             & Yes             & Yes\\  
+         \midrule
+         \emph{Fit statistics}\\
+         Observations                 & 223,462         & 215,151         & 208,417         & 201,319         & 195,378\\  
+         R$^2$                        & 0.61156         & 0.59945         & 0.59051         & 0.59361         & 0.63509\\  
+         Within R$^2$                 & 0.00532         & 0.00383         & 0.00456         & 0.00534         & 0.00753\\  
+         \midrule \midrule
+         \multicolumn{6}{l}{\emph{Clustered (User) co-variance matrix, 95\% confidence intervals in brackets}}\\
+         \multicolumn{6}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+      \end{tabular}
+   \end{threeparttable}
+\end{table}
+
+
