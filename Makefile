@@ -4,6 +4,11 @@
 all: sumstats figures msg
 
 
+.PHONY: test
+test:
+	python -m pytest --cov=entropy
+
+
 .PHONY: sumstats
 sumstats:
 	@printf '\n Updating sumstats table...\n'
