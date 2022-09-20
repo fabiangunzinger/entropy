@@ -1,0 +1,36 @@
+
+\begin{table}[htbp]
+   \centering
+   \tiny
+   \begin{threeparttable}[b]
+      \caption{\label{tab:reg_comp} Disaggregating entropy into components}
+      \begin{tabular}{lcccc}
+         \tabularnewline \midrule \midrule
+          & \multicolumn{2}{c}{entropy\_tag\_spend\_z} & \multicolumn{2}{c}{entropy\_tag\_spend\_sz} \\ 
+         Model:               & (1)              & (2)              & (3)              & (4)\\  
+         \midrule
+         \emph{Variables}\\
+         Unique categories    & 0.090$^{***}$    & 0.088$^{***}$    & -0.014$^{***}$   & -0.015$^{***}$\\   
+                              & [0.090; 0.090]   & [0.087; 0.088]   & [-0.014; -0.013] & [-0.017; -0.012]\\   
+         Category counts std. & -0.292$^{***}$   & -0.287$^{***}$   & -0.509$^{***}$   & -0.473$^{***}$\\   
+                              & [-0.293; -0.292] & [-0.294; -0.281] & [-0.510; -0.508] & [-0.484; -0.462]\\   
+         Number of spend txns & 0.013$^{***}$    & 0.013$^{***}$    & 0.012$^{***}$    & 0.010$^{***}$\\   
+                              & [0.013; 0.013]   & [0.013; 0.013]   & [0.012; 0.012]   & [0.009; 0.011]\\   
+         (Intercept)          & -0.706$^{***}$   &                  & 0.982$^{***}$    &   \\   
+                              & [-0.707; -0.704] &                  & [0.979; 0.984]   &   \\   
+         \midrule
+         \emph{Fixed-effects}\\
+         User                 &                  & Yes              &                  & Yes\\  
+         Year-month           &                  & Yes              &                  & Yes\\  
+         \midrule
+         \emph{Fit statistics}\\
+         Observations         & 1,043,727        & 1,043,727        & 1,043,727        & 1,043,727\\  
+         R$^2$                & 0.84686          & 0.90609          & 0.86248          & 0.92337\\  
+         Within R$^2$         &                  & 0.77476          &                  & 0.81733\\  
+         \midrule \midrule
+         \multicolumn{5}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+      \end{tabular}
+   \end{threeparttable}
+\end{table}
+
+

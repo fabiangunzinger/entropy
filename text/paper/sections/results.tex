@@ -4,12 +4,12 @@
 \label{sec:results}
 
 Table~\ref{tab:reg_has_inflows_main} shows the effect of entropy on the
-probability of having emergency savings. Columns (1)-(3) show results for
-unsmoothed entropy based on 9 categories, 48 categories, and merchant names,
-respectively. Columns (4)-(6) results for smoothed entropy based on the same
-variables. All models include user and year-month fixed effects, and standard
-errors are clustered at the user-level. Confidence intervals are shown in
-brakets.
+probability of building emergency savings in a given month. Columns (1)-(3)
+show results for unsmoothed entropy based on 9 categories, 48 categories, and
+merchant names, respectively. Columns (4)-(6) results for smoothed entropy
+based on the same variables. All models include user and year-month fixed
+effects, and standard errors are clustered at the user-level. 95\% confidence
+intervals are shown in brakets.
 
 \input{\tabdir/reg_has_inflows_main.tex}
 
@@ -31,32 +31,126 @@ economically significant, and robust across different definitions. In other
 words, the scores seem to pick up a feature of the spending distribution that
 is predictive of savings behaviour.
 
-But how can we account for the opposite sign for smoothed and unsmoothed
-entropy scores? We don't have the answer to this yet... 
+Two questions remain: first, how can we understand the aspect of users'
+spending profile that entropy captures and that is predictive of savings
+behaviour? And second, why does smoothing entropy scores flip the direction of
+the effect? We will address these in turn.
 
 
-\subsection{Effect of financial resilience}%
-\label{sub:effect_of_financial_resilience}
+\subsection{What does entropy capture?}%
+\label{sub:what_does_entropy_capture_}
+
+One way to think of entropy is as a function of a number of simple components,
+and one question that arises is whether the above results are due to one or
+more of these components of because of the way entropy combines them. To
+address this question, it is helpful to write entropy in a way that makes its
+component parts more apparent. Remember from
+Section~\ref{sub:spending_profiles} that, for each user $i$ in period $t$,
+$\setc$ is the set of unique spending categories, $F$ the total number of
+spending transactions, $p_c = \frac{f_c}{F}$ the unsmoothed probability that
+the user makes a transaction in spending category $c$, and $p_c^s = \frac{f_c +
+1}{F + |\setc|}$ the smoothed probability of the user making such a
+transaction. In addition, let $\setcp = \{c: f_c > 0\}$ the set of all spending
+categories with positive frequency counts (i.e.  with at least one
+transaction), $\setcz = \{c: f_c = 0\}$ the set of all spending categories with
+a zero frequency count. Then, given the definition of entropy in
+Equation~\ref{equ:entropy}, we can write unsmoothed entropy as
+
+\begin{equation}
+\label{equ:entropy_us}
+H = -\sum_{c \in \setcp}{\left(\frac{f_c}{F}\right)
+log\left(\frac{f_c}{F}\right)},
+\end{equation}
+
+and smoothed entropy as:
+
+\begin{equation}
+\label{equ:entropy_us}
+H^s = -\sum_{c \in \setcp}{\left(\frac{f_c + 1}{F + |\setc|}\right)
+log\left(\frac{f_c + 1}{F + |\setc|}\right)}
++ |\setcz|\left(\frac{1}{F + |\setc|}\right)
+log\left(\frac{1}{F + |\setc|}\right),
+\end{equation}
+
+\noindent where the size of set $\setcz$, $|\setcz|$, is the number of all
+spending categories in which a user makes no transactions in a certain period.
+
+Note that, by definition, unsmoothed entropy is a function of frequency counts
+of categories with positive counts only to avoid taking logs of 0. Smoothed
+entropy, in contrast, has two components: the additively smoothed unsmoothed
+entropy, plus a constant term for each spending category with a zero frequency
+count. We can thus think of both types of entropy as functions of three
+components: the number of spending categories with a non-zero frequency count
+(and its complement, the number of categories with a zero frequency count), the
+variation in the frequency counts of those categories, and the total number of
+transactions ($F$).
+
+\input{\tabdir/reg_has_inflows_comp.tex}
+
+Columns (1) and (3) in Table~\ref{tab:reg_has_inflows_comp} replicate the
+results for the 48-category-based unsmoothed and smoothed entropy measures
+presented in Table~\ref{tab:reg_has_inflows_main} for reference. In columns (2)
+and (4) we additionally control for the three entropy components discussed
+above: the number of unique spend categories, the standard deviation of their
+counts, and the total number of spending transactions. Including these
+components has some effect: for unsmoothed entropy the magnitude of the
+coefficient is less than half its size and the confidence interval is about
+twice as wide, while for smoothed entropy the magnitude of the coefficient is a
+little higher while the width of the confidence interval also roughly doubles.
+However, both coefficients remain statistically significant and their
+confidence intervals cover values that are also economically significant.
+Hence, the results make clear that the results in
+Table~\ref{tab:reg_has_inflows_main} cannot be attributed simply to the effect
+of one or more of entropy's simple components.
+
+Another way to think of entropy is that, as discussed in the introduction, it
+might be a function of life circumstances that simultaneously determine
+spending and savings behaviour.
 
 
+The economic literature on scarcity documents that our minds tend to focus on
+what is scarce and neglect what is not, concentrating our mental resources
+where they are most needed but impeding decision-making in other domains,
+possibly leading to short-sighted decision making\citep{shah2012some,
+mullainathan2013scarcity, haushofer2014psychology}. For instance,
+\citet{mani2013poverty} find that low-income shoppers in New Jersey perform
+worse on cognitive tasks when first promoted to think about their financial
+situation while the same prompts had no effect for wealthier shoppers, and
+sugarcane farmers in India perform worse on similar cognitive tasks shortly
+before the annual harvest (when money is scarce) than shortly thereafter (when
+money is plentiful). 
 
+A prediction of this theory is that people with low levels of savings find it
+hard to make sound spending decisions as thir account balance dwindles, because
+their minds are increasingly captured by financial worries.
 
-If we think that it is scarcity that causes the relationship between
-unpredictable spending behaviour and savings, then we would expect the effect
-to be strongest for people with the lowest incomes, since they are more prone
-to face financial shocks they find difficult to meet. The results below support
-such an interpretation: the effect of both unsmoothed and smoothed entropy on
-the probability of making a savings transaction is largest in magnitude for
-users in the first income quintile.
+% If we think that it is scarcity that causes the relationship between
+% unpredictable spending behaviour and savings, then we would expect the effect
+% to be strongest for people with the lowest incomes, since they are more prone
+% to face financial shocks they find difficult to meet. The results below support
+% such an interpretation: the effect of both unsmoothed and smoothed entropy on
+% the probability of making a savings transaction is largest in magnitude for
+% users in the first income quintile.
 
-In these regressions, we do not control for whether a user has income in in a
-given month, since for all but the group in the first income quintile, this
-will always be the case.
+% In these regressions, we do not control for whether a user has income in in a
+% given month, since for all but the group in the first income quintile, this
+% will always be the case.
 
 \input{\tabdir/reg_has_inflows_entropy_tag_spend_z_inc_quint.tex}
 \input{\tabdir/reg_has_inflows_entropy_tag_spend_sz_inc_quint.tex}
 
 \input{\tabdir/reg_has_inflows_entropy_tag_spend_z_inc_var_quint.tex}
 \input{\tabdir/reg_has_inflows_entropy_tag_spend_sz_inc_var_quint.tex}
+
+
+\subsection{Why does smoothing flip the direction of the effect}%
+\label{sub:why_does_smoothing_flip_the_direction_of_the_effect}
+
+As discussed in Section~\ref{sub:spending_profiles}, we create smooth entropy
+measures by applying additive smoothing to the probability that a spending
+transaction takes place in a given spending category by adding 1 to the
+transaction count of that spending category in the numerator, and adding the
+number of spending categories to the total number of spending transactions in
+the denominator.
 
 

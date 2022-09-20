@@ -1,0 +1,46 @@
+
+\begin{table}[htbp]
+   \centering
+   \tiny
+   \begin{threeparttable}[b]
+      \caption{\label{tab:reg_has_inflows_comp} Controlling for entropy components}
+      \begin{tabular}{lcccc}
+         \tabularnewline \midrule \midrule
+         Model:                    & (1)             & (2)             & (3)              & (4)\\  
+         \midrule
+         \emph{Variables}\\
+         Entropy (48 cats)         & 0.029$^{***}$   & 0.013$^{***}$   &                  &   \\   
+                                   & [0.025; 0.033]  & [0.006; 0.021]  &                  &   \\   
+         Entropy (48 cats, smooth) &                 &                 & -0.023$^{***}$   & -0.028$^{***}$\\   
+                                   &                 &                 & [-0.025; -0.020] & [-0.034; -0.022]\\   
+         Unique categories         &                 & 0.004$^{***}$   &                  & 0.004$^{***}$\\   
+                                   &                 & [0.003; 0.005]  &                  & [0.004; 0.005]\\   
+         Category counts std.      &                 & 0.002           &                  & -0.015$^{***}$\\   
+                                   &                 & [-0.001; 0.006] &                  & [-0.018; -0.011]\\   
+         Number of spend txns      &                 & 0.000$^{***}$   &                  & 0.001$^{***}$\\   
+                                   &                 & [0.000; 0.001]  &                  & [0.001; 0.001]\\   
+         Month spend               & 0.009$^{***}$   & 0.005$^{***}$   & 0.008$^{***}$    & 0.005$^{***}$\\   
+                                   & [0.008; 0.009]  & [0.004; 0.006]  & [0.007; 0.009]   & [0.005; 0.006]\\   
+         Month income              & 0.012$^{***}$   & 0.011$^{***}$   & 0.011$^{***}$    & 0.011$^{***}$\\   
+                                   & [0.011; 0.013]  & [0.010; 0.012]  & [0.011; 0.012]   & [0.010; 0.012]\\   
+         Has income in month       & 0.084$^{***}$   & 0.079$^{***}$   & 0.085$^{***}$    & 0.078$^{***}$\\   
+                                   & [0.075; 0.092]  & [0.070; 0.087]  & [0.076; 0.093]   & [0.070; 0.087]\\   
+         Income variability        & 0.001$^{*}$     & 0.000           & 0.001$^{*}$      & 0.000\\   
+                                   & [-0.000; 0.001] & [-0.000; 0.001] & [-0.000; 0.001]  & [-0.000; 0.001]\\   
+         \midrule
+         \emph{Fixed-effects}\\
+         User                      & Yes             & Yes             & Yes              & Yes\\  
+         Year-month                & Yes             & Yes             & Yes              & Yes\\  
+         \midrule
+         \emph{Fit statistics}\\
+         Observations              & 1,043,727       & 1,043,727       & 1,043,727        & 1,043,727\\  
+         R$^2$                     & 0.45395         & 0.45498         & 0.45415          & 0.45515\\  
+         Within R$^2$              & 0.00768         & 0.00956         & 0.00805          & 0.00986\\  
+         \midrule \midrule
+         \multicolumn{5}{l}{\emph{Clustered (User) co-variance matrix, 95\% confidence intervals in brackets}}\\
+         \multicolumn{5}{l}{\emph{Signif. Codes: ***: 0.01, **: 0.05, *: 0.1}}\\
+      \end{tabular}
+   \end{threeparttable}
+\end{table}
+
+

@@ -69,10 +69,8 @@ varlabs <- c(
   user_id = 'User',
   ym = 'Year-month',
   
-  txns_count_spend = 'N',
-  std_tag_spend = 'Counts std all',
-  avg_spend = 'Average spend',
-  
+  txns_count_spend = 'Number of spend txns',
+  std_tag_spend = 'Category counts std.',
   nunique_tag_spend = "Unique categories",
   nunique_tag = 'Unique categories',
   nunique_merchant = "Unique categories"

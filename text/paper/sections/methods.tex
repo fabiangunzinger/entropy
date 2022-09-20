@@ -91,49 +91,44 @@ saving habit is often more important than amount saved.
 \label{sub:spending_profiles}
 
 We define a user's spending profile as the distribution of the number of
-spending transactionas across different spend categories.\footnote{There are a
-    number of alternative ways to characterise spend profiles. We could
-    calculate profiles based on the distribution of transaction values rather
-    than counts. We could also calculate profiles based on inter-temporal
-    rather than intra-temporal distributions, focusing on consistency of
-    purchasing behaviour over time rather than on predictability at any given
-    time \citep{krumme2013predictability}. Further, we could focus on
-    time-based rather than category-based measures, focusing, for instance, on
-    whether purchases of the same type tend to occur on the same day of the
-    week \citep{guidotti2015behavioral}. Finally, one could also create
-composite measures based on principal component analysis, an approach used in
-\citet{eagle2010network}. We leave these extensions for future research.} To
-summarise these distributions, we calculate spending entropy, based on the
-formula proposed by \citet{shannon1948mathematical}, which defines entropy
-as:\footnote{Shannon entropy is customarily denoted as $H$ following Shannon's
-    own naming after Ludwig Boltzman's 1872 H-theorem in statistical mechanics,
-to which it is analagous.}
+spending transactionas across different spend categories. To summarise these
+distributions, we calculate spending entropy, based on the formula proposed by
+\citet{shannon1948mathematical}, who defines entropy as $H =
+-\sum{p_i}log(p_i)$, which sums, for all possible events, the product of the
+probability of an event $i$ occuring with the logarithm of that probability.
+\footnote{Shannon entropy is customarily denoted as $H$ following Shannon's own
+    naming after Ludwig Boltzman's 1872 H-theorem in statistical mechanics, to
+    which it is analagous.} The base the logarithm is often chosen to be 2,
+    though other choices are possible.\footnote{The choice of the base for the
+    logarithm varies by application and determines the units of $I(E)$.  Base 2
+means that information is expressed in bits. The natural logarithm, another
+popular choice, expresses information in \textit{nats}.} Entropy is a
+cornerstone of information theory, where it measures the amount of information
+contained in an event. In the behavioural sciences, behavioural entropy has
+recently been shown to predict the frequency of grocery visits and the
+per-capita spend per visit \citep{guidotti2015behavioral}, the amount of
+calories consumed \citep{skatova2019those}, and the propensity for financial
+distress \citep{muggleton2020evidence}. In our context, we define the entropy
+of a user's spending profile in a particular period as:\footnote{We omit
+individual and time subscripts to keep notation simpler.}
 
 \begin{equation}
 \label{equ:entropy}
-    H = -\sum{p_i}log(p_i),
+H = -\sum_{c \in \setc}{p_c}log(p_c),
 \end{equation}
 
-\noindent where $p_i$ is the probability that an individual makes a purchase in spending
-category $i$, and $log$ is the base 2 logarithm.\footnote{The choice of the
-    base for the logarithm varies by application and determines the units of
-    $I(E)$. Base 2 means that information is expressed in bits. The natural
-logarithm, another popular choice, expresses information in \textit{nats}.}
+\noindent where $\setc$ is the set of all spending categories, $p_c$ the
+probability that an individual makes a purchase in spending category $c$, and
+$log$ the base 2 logarithm. For simpler interpretation of our regression
+coefficients below, we standardise entropy scores to have a mean of 0 and a
+standard deviation of 1.
 
-Entropy is a cornerstone of information theory, where it measures the amount of
-information contained in an event. In the behavioural sciences, behavioural
-entropy has recently been shown to predict the frequency of grocery visits and
-the per-capita spend per visit \citep{guidotti2015behavioral}, the amount of
-calories consumed \citep{skatova2019those}, and the propensity for financial
-distress \citep{muggleton2020evidence}.
-
-In the context of spending profiles, higher entropy means that transactions are
-more equal across different spending categories, which makes it hard to predict
-the next transaction, whereas low entropy profiles have the bulk of
-transactions in a few dominant categories (such as groceries and
-transportation) and have relatively few transactions in other
-categories.\footnote{For further discussion on how to interpret
-Equation~\ref{equ:entropy}, see Appendix~\ref{sec:entropy}.}
+Higher entropy means that transactions are more equal across different spending
+categories, which makes it hard to predict the next transaction, whereas low
+entropy profiles have the bulk of transactions in a few dominant categories
+(such as groceries and transportation) and have relatively few transactions in
+other categories.\footnote{For further discussion on how to interpret
+Equation~\ref{equ:entropy}, see Appendix~\ref{sec:interpreting_entropy}.}
 
 We calculate entropy based on three sets of spend categories. The first measure
 is based on 9 spending categories used by
@@ -148,30 +143,45 @@ The third measure is based on merchant names, as labelled by Money Dashboard.
 
 We also handle categories with zero transaction counts in two different ways.
 To calculate what we call ``unsmoothed'' entropy scores, we calculate the
-$p_i$s in Equation~\ref{equ:entropy} as simple frequentist probabilities
+$p_c$s in Equation~\ref{equ:entropy} as simple frequentist probabilities
 
 \begin{equation}
-    p_i^{us} = \frac{T_i}{\sum_{i=1}^{N}Ti},
+    p_c = \frac{f_c}{F},
 \end{equation}
 
-\noindent where $T_i$ is the number of transactions in spend category $i$ and
-$N$ the number of categories. To avoid taking the log of zero for categories
+\noindent where $f_c$ is the number of transactions in spend category $c$ (the
+frequency with which $c$ occurs) and $F = \sum_{c \in \setc}f_c$ the total
+number of spending transactions. To avoid taking the log of zero for categories
 with zero transactions, the sum in Equation~\ref{equ:entropy} is taken over
 categories with positive transaction counts only.\footnote{This is
-automatically handled by the entropy
-\href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.entropy.html}{implementation}
+    automatically handled by the entropy
+    \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.entropy.html}{implementation}
 of Python's SciPy package, which is what we use to calculate entropy scores.}
 To calculate ``smoothed'' entropy scores, we apply additive smoothing to
 calculate propabilities as
 
 \begin{equation}
-    p_i^{s} = \frac{T_i + 1}{\sum_{i=1}^{N}Ti + N}.
+    p_c^{s} = \frac{f_c + 1}{F + |\setc|},
 \end{equation}
 
-That is: we add 1 to each category's transaction count and divide by the sum of
-the total number of transactions and the number of categories. Because
-categories with a zero transaction count will have a numerator of 1, the sum in
-Equation~\ref{equ:entropy} will be taken over all categories.
+\noindent where the size of set $\setc$, $|\setc|$, is the number of unique
+spending categories. Hence, additive smoothing simply adds one to the numerator
+and the number of unqiue spending categories to the denominator of the
+unsmoothed probabilities. Because categories with a zero transaction count will
+have a numerator of 1, the sum in Equation~\ref{equ:entropy} will be taken over
+all categories.
+
+There are a number of alternative ways to characterise spend profiles. We could
+calculate profiles based on the distribution of transaction values rather than
+counts. We could also calculate profiles based on inter-temporal rather than
+intra-temporal distributions, focusing on consistency of purchasing behaviour
+over time rather than on predictability at any given time
+\citep{krumme2013predictability}. Further, we could focus on time-based rather
+than category-based measures, focusing, for instance, on whether purchases of
+the same type tend to occur on the same day of the week
+\citep{guidotti2015behavioral}. Finally, one could also create composite
+measures based on principal component analysis, an approach used in
+\citet{eagle2010network}. We leave these extensions for future research.
 
 One slight limitation introduced by the imperfect transaction labelling in the
 MDB data is that entropy scores for high-entropy individuals will be biased
@@ -210,8 +220,8 @@ Figure~\ref{fig:entropy_kdes}
 \end{figure}
 
 
-\subsection{Model specification}%
-\label{par:model_specification}
+\subsection{Estimation}%
+\label{sub:estimation}
 
 We estimate models of the form: 
 
@@ -238,9 +248,9 @@ As discussed in Section~\ref{sub:dependent_variables} and
 Section~\ref{sub:spending_profiles}, we define savings as inflows into savings
 accounts and define entropy based on the classification of spend transactions
 on current accounts. If a user pays money from their current into one of their
-savings account, this will usually be labelled in their current account as a
-transfer and not enter the calculation of their entropy score. In
-Appendix~\ref{sub:endogeneity}, we provide robustness checks using lagged
-entropy scores and controlling for the number of non-zero categories, which
-broadly leave the results unchanged.
+savings account, such a transaction will usually be labelled in their current
+account as a transfer rather than a spending transaction, and thus not enter
+the calculation of their entropy score. In Appendix~\ref{sub:endogeneity}, we
+provide robustness checks using lagged entropy scores, which produces very
+similar results.
 
