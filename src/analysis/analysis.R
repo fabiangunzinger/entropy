@@ -22,22 +22,23 @@ names(df)
 
 setFixest_fml(
   ..endog = ~has_sa_inflows,
-  ..comps = ~mvsw(entropy_tag_spend_z, avg_spend + nunique_tag_spend + std_tag_spend),
-  ..controls = c('month_spend', 'month_income', 'has_month_income', 'income_var'),
+  ..comps = ~txns_count_spend + nunique_tag_spend + std_tag_spend,
+  ..controls = ~month_spend + month_income + has_month_income + income_var,
   ..fe = ~user_id + ym
 )
 
 titles <- list(
-  "has_inflows" = "P(has savings)",
+  "has_inflows" = "P(builds savings)",
   "has_investments" = "P(has investments)"
 )
 
+names(df)
 
 # Main results --------------------------------------------------------------------
 
 lab <- "main"
 
-yvars <- c("has_inflows", "has_investments")
+yvars <- c("has_inflows")
 
 for (y in yvars) {
   entropy <- entropy_vars(df)
@@ -54,6 +55,51 @@ for (y in yvars) {
     )
   )
 }
+
+
+
+# Controlling for components ------------------------------------------------------
+
+lab <- "comp"
+yvars <- c("has_inflows")
+evars <- c("entropy_tag_spend_z", "entropy_tag_spend_sz")
+for (y in yvars) {
+  results <- list()
+  for (e in evars) {
+    results[[e]] <- feols(.[y] ~ .[e] + sw0(..comps) + ..controls | ..fe, df)
+  }
+  print(
+    etable(
+      results[[1]], results[[2]],
+      title = glue('Controlling for entropy components'),
+      order = c('[Ee]ntropy', "Unique", "Category counts", "Number of"),
+      tex = T,
+      fontsize = 'tiny',
+      file=file.path(TABDIR, glue('reg_{y}_{lab}.tex')),
+      label = glue('tab:reg_{y}_{lab}'),
+      replace = T
+    )
+  )
+}
+
+# Entropy as dependent variables
+lab <- "comp_only"
+evars <- c("entropy_tag_spend_z", "entropy_tag_spend_sz")
+print(
+  etable(
+    feols(.[evars] ~ ..comps | sw0(..fe), df),
+    title = glue('Disaggregating entropy into components'),
+    order = c('!(Intercept)', "Unique", "Category counts", "Number of"),
+    headers=list("Entropy (48 cats)"=2, "Entropy (48 cats, smooth)"=2),
+    tex = T,
+    fontsize = 'tiny',
+    file=file.path(TABDIR, glue('reg_{lab}.tex')),
+    label = glue('tab:reg_{lab}'),
+    replace = T
+  )
+)
+
+
 
 
 # Lagged entropy ------------------------------------------------------------------
