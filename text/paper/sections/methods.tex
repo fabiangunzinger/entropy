@@ -95,22 +95,23 @@ spending transactionas across different spend categories. To summarise these
 distributions, we calculate spending entropy, based on the formula proposed by
 \citet{shannon1948mathematical}, who defines entropy as $H =
 -\sum{p_i}log(p_i)$, which sums, for all possible events, the product of the
-probability of an event $i$ occuring with the logarithm of that probability.
-\footnote{Shannon entropy is customarily denoted as $H$ following Shannon's own
-    naming after Ludwig Boltzman's 1872 H-theorem in statistical mechanics, to
-    which it is analagous.} The base the logarithm is often chosen to be 2,
-    though other choices are possible.\footnote{The choice of the base for the
-    logarithm varies by application and determines the units of $I(E)$.  Base 2
-means that information is expressed in bits. The natural logarithm, another
-popular choice, expresses information in \textit{nats}.} Entropy is a
-cornerstone of information theory, where it measures the amount of information
-contained in an event. In the behavioural sciences, behavioural entropy has
-recently been shown to predict the frequency of grocery visits and the
-per-capita spend per visit \citep{guidotti2015behavioral}, the amount of
-calories consumed \citep{skatova2019those}, and the propensity for financial
-distress \citep{muggleton2020evidence}. In our context, we define the entropy
-of a user's spending profile in a particular period as:\footnote{We omit
-individual and time subscripts to keep notation simpler.}
+probability of an event $i$ occuring with the logarithm of that
+probability.\footnote{Shannon entropy is customarily denoted as $H$ following
+    Shannon's own naming after Ludwig Boltzman's 1872 H-theorem in statistical
+    mechanics, to which it is analagous.} The base the logarithm is often
+    chosen to be 2, though other choices are possible.\footnote{The choice of
+        the base for the logarithm varies by application and determines the
+        units. Base 2 means that information is expressed in bits. The
+natural logarithm, another popular choice, expresses information in
+\textit{nats}.} Entropy is a cornerstone of information theory, where it
+measures the amount of information contained in an event. In the behavioural
+sciences, behavioural entropy has recently been shown to predict the frequency
+of grocery visits and the per-capita spend per visit
+\citep{guidotti2015behavioral}, the amount of calories consumed
+\citep{skatova2019those}, and the propensity for financial distress
+\citep{muggleton2020evidence}. In our context, we define the entropy of a
+user's spending profile in a particular period as:\footnote{We omit individual
+and time subscripts to keep notation simpler.}
 
 \begin{equation}
 \label{equ:entropy}
@@ -119,16 +120,15 @@ H = -\sum_{c \in \setc}{p_c}log(p_c),
 
 \noindent where $\setc$ is the set of all spending categories, $p_c$ the
 probability that an individual makes a purchase in spending category $c$, and
-$log$ the base 2 logarithm. For simpler interpretation of our regression
-coefficients below, we standardise entropy scores to have a mean of 0 and a
-standard deviation of 1.
-
-Higher entropy means that transactions are more equal across different spending
-categories, which makes it hard to predict the next transaction, whereas low
-entropy profiles have the bulk of transactions in a few dominant categories
-(such as groceries and transportation) and have relatively few transactions in
-other categories.\footnote{For further discussion on how to interpret
-Equation~\ref{equ:entropy}, see Appendix~\ref{sec:interpreting_entropy}.}
+$log$ the base 2 logarithm. Higher entropy means that transactions are more
+equal across different spending categories, which makes it hard to predict the
+next transaction, whereas low entropy profiles have the bulk of transactions in
+a few dominant categories (such as groceries and transportation) and have
+relatively few transactions in other categories.\footnote{For further
+discussion on how to interpret Equation~\ref{equ:entropy}, see
+Appendix~\ref{sec:interpreting_entropy}.} For simpler interpretation of our
+regression coefficients below, we standardise entropy scores to have a mean of
+0 and a standard deviation of 1.
 
 We calculate entropy based on three sets of spend categories. The first measure
 is based on 9 spending categories used by
@@ -141,9 +141,9 @@ into these 48 categories is available on
 \href{https://github.com/fabiangunzinger/entropy/blob/7fa9c565bf8959ea92a9d4fe2245da0864e19c27/src/data/txn_classifications.py\#L503}{Github}.}
 The third measure is based on merchant names, as labelled by Money Dashboard.
 
-We also handle categories with zero transaction counts in two different ways.
-To calculate what we call ``unsmoothed'' entropy scores, we calculate the
-$p_c$s in Equation~\ref{equ:entropy} as simple frequentist probabilities
+We also calculate spending category probabilities in two different ways. To
+calculate what we call ``unsmoothed'' entropy scores, we calculate the $p_c$s
+in Equation~\ref{equ:entropy} as simple frequentist probabilities
 
 \begin{equation}
     p_c = \frac{f_c}{F},
@@ -170,6 +170,71 @@ and the number of unqiue spending categories to the denominator of the
 unsmoothed probabilities. Because categories with a zero transaction count will
 have a numerator of 1, the sum in Equation~\ref{equ:entropy} will be taken over
 all categories.
+
+One way to think of entropy is as a function of a number of simple components,
+and we can rewrite Equation~\ref{equ:entropy} in a way that makes this
+transparent. Let $\setcp = \{c: f_c > 0\}$ be the set of all spending
+categories with positive frequency counts (i.e.  with at least one transaction)
+and $\setcz = \{c: f_c = 0\}$ the set of all spending categories with a zero
+frequency count. Then, using our definitions of unsmoothed and smoothed
+probabilities above, we can write unsmoothed entropy as
+
+\begin{equation}
+\label{equ:entropy_us}
+H = -\sum_{c \in \setcp}{\left(\frac{f_c}{F}\right)
+log\left(\frac{f_c}{F}\right)},
+\end{equation}
+
+and smoothed entropy as:
+
+\begin{equation}
+\label{equ:entropy_us}
+H^s = -\sum_{c \in \setcp}{\left(\frac{f_c + 1}{F + |\setc|}\right)
+log\left(\frac{f_c + 1}{F + |\setc|}\right)}
++ |\setcz|\left(\frac{1}{F + |\setc|}\right)
+log\left(\frac{1}{F + |\setc|}\right),
+\end{equation}
+
+\noindent where the size of set $\setcz$, $|\setcz|$, is the number of all
+spending categories in which a user makes no transactions in a certain period.
+These expressions make clear that, by definition, unsmoothed entropy is a
+function of frequency counts of categories with positive counts only to avoid
+taking logs of 0, while smoothed entropy has two parts: the additively smoothed
+unsmoothed entropy, plus a constant term for each spending category with a zero
+frequency count.
+
+The expressions also make transparent the three main components of both types
+of entropy: the number of spending categories with a non-zero frequency count
+(and its complement, the number of categories with a zero frequency count), the
+variation in the frequency counts of those categories, and the total number of
+transactions ($F$).\footnote{The number of total spending categories,
+    $|\setc|$, also implicitly determines unsmoothed entropy (since it
+    ``scales'' the number of categories with a positive frequency count,
+$|\setcp|$) and explicitly determines smoothed entropy, but it is fixed across
+users and periods and does not depend on user behaviour.}
+
+\begin{figure}[h]
+    \centering 
+    \caption{Correlation of entropy with its components}
+    \label{fig:entropy_components}
+    \includegraphics[width=.32\textwidth]{\figdir/scatter_entropy_nunique_tag_spend.png}
+    \includegraphics[width=.32\textwidth]{\figdir/scatter_entropy_std_tag_spend.png}
+    \includegraphics[width=.32\textwidth]{\figdir/scatter_entropy_txns_count_spend.png}
+    \fignote{\textwidth}{Correlation of 48-categories-based unsmoothed entropy
+    with its three main components: the number of unique spending categories
+with positive frequency counts (left), the standard deviation of those
+frequency counts (middle), and the number of total spend transactions (left).}
+\end{figure}
+
+Figure~\ref{fig:entropy_components} shows the empirical relationship with our
+48-categories-based unsmoothed entropy variable and these three
+components.\footnote{To highlight the main features of the relationships we
+have trimmed the component values at the 95th percentile.} We can see that for
+the values we observe in the dataset, entropy increases monotonically in the
+number of unique spending categories with positive frequency counts, has no
+clear relationship with the standard deviation of those counts, and increases
+in the number of total spending transactions up to about 175 transaction,
+before being increasingly determined by other elements thereafter.
 
 There are a number of alternative ways to characterise spend profiles. We could
 calculate profiles based on the distribution of transaction values rather than

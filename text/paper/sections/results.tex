@@ -12,6 +12,7 @@ effects, and standard errors are clustered at the user-level. 95\% confidence
 intervals are shown in brakets.
 
 \input{\tabdir/reg_has_inflows_main.tex}
+\input{\tabdir/reg_has_investments_main.tex}
 
 Results for unsmoothed entropy suggest that a one unit increase in entropy is
 associated with an increase in the probability of a user making at least one
@@ -36,54 +37,6 @@ spending profile that entropy captures and that is predictive of savings
 behaviour? And second, why does smoothing entropy scores flip the direction of
 the effect? We will address these in turn.
 
-
-\subsection{What does entropy capture?}%
-\label{sub:what_does_entropy_capture_}
-
-One way to think of entropy is as a function of a number of simple components,
-and one question that arises is whether the above results are due to one or
-more of these components of because of the way entropy combines them. To
-address this question, it is helpful to write entropy in a way that makes its
-component parts more apparent. Remember from
-Section~\ref{sub:spending_profiles} that, for each user $i$ in period $t$,
-$\setc$ is the set of unique spending categories, $F$ the total number of
-spending transactions, $p_c = \frac{f_c}{F}$ the unsmoothed probability that
-the user makes a transaction in spending category $c$, and $p_c^s = \frac{f_c +
-1}{F + |\setc|}$ the smoothed probability of the user making such a
-transaction. In addition, let $\setcp = \{c: f_c > 0\}$ the set of all spending
-categories with positive frequency counts (i.e.  with at least one
-transaction), $\setcz = \{c: f_c = 0\}$ the set of all spending categories with
-a zero frequency count. Then, given the definition of entropy in
-Equation~\ref{equ:entropy}, we can write unsmoothed entropy as
-
-\begin{equation}
-\label{equ:entropy_us}
-H = -\sum_{c \in \setcp}{\left(\frac{f_c}{F}\right)
-log\left(\frac{f_c}{F}\right)},
-\end{equation}
-
-and smoothed entropy as:
-
-\begin{equation}
-\label{equ:entropy_us}
-H^s = -\sum_{c \in \setcp}{\left(\frac{f_c + 1}{F + |\setc|}\right)
-log\left(\frac{f_c + 1}{F + |\setc|}\right)}
-+ |\setcz|\left(\frac{1}{F + |\setc|}\right)
-log\left(\frac{1}{F + |\setc|}\right),
-\end{equation}
-
-\noindent where the size of set $\setcz$, $|\setcz|$, is the number of all
-spending categories in which a user makes no transactions in a certain period.
-
-Note that, by definition, unsmoothed entropy is a function of frequency counts
-of categories with positive counts only to avoid taking logs of 0. Smoothed
-entropy, in contrast, has two components: the additively smoothed unsmoothed
-entropy, plus a constant term for each spending category with a zero frequency
-count. We can thus think of both types of entropy as functions of three
-components: the number of spending categories with a non-zero frequency count
-(and its complement, the number of categories with a zero frequency count), the
-variation in the frequency counts of those categories, and the total number of
-transactions ($F$).
 
 \input{\tabdir/reg_has_inflows_comp.tex}
 
