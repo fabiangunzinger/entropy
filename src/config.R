@@ -72,7 +72,7 @@ varlabs <- c(
   user_id = 'User',
   ym = 'Year-month',
   
-  txns_count_spend = 'Number of spend txns',
+  txns_count_spend = 'Number of spend txns (F)',
   std_tag_spend = 'Category counts std.',
   nunique_tag_spend = "Unique categories",
   nunique_tag = 'Unique categories',

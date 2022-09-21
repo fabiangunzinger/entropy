@@ -4,7 +4,6 @@ library(tidyverse)
 
 source('src/config.R')
 source('src/helpers/helpers.R')
-# source('src/analysis/fixest_settings.R')
 
 
 # Load data and add lagged entropy variables
@@ -28,8 +27,8 @@ setFixest_fml(
 )
 
 titles <- list(
-  "has_inflows" = "P(builds savings)",
-  "has_investments" = "P(has investments)"
+  "has_inflows" = "P(payment into savings accounts)",
+  "has_investments" = "P(payment into investment funds)"
 )
 
 names(df)
@@ -38,7 +37,7 @@ names(df)
 
 lab <- "main"
 
-yvars <- c("has_inflows")
+yvars <- c("has_inflows", "has_investments")
 
 for (y in yvars) {
   entropy <- entropy_vars(df)
@@ -89,16 +88,17 @@ print(
   etable(
     feols(.[evars] ~ ..comps | sw0(..fe), df),
     title = glue('Disaggregating entropy into components'),
-    order = c('!(Intercept)', "Unique", "Category counts", "Number of"),
-    headers=list("Entropy (48 cats)"=2, "Entropy (48 cats, smooth)"=2),
-    tex = T,
-    fontsize = 'tiny',
-    file=file.path(TABDIR, glue('reg_{lab}.tex')),
-    label = glue('tab:reg_{lab}'),
-    replace = T
+    order = c('!(Intercept)', "Unique", "Category counts", "Number of")
+    # ,
+    # headers=list("Entropy (48 cats)"=2, "Entropy (48 cats, smooth)"=2)
+    # ,
+    # tex = T,
+    # fontsize = 'tiny',
+    # file=file.path(TABDIR, glue('reg_{lab}.tex')),
+    # label = glue('tab:reg_{lab}'),
+    # replace = T
   )
 )
-
 
 
 

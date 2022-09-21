@@ -12,30 +12,94 @@ df <- read_debug_data()
 
 
 
+
+# Entropy components --------------------------------------------------------------
+
+components <- c("txns_count_spend", "nunique_tag_spend", "std_tag_spend")
+y = "entropy_tag_spend"
+
+for (c in components) {
+  fn <- glue("scatter_entropy_{c}.png")
+  g <- df %>% 
+    group_by(x = .data[[c]]) %>% 
+    summarise(y = mean(.data[[y]])) %>% 
+    ungroup() %>% 
+    filter(ntile(x, 100) < 95) %>% 
+    ggplot(aes(x, y)) +
+    geom_point(alpha = 0.5, colour = palette[1]) +
+    labs(x = varlabs[[c]], y = varlabs[[y]]) + 
+    theme(
+      axis.title=element_text(size = 20),
+      axis.text = element_text(size = 20),
+    )
+  
+  ggsave(file.path(FIGDIR, fn),
+         height = 2000,
+         width = 3000,
+         units = "px")
+  print(g)
+}
+
+
 # Effect of smoothing -------------------------------------------------------------
 
+legendlabs <- c(varlabs[['entropy_tag_spend']], varlabs[['entropy_tag_spend_s']])
 
-# Effect of smoothing on entropy scores
+for (c in components) {
+  fn <- glue("smoothing_on_{c}.png")
+  g <- df %>% 
+    group_by(x = .data[[c]]) %>% 
+    summarise(across(matches("entropy_tag_spend$|entropy_tag_spend_s$"), ~mean(.x))) %>%
+    ungroup() %>% 
+    filter(ntile(x, 100) <= 95) %>% 
+    pivot_longer(!x) %>% 
+    ggplot(aes(x, value, colour=name)) +
+    geom_point(alpha = 0.5) +
+    scale_color_hue(labels = legendlabs) +
+    labs(x = varlabs[[c]], y = "Entropy", colour = "") +
+    theme(
+      axis.title=element_text(size = 30),
+      axis.text = element_text(size = 30),
+      legend.text = element_text(size = 30),
+      legend.position = "top"
+    )
+  
+  ggsave(file.path(FIGDIR, fn))
+  print(g)
+}
+
+
+# Smoothed and unsmoothed entropy correlation -------------------------------------
+
 df %>% 
-  group_by(nunique_tag_spend) %>% 
-  summarise(across(matches("entropy_tag_spend$|entropy_tag_spend_s$"), ~mean(.x))) %>% 
-  pivot_longer(!nunique_tag_spend) %>% 
-  ggplot(aes(factor(nunique_tag_spend), value, colour=name)) +
-  geom_point() +
-  scale_color_hue(labels = c("Entropy", "Smoothed entropy")) +
-  labs(x = "Non-zero categories", y = "(Smoothed) entropy", colour = "") +
-  theme(legend.position = "top")
+  sample_frac(1) %>% 
+  group_by(x = entropy_tag_spend) %>% 
+  summarise(y = mean(entropy_tag_spend_s)) %>%
+  ungroup() %>% 
+  ggplot(aes(x, y)) +
+  geom_point(alpha = 0.3, colour = palette[[1]]) +
+  labs(x = varlabs[["entropy_tag_spend"]], y = varlabs[["entropy_tag_spend_s"]]) +
+  theme(
+    axis.title=element_text(size = 30),
+    axis.text = element_text(size = 30)
+  )
+fn <- glue("smoothed_unsmoothed_corr.png")
+ggsave(file.path(FIGDIR, fn))
 
 
+# from here - can we make sense of this intuitively?
 df %>% 
-  group_by(nunique_tag_spend) %>% 
-  summarise(across(matches("entropy_tag_spend_s?z$"), ~mean(.x))) %>% 
-  pivot_longer(!nunique_tag_spend) %>% 
-  ggplot(aes(factor(nunique_tag_spend), value, colour=name)) +
+  sample_frac(0.05) %>% 
+  select(x = entropy_tag, y = entropy_tag_s, nunique_tag, txns_count) %>% 
+  ggplot(aes(x, y, colour = factor(txns_count))) +
   geom_point() +
-  scale_color_hue(labels = c("Smothed entropy", "Entropy")) +
-  labs(x = "Non-zero categories", y = "(Smoothed) entropy", colour = "") +
-  theme(legend.position = "top")
+  facet_wrap(~nunique_tag) +
+  theme(
+    legend.position = NA
+  )
+
+
+
 
 
 

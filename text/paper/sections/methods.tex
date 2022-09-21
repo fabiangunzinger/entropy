@@ -161,6 +161,7 @@ To calculate ``smoothed'' entropy scores, we apply additive smoothing to
 calculate propabilities as
 
 \begin{equation}
+    \label{equ:prob_s}
     p_c^{s} = \frac{f_c + 1}{F + |\setc|},
 \end{equation}
 
@@ -188,10 +189,10 @@ log\left(\frac{f_c}{F}\right)},
 and smoothed entropy as:
 
 \begin{equation}
-\label{equ:entropy_us}
+\label{equ:entropy_s}
 H^s = -\sum_{c \in \setcp}{\left(\frac{f_c + 1}{F + |\setc|}\right)
 log\left(\frac{f_c + 1}{F + |\setc|}\right)}
-+ |\setcz|\left(\frac{1}{F + |\setc|}\right)
+- |\setcz|\left(\frac{1}{F + |\setc|}\right)
 log\left(\frac{1}{F + |\setc|}\right),
 \end{equation}
 
@@ -235,18 +236,6 @@ number of unique spending categories with positive frequency counts, has no
 clear relationship with the standard deviation of those counts, and increases
 in the number of total spending transactions up to about 175 transaction,
 before being increasingly determined by other elements thereafter.
-
-There are a number of alternative ways to characterise spend profiles. We could
-calculate profiles based on the distribution of transaction values rather than
-counts. We could also calculate profiles based on inter-temporal rather than
-intra-temporal distributions, focusing on consistency of purchasing behaviour
-over time rather than on predictability at any given time
-\citep{krumme2013predictability}. Further, we could focus on time-based rather
-than category-based measures, focusing, for instance, on whether purchases of
-the same type tend to occur on the same day of the week
-\citep{guidotti2015behavioral}. Finally, one could also create composite
-measures based on principal component analysis, an approach used in
-\citet{eagle2010network}. We leave these extensions for future research.
 
 One slight limitation introduced by the imperfect transaction labelling in the
 MDB data is that entropy scores for high-entropy individuals will be biased
