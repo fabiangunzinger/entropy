@@ -12,41 +12,60 @@ effects, and standard errors are clustered at the user-level. 95\% confidence
 intervals are shown in brakets.
 
 \input{\tabdir/reg_has_inflows_main.tex}
-\input{\tabdir/reg_has_investments_main.tex}
 
 Results for unsmoothed entropy suggest that a one unit increase in entropy is
 associated with an increase in the probability of a user making at least one
 transfer into their savings accounts of between 1.5 and 2.7 percentage points
 -- an effect up to two times larger than that of a \pounds1000 increase in
-monthly income.
+monthly income. Conversely, the effect for unsmooth entropy is smaller in
+magnitude but runs in the reverse direction: a one-unit increase in the
+smoothed entropy score is associated with a reduction in the probability of
+transferring money into savings account of between 0.4 and 1.6 percentage
+points -- an effect that, in absolute magnitude, is about equal to that of a
+\pounds1000 increase in monthly income.
 
-Conversely, the effect for unsmooth entropy is smaller in magnitude but runs in
-the reverse direction: a one-unit increase in the smoothed entropy score is
-associated with a reduction in the probability of transferring money into
-savings account of between 0.4 and 1.6 percentage points -- an effect that, in
-absolute magnitude, is about equal to that of a \pounds1000 increase in monthly
-income.
+As discussed in Section~\ref{sub:estimation}, these results are not a results
+of reverse causality. While we might think that making a savings transactions
+might change some or all of the components of entropy discussed in
+Section~\ref{sub:spending_profiles} -- the number of unique spending categories
+with positive frequency count, the standard deviation of these counts, and the
+total number of spend transactions -- and thus change entropy, this is not the
+case because of the way we define entropy and savings, and the way spending
+transactions are categorised. We define entropy based on all current account
+debits that are identified as spends, while we define savings transactions as
+the sum of all savings accounts credits. If a user transfers money from their
+current account to their savings account, this will be identified as a savings
+transaction, but be identified as a transfer on their current account and thus
+not considered when calculating their entropy score.
 
-Overall, then, the effect of entropy in spending profiles is statistically and
+Overall, the effect of entropy in spending profiles is statistically and
 economically significant, and robust across different definitions. In other
 words, the scores seem to pick up a feature of the spending distribution that
 is predictive of savings behaviour.
 
-Two questions remain: first, how can we understand the aspect of users'
-spending profile that entropy captures and that is predictive of savings
-behaviour? And second, why does smoothing entropy scores flip the direction of
-the effect? We will address these in turn.
+Two questions remain: first, does entropy capture an element of the spending
+distributions that is different from what is captured by its three main
+components? Second, why does smoothing entropy scores flip the direction of the
+effec? We will address these in turn.
 
+
+\subsection{Is entropy more than the sum of its parts?}%
+\label{sub:is_entropy_more_than_the_sum_of_its_parts_}
+
+In Section~\ref{sub:spending_profiles} we show that we can think of both
+unsmoothed and smoothed entropy as a fundtion of three simple components: the
+number of unqiue spending categories with a positive frequency count, the
+standard deviation of those counts, and the number of spending transactions.
+Here we want to test whether entropy remains predictive of savings behaviour
+once we control for these components.
 
 \input{\tabdir/reg_has_inflows_comp.tex}
 
 Columns (1) and (3) in Table~\ref{tab:reg_has_inflows_comp} replicate the
 results for the 48-category-based unsmoothed and smoothed entropy measures
 presented in Table~\ref{tab:reg_has_inflows_main} for reference. In columns (2)
-and (4) we additionally control for the three entropy components discussed
-above: the number of unique spend categories, the standard deviation of their
-counts, and the total number of spending transactions. Including these
-components has some effect: for unsmoothed entropy the magnitude of the
+and (4) we additionally control for the three entropy components. Including
+these components has some effect: for unsmoothed entropy the magnitude of the
 coefficient is less than half its size and the confidence interval is about
 twice as wide, while for smoothed entropy the magnitude of the coefficient is a
 little higher while the width of the confidence interval also roughly doubles.
@@ -55,42 +74,6 @@ confidence intervals cover values that are also economically significant.
 Hence, the results make clear that the results in
 Table~\ref{tab:reg_has_inflows_main} cannot be attributed simply to the effect
 of one or more of entropy's simple components.
-
-Another way to think of entropy is that, as discussed in the introduction, it
-might be a function of life circumstances that simultaneously determine
-spending and savings behaviour.
-
-
-The economic literature on scarcity documents that our minds tend to focus on
-what is scarce and neglect what is not, concentrating our mental resources
-where they are most needed but impeding decision-making in other domains,
-possibly leading to impaired and short-sighted decision
-making\citep{shah2012some, mullainathan2013scarcity, haushofer2014psychology}.
-For instance, \citet{mani2013poverty} find that low-income shoppers in New
-Jersey perform worse on cognitive tasks when first promoted to think about
-their financial situation while the same prompts had no effect for wealthier
-shoppers, and sugarcane farmers in India perform worse on similar cognitive
-tasks shortly before the annual harvest (when money is scarce) than shortly
-thereafter (when money is plentiful). A prediction of this theory is that
-people with low levels of savings find it hard to make sound spending decisions
-as thir account balance dwindles, because their minds are increasingly captured
-by financial worries. If high entropy spending behaviour captures life stress,
-we would thus think that it is individuals with lowerer levels of incomes, who
-have less mental bandwith to deal with said stress, that are most effected.
-
-The results below show results similar to those presented in
-Table~\ref{tab:reg_has_inflows_main} above, but separately for unsmoothed and
-smoothed income and separately for each income quintile and income variation
-quintile, respectively.
-
-\input{\tabdir/reg_has_inflows_entropy_tag_spend_z_inc_quint.tex}
-\input{\tabdir/reg_has_inflows_entropy_tag_spend_sz_inc_quint.tex}
-
-\input{\tabdir/reg_has_inflows_entropy_tag_spend_z_inc_var_quint.tex}
-\input{\tabdir/reg_has_inflows_entropy_tag_spend_sz_inc_var_quint.tex}
-
-
-
 
 
 \subsection{Why does smoothing flip the direction of the effect}%
@@ -103,4 +86,30 @@ transaction count of that spending category in the numerator, and adding the
 number of spending categories to the total number of spending transactions in
 the denominator.
 
+While we have just seen above that entropy captures more about users' spending
+profile, to understand the effect of smoothing on entropy scores it is still
+instructive to see how it affects scores as a function of the three components.
+Figure~\ref{fig:effect_of_smoothing} shows unsmoothed and smoothed entropy
+scores as a function of the number of unique spend categories with positive
+frequency count (left), the standard deviation of these counts (middle), and
+the total number of spend transactions (right).
+
+\begin{figure}[h]
+    \centering 
+    \caption{Effect of smoothing on entropy components}
+    \label{fig:effect_of_smoothing}
+    \includegraphics[width=.49\textwidth]{\figdir/smoothing_on_nunique_tag_spend.png}
+    \includegraphics[width=.49\textwidth]{\figdir/smoothing_on_std_tag_spend.png}
+    \includegraphics[width=.49\textwidth]{\figdir/smoothing_on_txns_count_spend.png}
+    \fignote{\textwidth}{Effect of smoothing on entropy as a function of its
+    three main components: the number of spending categories with positive
+frequency-counts (left), the standard deviatioin of these counts (middle), and
+the total number of spending transaction (right). Value ranges for entropy
+components are trimmed at the 95th percentile.}
+\end{figure}
+
+- Sign reversal is mechanical
+- Interpret in light of formulas
+- Suggests that results very fragile to how we define entropy
+- Also suggests that sign-issue is a red herring
 

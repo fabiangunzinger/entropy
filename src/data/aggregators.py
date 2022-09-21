@@ -342,7 +342,8 @@ def num_accounts(df):
 def investments(df):
     """Flows into investment and pension funds."""
     group_cols = [df.user_id, df.ym]
-    is_invest = df.tag_auto.eq("pension or investments") & df.is_debit
+    invest_tags = ["pension or investments", "investment - other", "investments or shares"]
+    is_invest = df.tag_auto.isin(invest_tags) & df.is_debit
     invest = df.amount.where(is_invest, 0)
     return invest.groupby(group_cols).sum().rename("investments")
 

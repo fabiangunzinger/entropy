@@ -31,7 +31,10 @@ varlabs <- c(
   sa_inflows = "Savings accounts inflows",
   sa_outflows = "Savings accounts outflows",
   sa_netflows = "Savings accounts net-inflows",
-  
+
+  entropy_tag_spend = "Entropy (48 cats)",
+  entropy_tag_spend_s = "Entropy (48 cats, smooth)",
+
   entropy_tag_z = "Entropy (9 cats)",
   entropy_tag_sz = "Entropy (9 cats, smooth)",
   entropy_tag_spend_z = "Entropy (48 cats)",
