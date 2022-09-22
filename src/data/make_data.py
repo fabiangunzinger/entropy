@@ -60,9 +60,15 @@ def get_filepath(piece):
     return os.path.join(config.AWS_PIECES, f"mdb_XX{piece}.parquet")
 
 
-def write_debug_data(df):
-    filename = os.path.join(config.AWS_PROJECT, "debug.parquet")
-    io.write_parquet(df, filename)
+def write_data(df, piece, debug=False):
+    id = ""
+    if piece:
+        id += f"_XX{piece}"
+    if debug:
+        id += "_debug"
+    fn = "entropy" + id + ".parquet"
+    fp = os.path.join(config.AWS_PROJECT, fn)
+    io.write_parquet(df, fp)
     return df
 
 
@@ -81,16 +87,14 @@ def main(argv=None):
     # Use supplied test piece or all pieces and name datafile accordingly
     pieces = args.piece if args.piece else range(10)
     pieces_paths = [get_filepath(piece) for piece in pieces]
-    filename = f"entropy_XX{args.piece}.parquet" if args.piece else "entropy.parquet"
-    filepath = os.path.join(config.AWS_PROJECT, filename)
 
     data = (
         pd.concat(clean_piece(path) for path in pieces_paths)
         .reset_index(drop=True)
         .pipe(transform_variables)
-        .pipe(write_debug_data)
+        .pipe(write_data, args.piece, debug=True)
         .pipe(validate_data)
-        .pipe(io.write_parquet, filepath)
+        .pipe(write_data, args.piece)
     )
 
     selection_table = hd.make_selection_table(sl.sample_counts)
