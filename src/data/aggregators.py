@@ -3,6 +3,7 @@ Functions to create columns for analysis dataset at user-month frequency.
 
 """
 
+import re
 import os
 import functools
 
@@ -139,8 +140,7 @@ def income(df):
     idx_merge = functools.partial(pd.merge, left_index=True, right_index=True)
 
     return (
-        month_income
-        .pipe(idx_merge, year_income)
+        month_income.pipe(idx_merge, year_income)
         .pipe(idx_merge, month_income_mean)
         .pipe(idx_merge, income_variability)
         .pipe(idx_merge, has_mt_income)
@@ -342,7 +342,11 @@ def num_accounts(df):
 def investments(df):
     """Flows into investment and pension funds."""
     group_cols = [df.user_id, df.ym]
-    invest_tags = ["pension or investments", "investment - other", "investments or shares"]
+    invest_tags = [
+        "pension or investments",
+        "investment - other",
+        "investments or shares",
+    ]
     is_invest = df.tag_auto.isin(invest_tags) & df.is_debit
     invest = df.amount.where(is_invest, 0)
     return invest.groupby(group_cols).sum().rename("investments")
@@ -533,32 +537,33 @@ def month_spend_txn_value_and_counts(df):
     Spend value expressed in £'000s to ease coefficient comparison.
     """
 
-    def colname(prefix, x):
-        """Turn x into proper column name with prefix."""
-        return prefix + x.replace(",", "").replace(" ", "_")
+    def colname(x):
+        """Turn x into proper column name."""
+        pattern = "\.|,| |\(|\)|&"
+        name = re.sub(pattern, "_", x)
+        return re.sub("_+", "_", name)
+
+    def spend_in_1000s(s):
+        return s.sum() / 1000
 
     is_spend = df.tag_group.eq("spend") & df.is_debit
     spend_amount = df.amount.where(is_spend, np.nan)
-    group_cols = [df.user_id, df.ym, df.tag_spend]
+    cat_vars = ["tag", "tag_spend", "merchant"]
+    frames = []
 
-    spend = (
-        spend_amount.groupby(group_cols, observed=True)
-        .sum()
-        .unstack()
-        .rename(columns=lambda x: colname("spend_", x))
-        .fillna(0)
-        .div(1000)
-    )
+    for cat in cat_vars:
+        spend_cats = df[cat].where(is_spend, np.nan)
+        group_cols = [df.user_id, df.ym, spend_cats]
+        data = (
+            spend_amount.groupby(group_cols, observed=True)
+            .agg([(f"sp_{cat}", spend_in_1000s), (f"ct_{cat}", "count")])
+            .unstack()
+            .pipe(lambda df: df.set_axis(df.columns.map("_".join), axis=1))
+            .fillna(0)
+        )
+        frames.append(data)
 
-    counts = (
-        spend_amount.groupby(group_cols, observed=True)
-        .count()
-        .unstack()
-        .rename(columns=lambda x: colname("count_", x))
-        .fillna(0)
-    )
-
-    return pd.concat([spend, counts], join="inner", axis=1)
+    return pd.concat(frames, axis=1)
 
 
 def _entropy_base_values(df, cat, stat="size", wknd=False):
