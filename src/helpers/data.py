@@ -63,14 +63,6 @@ def read_analysis_data(sample=None, **kwargs):
 
 
 @hh.timer
-def read_debug_data(sample=None, **kwargs):
-    path = "s3://3di-project-entropy"
-    fp = os.path.join(path, "debug.parquet")
-    return io.read_parquet(fp, **kwargs)
-
-
-
-@hh.timer
 def read_logins(**kwargs):
     fp = "s3://3di-data-mdb/raw/20200630_UserLoginsForNeedham.csv"
     return io.read_csv(fp, names=["user_id", "date"], parse_dates=["date"], **kwargs)
