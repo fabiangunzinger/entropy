@@ -2,11 +2,10 @@
 # Code to produce sample characteristics plot
 # 
 
-library(cowplot)
 library(dplyr)
 library(ggplot2)
-library(lubridate)
-library(patchwork)
+# library(lubridate)
+# library(patchwork)
 
 source('./src/config.R')
 source('./src/helpers/helpers.R')
@@ -14,7 +13,7 @@ source('./src/helpers/helpers.R')
 theme_set(theme_minimal())
 
 lcfs_data <- read_lcfs()
-df <- read_analysis_data("XX0_debug")
+df <- read_analysis_data()
 names(df)
 
 
@@ -23,7 +22,7 @@ df %>%
   filter(ymn == 201904) %>% 
   transmute(
     yr_income = year_income * 1000,
-    source = 'MDB'
+    source = 'APP'
   ) %>% 
   filter(ntile(yr_income, 100) <= 99) %>% 
   bind_rows(lcfs_data) %>% 
@@ -37,7 +36,6 @@ df %>%
     legend.text = element_text(size = 20),
     legend.position = c(0.9, 0.9)
     )
-
 ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
 
 
@@ -46,7 +44,7 @@ df %>%
   filter(ymn == 201904) %>% 
   transmute(
     yr_spend = month_spend * 12 * 1000,
-    source = 'MDB'
+    source = 'APP'
   ) %>% 
   filter(ntile(yr_spend, 100) <= 99) %>% 
   bind_rows(lcfs_data) %>% 
@@ -60,8 +58,9 @@ df %>%
     axis.text = element_text(size = 20),
     legend.text = element_text(size = 20),
     legend.position = c(0.9, 0.9)
-  )
+    )
 ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
+
 
 fn <- "age.png"
 df %>% 
@@ -76,9 +75,8 @@ df %>%
     axis.title=element_text(size = 20),
     axis.text = element_text(size = 20),
     legend.text = element_text(size = 20)
-  )
+    )
 ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
-
 
 
 fn <- "region.png"
@@ -97,33 +95,5 @@ df %>%
     axis.title=element_text(size = 20),
     axis.text = element_text(size = 20),
     legend.text = element_text(size = 20)
-  )
+    )
 ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
-
-
-active_accounts <- df %>%
-  group_by(user_id) %>% 
-  summarise(accounts_active = first(accounts_active)) %>% 
-  count(accounts_active) %>% 
-  mutate(prop = n / sum(n)) %>% 
-  ggplot() +
-  geom_bar(aes(factor(accounts_active), prop), stat = "identity", fill = palette[1]) +
-  labs(x = "Number of active accounts (by user-month)", y = "Count")
-
-
-plot_grid(
-  year_income, year_spend, age, gender, region, active_accounts,
-  labels = "AUTO",
-  ncol = 2
-)
-
-figname <- 'sample_description.png'
-ggsave(
-  file.path(FIGDIR, figname),
-  height = 2000,
-  width = 3000,
-  units = "px"
-)
-
-
-

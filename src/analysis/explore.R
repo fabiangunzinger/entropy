@@ -41,10 +41,11 @@ for (c in components) {
 }
 
 
-# Effect of smoothing -------------------------------------------------------------
+# Effect of smoothing on entropy as function of component ------------------------
 
 legendlabs <- c(varlabs[['entropy_tag_spend']], varlabs[['entropy_tag_spend_s']])
 
+# Raw correlations
 for (c in components) {
   fn <- glue("smoothing_on_{c}.png")
   g <- df %>% 
@@ -67,6 +68,41 @@ for (c in components) {
   ggsave(file.path(FIGDIR, fn))
   print(g)
 }
+
+
+# Correlation after partialling out other components
+plots <- list()
+for (c in components) {
+  
+  d <- df %>% sample_frac(0.1)
+  
+  # Partialling out effect of other components
+  b <- paste(components[components != c], collapse = "+")
+  fml <- paste(c, b, sep = "~")
+  model <- lm(fml, d)
+  d$resid <- round(resid(model), 1)
+  
+  g <- d %>% 
+    group_by(x = resid) %>% 
+    summarise(across(matches("entropy_tag_spend$|entropy_tag_spend_s$"), ~mean(.x))) %>%
+    ungroup() %>% 
+    filter(between(ntile(x, 100), 5, 95)) %>% 
+    pivot_longer(!x) %>% 
+    ggplot(aes(x, value, colour=name)) +
+    geom_point(alpha = 0.5)
+  
+  plots[[c]] <- g
+
+}
+
+plots[["txns_count_spend"]]
+plots[["nunique_tag_spend"]]
+plots[["std_tag_spend"]]
+
+
+
+plot(d$std_tag_spend, d$resid)
+
 
 
 # Smoothed and unsmoothed entropy correlation -------------------------------------

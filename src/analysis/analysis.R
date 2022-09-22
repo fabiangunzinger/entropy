@@ -88,17 +88,17 @@ print(
   etable(
     feols(.[evars] ~ ..comps | sw0(..fe), df),
     title = glue('Disaggregating entropy into components'),
-    order = c('!(Intercept)', "Unique", "Category counts", "Number of")
-    # ,
-    # headers=list("Entropy (48 cats)"=2, "Entropy (48 cats, smooth)"=2)
-    # ,
-    # tex = T,
-    # fontsize = 'tiny',
-    # file=file.path(TABDIR, glue('reg_{lab}.tex')),
-    # label = glue('tab:reg_{lab}'),
-    # replace = T
+    order = c('!(Intercept)', "Unique", "Category counts", "Number of"),
+    headers=list("Entropy (48 cats)"=2, "Entropy (48 cats, smooth)"=2),
+    tex = T,
+    fontsize = 'tiny',
+    file=file.path(TABDIR, glue('reg_{lab}.tex')),
+    label = glue('tab:reg_{lab}'),
+    replace = T
   )
 )
+
+
 
 
 

@@ -1,5 +1,4 @@
 
-
 .PHONY: all
 all: sumstats figures msg
 
@@ -15,13 +14,15 @@ sumstats:
 	@Rscript src/analysis/sumstats.R
 
 
-.PHONY: figures sampdesc 
-
-figures: sampdesc 
-
+.PHONY: sampdesc 
 sampdesc:
 	@printf '\n Updating sample description plots...\n'
 	@Rscript src/figures/sample_description.R
+
+.PHONY: figures
+figures: sampdesc
+
+
 
 msg:
 	@printf '\n All done.\n'

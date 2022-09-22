@@ -43,43 +43,10 @@ economically significant, and robust across different definitions. In other
 words, the scores seem to pick up a feature of the spending distribution that
 is predictive of savings behaviour.
 
-Two questions remain: first, how can we interpret the aspect of spending
+\edit{Two questions remain: first, how can we interpret the aspect of spending
 distributions that entropy captures and that is related to savings behaviour?
 Second, why does smoothing entropy scores flip the direction of the effec? We
-will address these in turn.
-
-
-\subsection{How can we interpret entropy?}%
-\label{sub:is_entropy_more_than_the_sum_of_its_parts_}
-
-One possibility is that spending entropy is related to savings behaviour
-through some or all of its main components we discussed in
-Section~\ref{sub:spending_profiles}: the number of unqiue spending categories
-with a positive frequency count, the standard deviation of those counts, and
-the number of spending transactions. Here we want to test whether entropy
-remains predictive of savings behaviour once we control for these components.
-
-\input{\tabdir/reg_has_inflows_comp.tex}
-
-Columns (1) and (3) in Table~\ref{tab:reg_has_inflows_comp} replicate the
-results for the 48-category-based unsmoothed and smoothed entropy measures
-presented in Table~\ref{tab:reg_has_inflows_main} for reference. In columns (2)
-and (4) we additionally control for the three entropy components. Including
-these components has some effect: for unsmoothed entropy the magnitude of the
-coefficient is less than half its size and the confidence interval is about
-twice as wide, while for smoothed entropy the magnitude of the coefficient is a
-little higher while the width of the confidence interval also roughly doubles.
-However, both coefficients remain statistically significant and their
-confidence intervals cover values that are also economically significant.
-Hence, the results make clear that the results in
-Table~\ref{tab:reg_has_inflows_main} cannot be attributed simply to the effect
-of one or more of entropy's simple components.
-
-Knowing that entropy is not simply the sum of its component parts still leaves
-us with the question what it \textit{is} that entropy captures about user
-spending distributions that is predictive of savings behaviour. We have not,
-thus far, been able to understand this and leave the question for future
-research.
+will address these in turn.}
 
 
 \subsection{Why does smoothing flip the direction of the effect}%
@@ -140,9 +107,9 @@ log\left(\frac{1}{F + |\setc|}\right),
 \newpage
 
 
-- Negative sign in 4 makes sense: since increading f_c moves fraction closer to
-one, moves log closer to zero, hence, H^s increases more if c added to rhs of
-expression.
+% Negative sign in 4 makes sense: since increading f_c moves fraction closer to
+% one, moves log closer to zero, hence, H^s increases more if c added to rhs of
+% expression.
 
 The two salient facts from the top left panel are that unsmoothed and smoothed
 entropy are positively correlated, and that the variance of smoothed entropy
@@ -160,7 +127,41 @@ score.
 Sign reversal due to some people with low entropy scores that get turned into
 high entropy people.
 
-Look at dev figure: wrap by nunique_tag, colour by F and std to see how they
-help
+% Look at dev figure: wrap by nunique_tag, colour by F and std to see how they
+% help
 
-- Add formula labels into regression var names (see num txns)
+
+\subsection{How can we interpret entropy?}%
+\label{sub:is_entropy_more_than_the_sum_of_its_parts_}
+
+One possibility is that spending entropy is related to savings behaviour
+through some or all of its main components we discussed in
+Section~\ref{sub:spending_profiles}: the number of unqiue spending categories
+with a positive frequency count, the standard deviation of those counts, and
+the number of spending transactions. Here we want to test whether entropy
+remains predictive of savings behaviour once we control for these components.
+
+\input{\tabdir/reg_has_inflows_comp.tex}
+
+Columns (1) and (3) in Table~\ref{tab:reg_has_inflows_comp} replicate the
+results for the 48-category-based unsmoothed and smoothed entropy measures
+presented in Table~\ref{tab:reg_has_inflows_main} for reference. In columns (2)
+and (4) we additionally control for the three entropy components. Including
+these components has some effect: for unsmoothed entropy the magnitude of the
+coefficient is less than half its size and the confidence interval is about
+twice as wide, while for smoothed entropy the magnitude of the coefficient is a
+little higher while the width of the confidence interval also roughly doubles.
+However, both coefficients remain statistically significant and their
+confidence intervals cover values that are also economically significant.
+Hence, the results make clear that the results in
+Table~\ref{tab:reg_has_inflows_main} cannot be attributed simply to the effect
+of one or more of entropy's simple components.
+
+Knowing that entropy is not simply the sum of its component parts still leaves
+us with the question what it \textit{is} that entropy captures about user
+spending distributions that is predictive of savings behaviour. We have not,
+thus far, been able to understand this and leave the question for future
+research.
+
+
+
