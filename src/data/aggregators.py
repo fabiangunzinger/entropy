@@ -529,43 +529,6 @@ def dspend_direct_debit(df):
     return dd_dspend.groupby(group_cols).sum().rename("dspend_dd")
 
 
-@aggregator
-@hh.timer
-def month_spend_txn_value_and_counts(df):
-    """Monthly value and count of spend txns per category.
-
-    Spend value expressed in £'000s to ease coefficient comparison.
-    """
-
-    def colname(x):
-        """Turn x into proper column name."""
-        pattern = "\.|,| |\(|\)|&"
-        name = re.sub(pattern, "_", x)
-        return re.sub("_+", "_", name)
-
-    def spend_in_1000s(s):
-        return s.sum() / 1000
-
-    is_spend = df.tag_group.eq("spend") & df.is_debit
-    spend_amount = df.amount.where(is_spend, np.nan)
-    cat_vars = ["tag", "tag_spend", "merchant"]
-    frames = []
-
-    for cat in cat_vars:
-        spend_cats = df[cat].where(is_spend, np.nan)
-        group_cols = [df.user_id, df.ym, spend_cats]
-        data = (
-            spend_amount.groupby(group_cols, observed=True)
-            .agg([(f"sp_{cat}", spend_in_1000s), (f"ct_{cat}", "count")])
-            .unstack()
-            .pipe(lambda df: df.set_axis(df.columns.map("_".join), axis=1))
-            .fillna(0)
-        )
-        frames.append(data)
-
-    return pd.concat(frames, axis=1)
-
-
 def _entropy_base_values(df, cat, stat="size", wknd=False):
     """Spend txns counts or values for each cat by user-month.
 
@@ -686,3 +649,42 @@ def grocery_shop_entropy(df):
         ],
         axis=1,
     )
+
+
+@aggregator
+@hh.timer
+def month_spend_txn_value_and_counts(df):
+    """Monthly value and count of spend txns per category.
+
+    Spend value expressed in £'000s to ease coefficient comparison.
+    """
+
+    def colname(x):
+        """Turn x into proper column name."""
+        pattern = "\.|,| |\(|\)|&"
+        name = re.sub(pattern, "_", x)
+        return re.sub("_+", "_", name)
+
+    def spend_in_1000s(s):
+        return s.sum() / 1000
+
+    is_spend = df.tag_group.eq("spend") & df.is_debit
+    spend_amount = df.amount.where(is_spend, np.nan)
+    cat_vars = ["tag", "tag_spend", "merchant"]
+    frames = []
+
+    for cat in cat_vars:
+        spend_cats = df[cat].where(is_spend, np.nan)
+        group_cols = [df.user_id, df.ym, spend_cats]
+        data = (
+            spend_amount.groupby(group_cols, observed=True)
+            .agg([(f"sp_{cat}", spend_in_1000s), (f"ct_{cat}", "count")])
+            .unstack()
+            .pipe(lambda df: df.set_axis(df.columns.map("_".join), axis=1))
+            .fillna(0)
+        )
+        frames.append(data)
+
+    return pd.concat(frames, axis=1)
+
+
