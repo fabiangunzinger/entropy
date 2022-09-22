@@ -2,8 +2,10 @@
 Functions to validate integrity of analysis data.
 
 """
+import functools
 
 import numpy as np
+import numpy as pd
 
 import src.config as cf
 
@@ -19,8 +21,35 @@ def validator(func):
 
 @validator
 def no_missing_values(df):
-    exceptions = "^(?!entropy|std|dspend)"
+    exceptions = "^(?!entropy|std|dspend|sp_|ct_)"
     assert df.filter(regex=exceptions).notna().all().all()
+    return df
+
+
+# @validator
+def tag_spend_counts(df):
+    equal_to_txns_count_spend = functools.partial(
+        pd.testing.assert_series_equal,
+        right=df.txns_count_spend,
+        check_dtype=False,
+        check_names=False,
+    )
+    equal_to_txns_count_spend(df.filter(regex="^ct_tag_spend", axis=1).sum(1))
+    equal_to_txns_count_spend(df.filter(regex="^ct_tag_(?!spend)", axis=1).sum(1))
+    return df
+
+
+# @validator
+def tag_spend_value(df):
+    equal_to_month_spend = functools.partial(
+        pd.testing.assert_series_equal,
+        right=df.month_spend,
+        check_dtype=False,
+        check_names=False,
+        rtol=1,
+    )
+    equal_to_month_spend(df.filter(regex="^sp_tag_(?!spend)", axis=1).sum(1))
+    equal_to_month_spend(df.filter(regex="^sp_tag_spend", axis=1).sum(1))
     return df
 
 

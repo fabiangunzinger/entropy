@@ -685,7 +685,6 @@ def month_spend_txn_value_and_counts(df):
         )
         frames.append(data)
 
-
     return pd.concat(frames, axis=1)
 
 
