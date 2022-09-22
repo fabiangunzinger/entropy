@@ -177,8 +177,9 @@ and we can rewrite Equation~\ref{equ:entropy} in a way that makes this
 transparent. Let $\setcp = \{c: f_c > 0\}$ be the set of all spending
 categories with positive frequency counts (i.e.  with at least one transaction)
 and $\setcz = \{c: f_c = 0\}$ the set of all spending categories with a zero
-frequency count. Then, using our definitions of unsmoothed and smoothed
-probabilities above, we can write unsmoothed entropy as
+frequency count, so that $\setc = \setcp \cup \setcz$. Then, using our
+definitions of unsmoothed and smoothed probabilities above, we can write
+unsmoothed entropy as
 
 \begin{equation}
 \label{equ:entropy_us}
@@ -206,13 +207,18 @@ frequency count.
 
 The expressions also make transparent the three main components of both types
 of entropy: the number of spending categories with a non-zero frequency count
-(and its complement, the number of categories with a zero frequency count), the
-variation in the frequency counts of those categories, and the total number of
-transactions ($F$).\footnote{The number of total spending categories,
-    $|\setc|$, also implicitly determines unsmoothed entropy (since it
-    ``scales'' the number of categories with a positive frequency count,
-$|\setcp|$) and explicitly determines smoothed entropy, but it is fixed across
-users and periods and does not depend on user behaviour.}
+($|\setcp|$), the variation in the frequency counts of those categories (the
+variation of the $f_c$s), and the total number of transactions
+($F$).\footnote{The number of total spending categories, $|\setc|$, also
+    implicitly determines unsmoothed entropy (since it ``scales'' the number of
+    categories with a positive frequency count, $|\setcp|$, as a given number
+    of spending transactions are categorised into finer or coarser categories)
+    and explicitly determines smoothed entropy, but it is exogenously given and
+    does not depend on user behaviour. Also, the number of spending categories
+    with zero counts $|\setcz|$ enters the expression for smoothed entropy, but
+    we use it only in the hope that it makes the decomposition of entropy more
+    transparent, when what it really is for an exogenously given $|\setc|$ and
+any given $|\setcp|$ is $|\setc \backslash \setcp|$.}
 
 \begin{figure}[h]
     \centering 
@@ -257,16 +263,19 @@ classification based on 9 categories, 48 categories, and merchant names.}
 
 
 Figure~\ref{fig:sample_desc}
-\begin{figure}[H]
+\begin{figure}[h]
     \caption{Demographic characteristics of Money Dashboard users}
     \label{fig:sample_desc}
     \begin{center}
-        \includegraphics[width=.9\textwidth]{\figdir/sample_desc.png}
+        \includegraphics[width=.49\textwidth]{\figdir/year_income.png}
+        \includegraphics[width=.49\textwidth]{\figdir/year_spend.png}
+        \includegraphics[width=.49\textwidth]{\figdir/age.png}
+        \includegraphics[width=.49\textwidth]{\figdir/region.png}
     \end{center}
 \end{figure}
 
 Figure~\ref{fig:entropy_kdes}
-\begin{figure}[H]
+\begin{figure}[h]
     \center \newcommand\width{\textwidth} \caption{Entropy distributions}
     \label{fig:entropy_kdes}
     \includegraphics[width=\width]{\figdir/entropy_kdes.png}

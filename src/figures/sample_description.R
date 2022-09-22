@@ -13,60 +13,76 @@ source('./src/helpers/helpers.R')
 
 theme_set(theme_minimal())
 
-df <- read_debug_data()
+lcfs_data <- read_lcfs()
+df <- read_analysis_data("XX0_debug")
+names(df)
 
 
-app_lcfs_data <- df %>% 
+fn <- "year_income.png"
+df %>% 
   filter(ymn == 201904) %>% 
   transmute(
-    yr_income = month_income * 12,
-    yr_spend = month_spend * 12,
-    source = 'APP'
+    yr_income = year_income * 1000,
+    source = 'MDB'
   ) %>% 
-  bind_rows(read_lcfs())
-
-
-year_income <- app_lcfs_data %>%
+  filter(ntile(yr_income, 100) <= 99) %>% 
+  bind_rows(lcfs_data) %>% 
   ggplot() +
   geom_density(aes(yr_income, color = source), alpha = 0.2) +
   scale_x_continuous(labels = scales::comma) +
   labs(x = 'Disposable income (£) in 2019', y = 'Density', color = "") +
-  theme(legend.position = c(0.9, 0.9))
+  theme(
+    axis.title=element_text(size = 20),
+    axis.text = element_text(size = 20),
+    legend.text = element_text(size = 20),
+    legend.position = c(0.9, 0.9)
+    )
+
+ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
 
 
-year_spend <- app_lcfs_data %>% 
+fn <- "year_spend.png"
+df %>% 
+  filter(ymn == 201904) %>% 
+  transmute(
+    yr_spend = month_spend * 12 * 1000,
+    source = 'MDB'
+  ) %>% 
+  filter(ntile(yr_spend, 100) <= 99) %>% 
+  bind_rows(lcfs_data) %>% 
   ggplot() +
   geom_density(aes(yr_spend, color = source), alpha = 0.2) +
   scale_x_continuous(labels = scales::comma) +
   labs(x = 'Total spend (£) in 2019', y = 'Density', color = "") +
   coord_cartesian(xlim = c(0, 125000)) +
-  theme(legend.position = c(0.9, 0.9))
+  theme(
+    axis.title=element_text(size = 20),
+    axis.text = element_text(size = 20),
+    legend.text = element_text(size = 20),
+    legend.position = c(0.9, 0.9)
+  )
+ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
 
-
-age <- df %>% 
+fn <- "age.png"
+df %>% 
   group_by(user_id) %>% 
   summarise(age = first(age)) %>%
   count(age) %>% 
   ggplot() +
   geom_point(aes(age, n / sum(n)), colour = palette[1]) +
   scale_y_continuous(labels = scales::percent) +
-  labs(x = "Age", y = "Percent")
+  labs(x = "Age", y = "Percent") +
+  theme(
+    axis.title=element_text(size = 20),
+    axis.text = element_text(size = 20),
+    legend.text = element_text(size = 20)
+  )
+ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
 
 
-gender <- df %>%
-  group_by(user_id) %>%
-  summarise(gender = first(is_female)) %>%
-  mutate(gender = factor(gender, labels = c("Male", "Female"))) %>% 
-  count(gender) %>% 
-  mutate(prop = n / sum(n)) %>% 
-  ggplot() +
-  geom_bar(aes(gender, prop), stat = "identity", fill = palette[1]) +
-  scale_y_continuous(labels = scales::percent) +
-  theme(legend.position = "none") +
-  labs(x = "", y = "Percent")
 
-
-region <- df %>%
+fn <- "region.png"
+df %>%
   group_by(user_id) %>% 
   summarise(region = first(region)) %>% 
   count(region) %>%
@@ -76,7 +92,13 @@ region <- df %>%
            stat = "identity",  fill =  palette[1]) +
   scale_x_continuous(labels = scales::percent) +
   theme(legend.position = "none") +
-  labs(x = 'Percent', y = 'Region')
+  labs(x = 'Percent', y = 'Region') +
+  theme(
+    axis.title=element_text(size = 20),
+    axis.text = element_text(size = 20),
+    legend.text = element_text(size = 20)
+  )
+ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
 
 
 active_accounts <- df %>%
