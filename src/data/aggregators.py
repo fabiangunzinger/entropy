@@ -670,7 +670,7 @@ def month_spend_txn_value_and_counts(df):
 
     is_spend = df.tag_group.eq("spend") & df.is_debit
     spend_amount = df.amount.where(is_spend, np.nan)
-    cat_vars = ["tag", "tag_spend", "merchant"]
+    cat_vars = ["tag", "tag_spend"]
     frames = []
 
     for cat in cat_vars:
@@ -684,6 +684,7 @@ def month_spend_txn_value_and_counts(df):
             .fillna(0)
         )
         frames.append(data)
+
 
     return pd.concat(frames, axis=1)
 
