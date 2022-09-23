@@ -8,9 +8,116 @@ source('src/helpers/helpers.R')
 
 theme_set(theme_minimal())
 
-df <- read_debug_data()
+df <- read_analysis_data()
 
 
+setFixest_fml(
+  ..endog = ~has_sa_inflows,
+  ..comps = ~txns_count_spend + nunique_tag_spend + std_tag_spend,
+  ..controls = ~month_spend + month_income + has_month_income + income_var,
+  ..fe = ~user_id + ym
+)
+
+titles <- list(
+  "has_inflows" = "P(payment into savings accounts)",
+  "has_investments" = "P(payment into investment funds)"
+)
+
+# Figure color scheme
+# palette <- pal_d3("category20c")(5) # ggsci
+palette <- brewer.pal(5, name = "Paired") # RColorBrewer
+# palette <- wes_palette("IsleofDogs1") # wesanderson
+# palette <- tableau_color_pal('Tableau 10')(5) # ggthemes
+# palette <- ggthemr('camouflage', set_theme = FALSE)$palette$swatch # ggthemr
+options(ggplot2.discrete.colour = palette)
+options(ggplot2.discrete.fill = palette)
+
+# Why does sign flip? -------------------------------------------------------------
+
+p <- "^ct_tag_(?!spend)"
+d <- df %>% 
+  sample_frac(0.1) %>%
+  rowwise() %>% 
+  mutate(
+    across(matches(p, perl = T), ~(.x + 1) / (txns_count_spend + 9), .names = "ps_{col}"),
+    across(matches(p, perl = T), ~.x / txns_count_spend, .names = "p_{col}"),
+    ps_std = sd(c_across(starts_with("ps_"))),
+    p_std = sd(c_across(starts_with("p_"))),
+    ) %>% 
+  ungroup() %>% 
+  mutate(
+    std_tag_q = ntile(std_tag, 5),
+    p_std_q = ntile(p_std, 5),
+    ps_std_q = ntile(ps_std, 5),
+    txns_count_spend_q = ntile(txns_count_spend, 5)
+  )
+
+# Some low entropy users get turned into high entropy users when smoothed
+# It's because they have a lot of zero counts
+# What determines whether low pos count gets turned into high entropy - the variation in probs
+
+facet_var <- c("ps_std_q", "txns_count_spend_q", "std_tag_q")
+
+facet_var <- c("ps_std_q")
+
+for (v in facet_var) {
+  print(v)
+  g <- d %>% 
+    ggplot() + 
+    geom_point(aes(entropy_tag, entropy_tag_s, colour=factor(.data[[v]])), alpha=0.8) +
+    facet_wrap(~nunique_tag, ncol = 5) +
+    theme(legend.position = "top")
+
+  fn <- glue("scatter_facet_{v}.png")
+  ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
+}
+g
+
+
+
+
+
+
+# Controlling for components regressions ----------------------------
+
+lab <- "comp"
+yvars <- c("has_inflows")
+evars <- c("entropy_tag_spend_z", "entropy_tag_spend_sz")
+for (y in yvars) {
+  results <- list()
+  for (e in evars) {
+    results[[e]] <- feols(.[y] ~ .[e] + sw0(..comps) + ..controls | ..fe, df)
+  }
+  print(
+    etable(
+      results[[1]], results[[2]],
+      title = glue('Controlling for entropy components'),
+      order = c('[Ee]ntropy', "Unique", "Category counts", "Number of"),
+      tex = T,
+      fontsize = 'tiny',
+      file=file.path(TABDIR, glue('reg_{y}_{lab}.tex')),
+      label = glue('tab:reg_{y}_{lab}'),
+      replace = T
+    )
+  )
+}
+
+# Entropy as dependent variables
+lab <- "comp_only"
+evars <- c("entropy_tag_spend_z", "entropy_tag_spend_sz")
+print(
+  etable(
+    feols(.[evars] ~ ..comps | sw0(..fe), df),
+    title = glue('Disaggregating entropy into components'),
+    order = c('!(Intercept)', "Unique", "Category counts", "Number of"),
+    headers=list("Entropy (48 cats)"=2, "Entropy (48 cats, smooth)"=2),
+    tex = T,
+    fontsize = 'tiny',
+    file=file.path(TABDIR, glue('reg_{lab}.tex')),
+    label = glue('tab:reg_{lab}'),
+    replace = T
+  )
+)
 
 
 # Entropy components --------------------------------------------------------------
@@ -104,35 +211,6 @@ plots[["std_tag_spend"]]
 plot(d$std_tag_spend, d$resid)
 
 
-
-# Smoothed and unsmoothed entropy correlation -------------------------------------
-
-df %>% 
-  sample_frac(1) %>% 
-  group_by(x = entropy_tag_spend) %>% 
-  summarise(y = mean(entropy_tag_spend_s)) %>%
-  ungroup() %>% 
-  ggplot(aes(x, y)) +
-  geom_point(alpha = 0.3, colour = palette[[1]]) +
-  labs(x = varlabs[["entropy_tag_spend"]], y = varlabs[["entropy_tag_spend_s"]]) +
-  theme(
-    axis.title=element_text(size = 30),
-    axis.text = element_text(size = 30)
-  )
-fn <- glue("smoothed_unsmoothed_corr.png")
-ggsave(file.path(FIGDIR, fn))
-
-
-# from here - can we make sense of this intuitively?
-df %>% 
-  sample_frac(0.05) %>% 
-  select(x = entropy_tag, y = entropy_tag_s, nunique_tag, txns_count) %>% 
-  ggplot(aes(x, y, colour = factor(txns_count))) +
-  geom_point() +
-  facet_wrap(~nunique_tag) +
-  theme(
-    legend.position = NA
-  )
 
 
 

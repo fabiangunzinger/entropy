@@ -6,23 +6,13 @@ read_analysis_data <- function(sample) {
   fn <- if (!missing(sample)) glue('entropy_{sample}.parquet') else 'entropy.parquet'
   fp <- file.path('s3://3di-project-entropy', fn)
   df <- data.frame(aws.s3::s3read_using(arrow::read_parquet, object=fp))
-  num_users <- length(unique(df$user_id))
-  num_user_months <- nrow(df)
+  num_users <- format(length(unique(df$user_id)), big.sep = ",")
+  num_user_months <- format(nrow(df), big.sep = ",")
   print(fn)
   print(glue('Users: {num_users}; User-months: {num_user_months}'))
   return(df)
 }
 
-read_debug_data <- function(sample) {
-  fn <- 'debug.parquet'
-  fp <- file.path('s3://3di-project-entropy', fn)
-  df <- data.frame(aws.s3::s3read_using(arrow::read_parquet, object=fp))
-  num_users <- length(unique(df$user_id))
-  num_user_months <- nrow(df)
-  print(fn)
-  print(glue('Users: {num_users}; User-months: {num_user_months}'))
-  return(df)
-}
 
 read_s3parquet <- function(filepath) {
   # Wrapper to conveniently read parquet files from S3.

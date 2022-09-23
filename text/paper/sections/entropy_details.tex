@@ -3,39 +3,4 @@
 \section{Interpreting entropy}%
 \label{sec:interpreting_entropy}
 
-To see how we can interpret entropy as the predictability of a user's spending
-behaviour, it is useful to have a more complete understanding of
-Equation~\ref{equ:entropy}. The building blocks of entropy is the information
-content of a single event.  The key intuition \citet{shannon1948mathematical}
-aimed to capture was that learning of the occurrence of a low-probability event
-is more informative than learning of the occurrence of a high-probability
-event. The information of an event $I(E)$ is thus inversely proportional to is
-probability $p(E)$. One way to capture this would be to define the information
-of event E as $I(E) = \frac{1}{p(E)}$. Yet this implied that an event that is
-certain to occur had information 1, when it would make sense to have
-information 0. To remedy this (and also satisfy additional desireable
-characteristics of an information function), we can use the log of the
-expression. Hence, the information of event E, often called \textit{Shannon
-information}, \textit{self-information}, or just \textit{information}, is
-defined as:
-
-\begin{equation}
-    I(E) = log\left(\frac{1}{p(E)}\right) = -log(p(E)).
-\end{equation}
-
-Entropy, often called \textit{Information entropy}, \textit{Shannon entropy},
-or just \textit{entropy}, is the information of a random variable, $X$, and
-captures the expected amount of information of an event drawn at random from
-the probability distribution of the random variable. It is calcualted as:
-
-\begin{equation}
-    H(X) = -\sum_x p(x) \times log(p(x)) = \sum_x p(x)I(x) = \mathbb{E} I(x).
-\end{equation}
-
-For a single event, the key intution was that the less likely an event, the
-more information is conveyed when it occurs. The related idea for distributions
-is similar: the less skewed a distribution of a random variable, the less
-certain the realised value of a single draw from the distribution, the higher
-is entropy - the maximum entropy distribution is the uniform distribution.
-
 

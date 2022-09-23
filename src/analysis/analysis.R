@@ -7,7 +7,7 @@ source('src/helpers/helpers.R')
 
 
 # Load data and add lagged entropy variables
-df <- read_debug_data() %>% 
+df <- read_analysis_data() %>% 
   group_by(user_id) %>% 
   mutate(
     across(contains('entropy'), ~lag(.x, n=1), .names = "{.col}_lag"),
@@ -15,9 +15,9 @@ df <- read_debug_data() %>%
     dspend = dspend / 1000,
     month_income_quint = ntile(month_income, 5),
     income_var_quint = ntile(income_var, 5)
-    )
+    ) %>% 
+  ungroup()
 
-names(df)
 
 setFixest_fml(
   ..endog = ~has_sa_inflows,
@@ -31,7 +31,11 @@ titles <- list(
   "has_investments" = "P(payment into investment funds)"
 )
 
-names(df)
+
+
+
+
+
 
 # Main results --------------------------------------------------------------------
 
@@ -57,46 +61,6 @@ for (y in yvars) {
 
 
 
-# Controlling for components ------------------------------------------------------
-
-lab <- "comp"
-yvars <- c("has_inflows")
-evars <- c("entropy_tag_spend_z", "entropy_tag_spend_sz")
-for (y in yvars) {
-  results <- list()
-  for (e in evars) {
-    results[[e]] <- feols(.[y] ~ .[e] + sw0(..comps) + ..controls | ..fe, df)
-  }
-  print(
-    etable(
-      results[[1]], results[[2]],
-      title = glue('Controlling for entropy components'),
-      order = c('[Ee]ntropy', "Unique", "Category counts", "Number of"),
-      tex = T,
-      fontsize = 'tiny',
-      file=file.path(TABDIR, glue('reg_{y}_{lab}.tex')),
-      label = glue('tab:reg_{y}_{lab}'),
-      replace = T
-    )
-  )
-}
-
-# Entropy as dependent variables
-lab <- "comp_only"
-evars <- c("entropy_tag_spend_z", "entropy_tag_spend_sz")
-print(
-  etable(
-    feols(.[evars] ~ ..comps | sw0(..fe), df),
-    title = glue('Disaggregating entropy into components'),
-    order = c('!(Intercept)', "Unique", "Category counts", "Number of"),
-    headers=list("Entropy (48 cats)"=2, "Entropy (48 cats, smooth)"=2),
-    tex = T,
-    fontsize = 'tiny',
-    file=file.path(TABDIR, glue('reg_{lab}.tex')),
-    label = glue('tab:reg_{lab}'),
-    replace = T
-  )
-)
 
 
 
