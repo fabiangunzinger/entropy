@@ -97,21 +97,17 @@ distributions, we calculate spending entropy, based on the formula proposed by
 -\sum{p_i}log(p_i)$, which sums, for all possible events, the product of the
 probability of an event $i$ occuring with the logarithm of that
 probability.\footnote{Shannon entropy is customarily denoted as $H$ following
-    Shannon's own naming after Ludwig Boltzman's 1872 H-theorem in statistical
-    mechanics, to which it is analagous.} The base the logarithm is often
-    chosen to be 2, though other choices are possible.\footnote{The choice of
-        the base for the logarithm varies by application and determines the
-        units. Base 2 means that information is expressed in bits. The
-natural logarithm, another popular choice, expresses information in
-\textit{nats}.} Entropy is a cornerstone of information theory, where it
-measures the amount of information contained in an event. In the behavioural
-sciences, behavioural entropy has recently been shown to predict the frequency
-of grocery visits and the per-capita spend per visit
+Shannon's own naming after Ludwig Boltzman's 1872 H-theorem in statistical
+mechanics, to which it is analagous.} The base the logarithm is often chosen to
+be 2, though other choices are possible. Entropy is a cornerstone of
+information theory, where it measures the amount of information contained in an
+event. In the behavioural sciences, behavioural entropy has recently been shown
+to predict the frequency of grocery visits and the per-capita spend per visit
 \citep{guidotti2015behavioral}, the amount of calories consumed
 \citep{skatova2019those}, and the propensity for financial distress
 \citep{muggleton2020evidence}. In our context, we define the entropy of a
-user's spending profile in a particular period as:\footnote{We omit individual
-and time subscripts to keep notation simpler.}
+user's spending profile in a particular period as (we omit individual
+and time subscripts to keep the notation simpler):
 
 \begin{equation}
 \label{equ:entropy}
@@ -131,19 +127,18 @@ regression coefficients below, we standardise entropy scores to have a mean of
 0 and a standard deviation of 1.
 
 We calculate entropy based on three sets of spend categories. The first measure
-is based on 9 spending categories used by
-\citet{muggleton2020evidence}.\footnote{The precise mapping from MDB
-    transaction tags into these 9 categories is available on
-\href{https://github.com/fabiangunzinger/entropy/blob/7fa9c565bf8959ea92a9d4fe2245da0864e19c27/src/data/txn_classifications.py\#L249}{Github}.}
-The second measure is based on our own, more fine-grained, categorisation into
-48 different categories.\footnote{The precise mapping from MDB transaction tags
-into these 48 categories is available on
-\href{https://github.com/fabiangunzinger/entropy/blob/7fa9c565bf8959ea92a9d4fe2245da0864e19c27/src/data/txn_classifications.py\#L503}{Github}.}
-The third measure is based on merchant names, as labelled by Money Dashboard.
-
-We also calculate spending category probabilities in two different ways. To
-calculate what we call ``unsmoothed'' entropy scores, we calculate the $p_c$s
-in Equation~\ref{equ:entropy} as simple frequentist probabilities
+is based on 9 spending categories used by \citet{muggleton2020evidence}. The
+second measure is based on our own, more fine-grained, categorisation into 48
+different categories.\footnote{The precise mapping from MDB transaction tags
+    into 9 and 48 categories is available on Github
+    \href{https://github.com/fabiangunzinger/entropy/blob/7fa9c565bf8959ea92a9d4fe2245da0864e19c27/src/data/txn_classifications.py\#L249}{here}
+    and
+    \href{https://github.com/fabiangunzinger/entropy/blob/7fa9c565bf8959ea92a9d4fe2245da0864e19c27/src/data/txn_classifications.py\#L503}{here},
+respectively.} The third measure is based on merchant names, as labelled by
+Money Dashboard. We also calculate spending category probabilities in two
+different ways. To calculate what we call ``unsmoothed'' entropy scores, we
+calculate the $p_c$s in Equation~\ref{equ:entropy} as simple frequentist
+probabilities
 
 \begin{equation}
     p_c = \frac{f_c}{F},
@@ -206,19 +201,23 @@ unsmoothed entropy, plus a constant term for each spending category with a zero
 frequency count.
 
 The expressions also make transparent the three main components of both types
-of entropy: the number of spending categories with a non-zero frequency count
-($|\setcp|$), the variation in the frequency counts of those categories (the
-variation of the $f_c$s), and the total number of transactions
-($F$).\footnote{The number of total spending categories, $|\setc|$, also
-    implicitly determines unsmoothed entropy (since it ``scales'' the number of
-    categories with a positive frequency count, $|\setcp|$, as a given number
-    of spending transactions are categorised into finer or coarser categories)
-    and explicitly determines smoothed entropy, but it is exogenously given and
-    does not depend on user behaviour. Also, the number of spending categories
-    with zero counts $|\setcz|$ enters the expression for smoothed entropy, but
-    we use it only in the hope that it makes the decomposition of entropy more
-    transparent, when what it really is for an exogenously given $|\setc|$ and
-any given $|\setcp|$ is $|\setc \backslash \setcp|$.}
+of entropy that are determined by user behaviour. The first is the number of
+spending categories with a non-zero frequency count, $|\setcp|$, which
+determines the number of elements summed over in Equation~\ref{equ:entropy_us},
+and partitions the categories into either contributing to the sum on the left
+hand side of Equation~\ref{equ:entropy_s} or to the constant term on the right
+hand side since, for an exogenously fixed $|\setc|$, $|\setcz| = |\setc
+\backslash \setcp|$ -- for a given number of total categories, the number of
+categories with a zero frequency count is the difference between the total
+number of categories and the number of categories with a positive frequency
+count. The second component is the variation of the frequency counts, $f_c$,
+which will determine the variation in the probabilities of a spend accurring in
+a given category. The third component is the total number of transactions
+($F$). The number of total spending categories, $|\setc|$, also determines
+smoothed entropy and, implicitly, also unsmoothed entropy since it ``scales''
+the number of categories with a positive frequency count, $|\setcp|$, as a
+given number of spending transactions are categorised into finer or coarser
+categories. But it is exogenously given and does not depend on user behaviour.
 
 \begin{figure}[h]
     \centering 
