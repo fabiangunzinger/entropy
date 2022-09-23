@@ -14,6 +14,7 @@ theme_set(theme_minimal())
 
 df <- read_debug_data()
 
+
 # Entropy hist
 df %>% 
   ggplot(aes(entropy_tag_spend_z)) +

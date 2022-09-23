@@ -1,5 +1,6 @@
 library(glue)
 library(fixest)
+library(latex2exp)
 library(tidyverse)
 
 source('src/config.R')
@@ -56,26 +57,32 @@ d <- df %>%
 # It's because they have a lot of zero counts
 # What determines whether low pos count gets turned into high entropy - the variation in probs
 
-facet_var <- c("ps_std_q", "txns_count_spend_q", "std_tag_q")
-
 facet_var <- c("ps_std_q")
+
+facet_var <- c("ps_std_q", "txns_count_spend_q", "std_tag_q")
 
 for (v in facet_var) {
   print(v)
   g <- d %>% 
-    ggplot() + 
-    geom_point(aes(entropy_tag, entropy_tag_s, colour=factor(.data[[v]])), alpha=0.8) +
-    facet_wrap(~nunique_tag, ncol = 5) +
-    theme(legend.position = "top")
+    ggplot(aes(entropy_tag, entropy_tag_s, colour=factor(.data[[v]]))) + 
+    geom_point(alpha=1) +
+    facet_wrap(~nunique_tag) +
+    labs(
+      x = varlabs[["entropy_tag"]],
+      y = varlabs[["entropy_tag_s"]],
+      colour = unname(TeX(varlabs[[v]]))
+    ) +
+    theme(
+      axis.title=element_text(size = 20),
+      axis.text = element_text(size = 20),
+      legend.text = element_text(size = 20),
+      legend.title=element_text(size = 20)
+    )
 
   fn <- glue("scatter_facet_{v}.png")
   ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
 }
 g
-
-
-
-
 
 
 # Controlling for components regressions ----------------------------

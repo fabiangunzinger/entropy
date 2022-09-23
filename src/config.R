@@ -32,6 +32,8 @@ varlabs <- c(
   sa_outflows = "Savings accounts outflows",
   sa_netflows = "Savings accounts net-inflows",
 
+  entropy_tag = "Entropy (9 cats)",
+  entropy_tag_s = "Entropy (9 cats, smooth)",
   entropy_tag_spend = "Entropy (48 cats)",
   entropy_tag_spend_s = "Entropy (48 cats, smooth)",
 
@@ -76,7 +78,11 @@ varlabs <- c(
   std_tag_spend = 'Category counts std.',
   nunique_tag_spend = "Unique categories ($|\\mathcal{C}^+|$)",
   nunique_tag = 'Unique categories',
-  nunique_merchant = "Unique categories"
+  nunique_merchant = "Unique categories",
+  
+  ps_std_q = "$p_s$ std. quintile",
+  txns_count_spend_q = "Spend transactions ($F$) quintile",
+  std_tag_q = "$f_c$ std quintile"
 )
 
 
