@@ -144,8 +144,8 @@ def complete_demographic_info(df):
     return df[df.user_id.isin(users)]
 
 
-@selector
-@counter
+# @selector
+# @counter
 def drop_testers(df):
     """Drop test users
 
