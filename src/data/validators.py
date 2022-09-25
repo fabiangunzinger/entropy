@@ -73,6 +73,13 @@ def min_month_spend_txns(df, min_txns=cf.MIN_MONTH_SPEND_TXNS):
 
 
 @validator
+def min_month_grocery_txns(df, min_txns=cf.MIN_MONTH_GROCERY_TXNS):
+    assert df.ct_tag_spend_groceries.min() >= min_txns
+    return df
+
+
+
+@validator
 def complete_demographic_info(df):
     assert df.filter(regex="is_female|age|region").isna().sum().sum() == 0
     return df

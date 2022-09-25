@@ -106,9 +106,18 @@ def year_income(df, min_year_income=cf.MIN_YEAR_INCOME):
 
 @selector
 @counter
-def month_min_spend_txns(df, min_spend_txns=cf.MIN_MONTH_SPEND_TXNS):
+def month_min_spend_txns(df, min_txns=cf.MIN_MONTH_SPEND_TXNS):
     """At least 10 spend txns each month"""
-    cond = df.groupby("user_id").txns_count_spend.min().ge(min_spend_txns)
+    cond = df.groupby("user_id").txns_count_spend.min().ge(min_txns)
+    users = cond[cond].index
+    return df[df.user_id.isin(users)]
+
+
+@selector
+@counter
+def month_min_grocery_txns(df, min_txns=cf.MIN_MONTH_GROCERY_TXNS):
+    """At least 5 grocery txns each month"""
+    cond = df.groupby("user_id").ct_tag_spend_groceries.min().ge(min_txns)
     users = cond[cond].index
     return df[df.user_id.isin(users)]
 
