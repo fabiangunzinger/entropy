@@ -79,7 +79,7 @@ for (v in facet_var) {
       legend.title=element_text(size = 20)
     )
 
-  fn <- glue("scatter_facet_{v}.png")
+  fn <- glue("scatter_facet_{v}.pdf")
   ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
 }
 g

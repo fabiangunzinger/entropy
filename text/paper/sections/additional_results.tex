@@ -30,60 +30,16 @@ similar to thos presented above.
 }
 
 
-\subsection{Further results by financial resilience}%
-\label{sub:results_by_financial_resilience}
-
-The Tables below show results presented in
-Section~\ref{sub:effect_of_financial_resilience} for alternative entropy
-variables. 
-
-\def\evars{entropy_tag, entropy_merchant}
-\foreach \e in \evars {
-    \input{\tabdir/reg_has_inflows_\e_z_inc_quint.tex}
-    \input{\tabdir/reg_has_inflows_\e_sz_inc_quint.tex}
-    \input{\tabdir/reg_has_inflows_\e_z_inc_var_quint.tex}
-    \input{\tabdir/reg_has_inflows_\e_sz_inc_var_quint.tex}
-}
-
-% \subsection{Old stuff}%
-% \label{sub:old_stuff}
-% \newpage
-% \subsection{Exploration}%
-% \label{sub:exploration}
-% \input{\tabdir/reg_has_sa_inflows_explore.tex}
-% \input{\tabdir/reg_has_sa_inflows_explore2.tex}
-% \input{\tabdir/reg_has_sa_inflows_explore3.tex}
-% % \input{\tabdir/reg_has_sa_inflows_explore4.tex}
-
-% \newpage
-% \begin{figure}[H]
-%     \caption{Diagnostics}
-%     \label{fig:diagnostics}
-%     \begin{center}
-%         \includegraphics[width=0.9\textwidth]{\figdir/diagnostics.png}
-%     \end{center}
-% \end{figure}
-
-% \newpage
-% \begin{figure}[H]
-%     \caption{Entropy and unique tags}
-%     \label{fig:entropy_tag_vs_nunique}
-%     \begin{center}
-%         \includegraphics[width=0.9\textwidth]{\figdir/entropy_tag_vs_nunique.png}
-%     \end{center}
-% \end{figure}
-
-
 \subsection{Entropy components}%
 \label{sub:entropy_components}
 
-\begin{figure}[h]
+\begin{figure}[ht]
     \centering 
     \caption{Correlation of entropy with its components}
     \label{fig:entropy_components}
-    \includegraphics[width=.32\textwidth]{\figdir/scatter_entropy_nunique_tag_spend.png}
-    \includegraphics[width=.32\textwidth]{\figdir/scatter_entropy_std_tag_spend.png}
-    \includegraphics[width=.32\textwidth]{\figdir/scatter_entropy_txns_count_spend.png}
+    \includegraphics[width=.32\textwidth]{\figdir/scatter_entropy_nunique_tag_spend.pdf}
+    \includegraphics[width=.32\textwidth]{\figdir/scatter_entropy_std_tag_spend.pdf}
+    \includegraphics[width=.32\textwidth]{\figdir/scatter_entropy_txns_count_spend.pdf}
     \fignote{\textwidth}{Correlation of 48-categories-based unsmoothed entropy
     with its three main components: the number of unique spending categories
 with positive frequency counts (left), the standard deviation of those
@@ -104,13 +60,11 @@ before being increasingly determined by other elements thereafter.
 \subsection{Entropy correlations}%
 \label{sub:entropy_correlations}
 
-
-
-\begin{figure}[H]
+\begin{figure}[ht]
     \centering 
     \caption{Effect of smoothing on entropy}
-    \label{fig:scatter_facets}
-    \includegraphics[width=\textwidth]{\figdir/scatter_facet_std_tag_q.png}
+    \label{fig:scatter_facets_std_tag_q}
+    \includegraphics[width=\textwidth]{\figdir/scatter_facet_std_tag_q.pdf}
     % \fignote{\textwidth}{Effect of smoothing on entropy (top left) and entropy
     %     as a function of its three main components: the number of spending
     %     categories with positive frequency-counts (top right), the standard
@@ -119,11 +73,11 @@ before being increasingly determined by other elements thereafter.
 % trimmed at the 95th percentile.}
 \end{figure}
 
-\begin{figure}[H]
+\begin{figure}[ht]
     \centering 
     \caption{Effect of smoothing on entropy}
-    \label{fig:scatter_facets}
-    \includegraphics[width=\textwidth]{\figdir/scatter_facet_std_tag_q.png}
+    \label{fig:scatter_facets_txns_count_spend_q}
+    \includegraphics[width=\textwidth]{\figdir/scatter_facet_txns_count_spend_q.pdf}
     % \fignote{\textwidth}{Effect of smoothing on entropy (top left) and entropy
     %     as a function of its three main components: the number of spending
     %     categories with positive frequency-counts (top right), the standard

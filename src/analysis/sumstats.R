@@ -9,7 +9,7 @@ source('src/config.R')
 source('src/helpers/helpers.R')
 
 
-df = read_debug_data()
+df = read_analysis_data()
 
 vars <- c(
   "^has_inflows$",
@@ -43,6 +43,10 @@ varlabs <- c(
 
 
 tabname <- 'sumstats.tex'
+note <- "Income and spend variables in
+'000s of Pounds, number of unique categories for spend transaction
+classification based on 9 categories, 48 categories, and merchant names."
+
 stargazer(
   df,
   summary.stat = c('mean', 'sd', 'min', 'p25', 'median', 'p75', 'max'),
@@ -51,8 +55,9 @@ stargazer(
   covariate.labels = varlabs,
   title = 'Summary statistics',
   label = 'tab:sumstats',
-  font.size = 'footnotesize',
+  font.size = 'small',
   table.placement = "H",
+  notes = note,
   out = file.path(TABDIR, tabname)
 )
 

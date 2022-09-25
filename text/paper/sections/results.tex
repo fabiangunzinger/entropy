@@ -53,7 +53,13 @@ will address these in turn.}
 \label{sub:why_does_smoothing_flip_the_direction_of_the_effect}
 
 One way to think about the sign change in Table~\ref{tab:reg_has_inflows_main}
-is to realise that it implies that at least some individuals who used to have
+is to realise that it implies that at least for some individuals, the relative
+rank of smoothed and unsmoothed entropy must differ considerably -- there must
+be some individuals that have low unsmoohed entropy but high smoothed entropy
+or high unsmoothed entropy and low smoothed entropy or both.
+
+
+least some individuals who used to have
 high unsmoothed entropy must have low smoothed entropy and vice versa, so that
 there is a large difference in the relative rank of their two entropy scores.
 Hence, understanding who those individuals are might provide insights into both
@@ -157,11 +163,11 @@ rank.\footnote{Appendix~\ref{sub:entropy_correlations} shows similar plots
     coloured based on the standard deviation of counts and the total number of
     spend transactons.}
 
-\begin{figure}[H]
+\begin{figure}[ht]
     \centering 
     \caption{Effect of smoothing on entropy}
     \label{fig:scatter_facets}
-    \includegraphics[width=\textwidth]{\figdir/scatter_facet_ps_std_q.png}
+    \includegraphics[width=\textwidth]{\figdir/scatter_facet_ps_std_q.pdf}
     % \fignote{\textwidth}{Effect of smoothing on entropy (top left) and entropy
     %     as a function of its three main components: the number of spending
     %     categories with positive frequency-counts (top right), the standard
@@ -180,7 +186,7 @@ other features in teh data?}
 % one, moves log closer to zero, hence, H^s increases more if c added to rhs of
 % expression.
 
-% \begin{figure}[H]
+% \begin{figure}[ht]
 %     \centering 
 %     \caption{Effect of smoothing on entropy}
 %     \label{fig:effect_of_smoothing}

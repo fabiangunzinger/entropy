@@ -4,42 +4,78 @@
 
 library(dplyr)
 library(ggplot2)
-# library(lubridate)
-# library(patchwork)
 
 source('./src/config.R')
 source('./src/helpers/helpers.R')
 
-theme_set(theme_minimal())
-
-lcfs_data <- read_lcfs()
 df <- read_analysis_data()
 names(df)
 
 
-fn <- "year_income.png"
-df %>% 
+# dev
+
+base <- df %>% 
+  sample_frac(0.001) %>% 
+  ggplot(aes(entropy_tag, entropy_tag_s, colour = factor(nunique_tag))) +  
+  geom_point()
+
+
+# Set complete scheme as baseline
+theme_set(theme_minimal())
+
+# Customise elements
+theme_update(
+  axis.title=element_text(size = 20),
+  axis.text = element_text(size = 20),
+  legend.text = element_text(size = 20),
+  legend.title = element_text(size = 20),
+)
+
+
+base +
+  theme(legend.title = element_text(size = 40))
+
+base
+
+# dev end
+
+lcfs <- df %>% 
   filter(ymn == 201904) %>% 
   transmute(
     yr_income = year_income * 1000,
-    source = 'APP'
+    yr_spend = month_spend * 12 * 1000,
+    source = 'MDB'
   ) %>% 
-  filter(ntile(yr_income, 100) <= 99) %>% 
-  bind_rows(lcfs_data) %>% 
-  ggplot() +
-  geom_density(aes(yr_income, color = source), alpha = 0.2) +
-  scale_x_continuous(labels = scales::comma) +
-  labs(x = 'Disposable income (£) in 2019', y = 'Density', color = "") +
-  theme(
-    axis.title=element_text(size = 20),
-    axis.text = element_text(size = 20),
-    legend.text = element_text(size = 20),
-    legend.position = c(0.9, 0.9)
+  filter(
+    ntile(yr_income, 100) <= 99,
+    ntile(yr_spend, 100) <= 99
+    ) %>% 
+  bind_rows(read_lcfs())
+
+
+ntile(df$yr_spend, 100)
+
+lcfs_density <- function(data, mapping, xlabel) {
+  ggplot(data, mapping) +
+    geom_density() +
+    scale_x_continuous(labels = scales::comma) +
+    labs(x = xlabel, y = 'Density') +
+    theme(
+      legend.position = c(0.9, 0.9),
+      legend.title = element_blank()
     )
-ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
+}
+
+fn <- "year_income.pdf"
+lcfs_density(lcfs, aes(yr_income, colour = source), "Disposable income (£) in 2019")
+ggsave(file.path(FIGDIR, fn), height = 10, width = 20, units = "cm")
+
+fn <- "year_spend.pdf"
+lcfs_density(lcfs, aes(yr_spend, colour = source), "Total spend (£) in 2019")
+ggsave(file.path(FIGDIR, fn), height = 10, width = 20, units = "cm")
 
 
-fn <- "year_spend.png"
+
 df %>% 
   filter(ymn == 201904) %>% 
   transmute(
@@ -62,7 +98,7 @@ df %>%
 ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
 
 
-fn <- "age.png"
+fn <- "age.pdf"
 df %>% 
   group_by(user_id) %>% 
   summarise(age = first(age)) %>%
@@ -79,7 +115,7 @@ df %>%
 ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
 
 
-fn <- "region.png"
+fn <- "region.pdf"
 df %>%
   group_by(user_id) %>% 
   summarise(region = first(region)) %>% 

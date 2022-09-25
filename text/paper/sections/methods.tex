@@ -66,10 +66,13 @@ whom we observe at least six months of data. Table~\ref{tab:selection}
 summarises the sample selection steps we applied to a 1 percent sample of the
 raw data, associated data losses, and the size of our final sample.
 
-\begin{table}[H]
-\centering
+\begin{table}[ht]
+\centering\small
 \caption{Sample selection}\label{tab:selection}
 \input{\tabdir/sample_selection.tex}
+\tabnote{.95\textwidth}{Number of users, user-months, transactions, and
+transaction volume in millions of British Pounds left in our sample after each
+sample selection step.}
 \end{table}
 
 
@@ -220,32 +223,28 @@ consequence and we do not pursue this further.
 
 Table~\ref{tab:sumstats} provides summary statistics.
 
-\input{\tabdir/sumstats.tex} \tabnote{\textwidth}{Income and spend variables in
-'000s of Pounds, number of unique categories for spend transaction
-classification based on 9 categories, 48 categories, and merchant names.}
+\begin{table}[ht]
+\centering\scriptsize
+\caption{Summary statistics}
+\label{tab:sumstats}
+\input{\tabdir/sumstats.tex}
+\end{table}
 
-Figure~\ref{fig:sample_desc}
-\begin{figure}[h]
+
+Figure~\ref{fig:sample_desc} shows sample characteristics.
+\begin{figure}[ht]
     \centering
     \caption{Demographic characteristics of Money Dashboard users}
     \label{fig:sample_desc}
-    \includegraphics[width=.49\textwidth]{\figdir/year_income.png}
-    \includegraphics[width=.49\textwidth]{\figdir/year_spend.png}
-    \includegraphics[width=.49\textwidth]{\figdir/age.png}
-    \includegraphics[width=.49\textwidth]{\figdir/region.png}
+    \includegraphics[width=.49\textwidth]{\figdir/year_income.pdf}
+    \includegraphics[width=.49\textwidth]{\figdir/year_spend.pdf}
+    \includegraphics[width=.49\textwidth]{\figdir/age.pdf}
+    \includegraphics[width=.49\textwidth]{\figdir/region.pdf}
     \fignote{\textwidth}{The top left and top right panels show the
         distribution of disposable income and total spending in 2019,
         respectively, benchmarked against the 2018/19 wave of the ONS Living
         Cost and Food Survey (LCFS). The bottom left panel shows the
         distribution of age, the bottom right panel that of the regions.}%
-\end{figure}
-
-Figure~\ref{fig:entropy_kdes}
-\begin{figure}[h]
-    \center \newcommand\width{\textwidth} \caption{Entropy distributions}
-    \label{fig:entropy_kdes}
-    \includegraphics[width=\width]{\figdir/entropy_kdes.png}
-    \fignote{\width}{}
 \end{figure}
 
 

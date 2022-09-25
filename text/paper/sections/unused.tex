@@ -1,3 +1,19 @@
+\subsection{Further results by financial resilience}%
+\label{sub:results_by_financial_resilience}
+
+The Tables below show results presented in
+Section~\ref{sub:effect_of_financial_resilience} for alternative entropy
+variables. 
+
+\def\evars{entropy_tag, entropy_merchant}
+\foreach \e in \evars {
+    \input{\tabdir/reg_has_inflows_\e_z_inc_quint.tex}
+    \input{\tabdir/reg_has_inflows_\e_sz_inc_quint.tex}
+    \input{\tabdir/reg_has_inflows_\e_z_inc_var_quint.tex}
+    \input{\tabdir/reg_has_inflows_\e_sz_inc_var_quint.tex}
+}
+
+
 \section{Scarcity}%
 \label{sec:scarcity}
 
