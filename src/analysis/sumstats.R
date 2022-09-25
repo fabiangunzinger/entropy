@@ -26,7 +26,6 @@ vars <- c(
   "^nunique_merchant$"
 )
 
-
 varlabs <- c(
   "Year income",
   "Income variability",
@@ -43,21 +42,13 @@ varlabs <- c(
 
 
 tabname <- 'sumstats.tex'
-note <- "Income and spend variables in
-'000s of Pounds, number of unique categories for spend transaction
-classification based on 9 categories, 48 categories, and merchant names."
-
 stargazer(
   df,
   summary.stat = c('mean', 'sd', 'min', 'p25', 'median', 'p75', 'max'),
   digits = 2,
+  float = FALSE,
   keep = vars,
   covariate.labels = varlabs,
-  title = 'Summary statistics',
-  label = 'tab:sumstats',
-  font.size = 'small',
-  table.placement = "H",
-  notes = note,
   out = file.path(TABDIR, tabname)
 )
 
