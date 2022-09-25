@@ -116,7 +116,7 @@ def month_min_spend_txns(df, min_txns=cf.MIN_MONTH_SPEND_TXNS):
 @selector
 @counter
 def month_min_grocery_txns(df, min_txns=cf.MIN_MONTH_GROCERY_TXNS):
-    """At least 5 grocery txns each month"""
+    """At least 4 grocery txns each month"""
     cond = df.groupby("user_id").ct_tag_spend_groceries.min().ge(min_txns)
     users = cond[cond].index
     return df[df.user_id.isin(users)]
