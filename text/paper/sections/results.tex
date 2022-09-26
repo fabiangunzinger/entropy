@@ -131,6 +131,17 @@ frequency count, $|\setcp|$, as a given number of spending transactions are
 categorised into finer or coarser categories. But it is exogenously given and
 does not depend on user behaviour.
 
+\begin{figure}[ht]
+    \centering 
+    \caption{Effect of smoothing on entropy}
+    \label{fig:scatter_facets}
+    \includegraphics[width=\textwidth]{\figdir/scatter_facet_std_tag_q.pdf}
+    \fignote{\textwidth}{Percentile ranks of 9-category-based unsmoothed and
+    smoothed entropy separated by the number of categories with positive
+frequency counts. White reference lines indicate equal percentile ranks.
+Colours indicate frequency count standard deviation quintiles.}
+\end{figure}
+
 One starting point for thinking about why unsmoothed and smoothed entropy
 differ is thus to think about how these three components effect the two scores
 differently. From equations~\ref{equ:entropy_us} and~\ref{equ:entropy_s} we can
@@ -151,17 +162,6 @@ to the (additively smoothed) probabilities of the zero-count categories, which
 will be the case (i) if there are few overall transactions, such that counts
 frequency counts ($f_c$) are close to zero and (ii) if there is little
 variation in the counts.
-
-\begin{figure}[ht]
-    \centering 
-    \caption{Effect of smoothing on entropy}
-    \label{fig:scatter_facets}
-    \includegraphics[width=\textwidth]{\figdir/scatter_facet_std_tag_q.pdf}
-    \fignote{\textwidth}{Percentile ranks of 9-category-based unsmoothed and
-    smoothed entropy separated by the number of categories with positive
-frequency counts. White reference lines indicate equal percentile ranks.
-Colours indicate frequency count standard deviation quintiles.}
-\end{figure}
 
 Figure~\ref{fig:scatter_facets} visualises this intuition for our 9-category
 based entropy variable: it shows scatterplots of the percentile ranks of
@@ -184,13 +184,6 @@ experience little or even a negative rank difference. Hence, while counts
 variation is some help in identifying cases with high entropy rank differences,
 it does not do so perfectly.
 
-A different way to investigate whether the sign flip can be explained by the
-three components of the entropy formula is to test whether entropy captures
-anything about users' spending distribution that is predictive of savings
-behaviour beyond the information already contained in its three components. If
-this is were not the case, then we should be able to explain the sign flip
-solely based on the components.
-
 \begin{table}[ht]
 \centering\tiny
 \caption{Entorpy on components}
@@ -198,6 +191,23 @@ solely based on the components.
 \input{\tabdir/reg_entropy_on_components.tex}
 \tabnote{.95\textwidth}{\regtabinfo}
 \end{table}
+
+A different way to investigate whether the sign flip can be explained by the
+three components of the entropy formula is to test whether entropy captures
+anything about users' spending distribution that is predictive of savings
+behaviour beyond the information already contained in its three components. If
+this is were not the case, then we should be able to explain the sign flip
+solely based on the components.
+
+\begin{landscape}
+\begin{table}[ht]
+\centering\footnotesize
+\caption{Controlling for components}
+\label{tab:components}
+\input{\tabdir/reg_has_inflows_comp.tex}
+\tabnote{.95\textwidth}{\regtabinfo}
+\end{table}
+\end{landscape}
 
 As a first step, Table~\ref{tab:entropy_on_components} shows results from
 regressing the unsmoothed and smoothed versions of both the 9-category and
@@ -232,14 +242,4 @@ significant and their confidence intervals cover values that are also
 economically significant. Hence, the results make clear that the results in
 Table~\ref{tab:main} cannot be attributed simply to the effect of one or more
 of entropy's simple components.
-
-\begin{landscape}
-\begin{table}[ht]
-\centering\footnotesize
-\caption{Controlling for components}
-\label{tab:components}
-\input{\tabdir/reg_has_inflows_comp.tex}
-\tabnote{.95\textwidth}{\regtabinfo}
-\end{table}
-\end{landscape}
 
