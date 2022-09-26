@@ -60,10 +60,12 @@ def get_filepath(piece):
     return os.path.join(config.AWS_PIECES, f"mdb_XX{piece}.parquet")
 
 
-def write_data(df, piece, debug=False):
+def write_data(df, piece, label, debug=False):
     id = ""
     if piece:
         id += f"_XX{piece}"
+    if label:
+        id += f"_{label}"
     if debug:
         id += "_debug"
     fn = "entropy" + id + ".parquet"
@@ -75,6 +77,7 @@ def write_data(df, piece, debug=False):
 def parse_args(args):
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--piece", help="Piece in [0,9] to process")
+    parser.add_argument("-l", "--label", help="Label to add to filename")
     return parser.parse_args(args)
 
 
@@ -92,9 +95,9 @@ def main(argv=None):
         pd.concat(clean_piece(path) for path in pieces_paths)
         .reset_index(drop=True)
         .pipe(transform_variables)
-        .pipe(write_data, args.piece, debug=True)
+        .pipe(write_data, args.piece, args.label, debug=True)
         .pipe(validate_data)
-        .pipe(write_data, args.piece)
+        .pipe(write_data, args.piece, args.label)
     )
 
     selection_table = hd.make_selection_table(sl.sample_counts)

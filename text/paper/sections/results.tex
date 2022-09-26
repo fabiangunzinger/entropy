@@ -3,7 +3,7 @@
 \section{Spending profiles predict emergency savings}%
 \label{sec:results}
 
-Table~\ref{tab:reg_has_inflows_main} shows the effect of entropy on the
+Table~\ref{tab:main} shows the effect of entropy on the
 probability of building emergency savings in a given month. Columns (1)-(3)
 show results for unsmoothed entropy based on 9 categories, 48 categories, and
 merchant names, respectively. Columns (4)-(6) results for smoothed entropy
@@ -11,18 +11,26 @@ based on the same variables. All models include user and year-month fixed
 effects, and standard errors are clustered at the user-level. 95\% confidence
 intervals are shown in brakets.
 
+\begin{table}[ht]
+\centering\tiny
+\caption{Effect of entropy on P(savings transactions)}
+\label{tab:main}
 \input{\tabdir/reg_has_inflows_main.tex}
+\tabnote{.95\textwidth}{Results from estimating Equation~\ref{equ:model}. The
+    dependent variable in all columns is a dummy variable indicating whether a
+    user made at least one transaction into any of their savings accounts in a
+given period. \regtabinfo}
+\end{table}
 
 Results for unsmoothed entropy suggest that a one unit increase in entropy is
 associated with an increase in the probability of a user making at least one
-transfer into their savings accounts of between 1.5 and 2.7 percentage points
+transfer into their savings accounts of between 1.1 and 2.3 percentage points
 -- an effect up to two times larger than that of a \pounds1000 increase in
-monthly income. Conversely, the effect for unsmooth entropy is smaller in
-magnitude but runs in the reverse direction: a one-unit increase in the
-smoothed entropy score is associated with a reduction in the probability of
-transferring money into savings account of between 0.4 and 1.6 percentage
-points -- an effect that, in absolute magnitude, is about equal to that of a
-\pounds1000 increase in monthly income.
+monthly income. Conversely, the effect for unsmooth entropy tends to be
+somewhat smaller in magnitude but runs in the reverse direction: a one-unit
+increase in the smoothed entropy score is associated with a reduction in the
+probability of transferring money into savings account of between 0.4 and 1.7
+percentage points.
 
 As discussed in Section~\ref{sub:estimation}, these results are not a results
 of reverse causality. While we might think that making a savings transactions
@@ -38,41 +46,45 @@ current account to their savings account, this will be identified as a savings
 transaction, but be identified as a transfer on their current account and thus
 not considered when calculating their entropy score.
 
+The estimates of our control variables are largely as expected, with the
+exception of monthly spend, which one might have expected to be negatively
+correlated with savings. Also, it is evident that the strongest predictor among
+the included controls for whether a user makes any savings transfer is whether
+they receive any income in that month. Income variability, in contrast, is not
+correlated with savings behaviour in any economically significant way,
+suggesting that people with variable incomes do not build savings cushions for
+periods where they have no income.
+
 Overall, the effect of entropy in spending profiles is statistically and
 economically significant, and robust across different definitions. In other
 words, the scores seem to pick up a feature of the spending distribution that
-is predictive of savings behaviour.
-
-\edit{Two questions remain: first, how can we interpret the aspect of spending
-distributions that entropy captures and that is related to savings behaviour?
-Second, why does smoothing entropy scores flip the direction of the effec? We
-will address these in turn.}
+is predictive of savings behaviour. The obvious question raised by the results
+is why smoothing entropy scores flips the direction of the effect of entropy.
+We address this next.
 
 
 \subsection{Why does smoothing flip the direction of the effect}%
 \label{sub:why_does_smoothing_flip_the_direction_of_the_effect}
 
-One way to think about the sign change in Table~\ref{tab:reg_has_inflows_main}
+One way to think about the sign change in Table~\ref{tab:main}
 is to realise that it implies that at least for some individuals, the relative
 rank of smoothed and unsmoothed entropy must differ considerably -- there must
 be some individuals that have low unsmoohed entropy but high smoothed entropy
-or high unsmoothed entropy and low smoothed entropy or both.
+or high unsmoothed entropy and low smoothed entropy or both. Understanding who
+those individuals are might thus help us understand the sign flip.
 
-
-least some individuals who used to have
-high unsmoothed entropy must have low smoothed entropy and vice versa, so that
-there is a large difference in the relative rank of their two entropy scores.
-Hence, understanding who those individuals are might provide insights into both
-the sign flip and into what entropy captures about spending behaviour.
-
-To do this, it is useful to think of entropy as a function of a number of
-simple components, and to rewrite Equation~\ref{equ:entropy} in a way that
-makes this transparent. Let $\setcp = \{c: f_c > 0\}$ be the set of all
-spending categories with positive frequency counts (i.e.  with at least one
-transaction) and $\setcz = \{c: f_c = 0\}$ the set of all spending categories
-with a zero frequency count, so that $\setc = \setcp \cup \setcz$. Then, using
-our definitions of unsmoothed and smoothed probabilities above, we can write
-unsmoothed entropy as
+To understand rank differences between unsmoothed and smoothed entropy scores
+it is useful to rewrite Equation~\ref{equ:entropy} in a way that makes it easy
+to see its component parts. Remember from Section~\ref{sub:spending_profiles}
+that $\setc$ is the set of all spending categories, and let $\setcp = \{c: f_c
+> 0\}$ be the set of all spending categories with positive frequency counts
+(i.e.  with at least one transaction) and $\setcz = \{c: f_c = 0\}$ the set of
+all spending categories with a zero frequency count, so that $\setc = \setcz
+\cup \setcp$. Remember also that $f_c$ is the frequency count of spending
+category $c$ -- the number of transactions user $i$ made in category $c$ in
+period $t$ -- and $F$ is the total number of transactions made by that user in
+that period. Then, using our definitions of unsmoothed and smoothed
+probabilities, we can write unsmoothed entropy as
 
 \begin{equation}
 \label{equ:entropy_us}
@@ -93,127 +105,132 @@ log\left(\frac{1}{F + |\setc|}\right),
 \noindent where the size of set $\setcz$, $|\setcz|$, is the number of all
 spending categories in which a user makes no transactions in a certain period.
 These expressions make clear that, by definition, unsmoothed entropy is a
-function of frequency counts of categories with positive counts only to avoid
-taking logs of 0, while smoothed entropy has two parts: the additively smoothed
-unsmoothed entropy, plus a constant term for each spending category with a zero
-frequency count.
+function of frequency counts of categories with positive counts only while
+smoothed entropy has two parts: the sum over all additively smoothed frequency
+counts of categories with positive counts, plus the same sum for the additively
+smoothed probabilities of categories with zero counts, which reduces to a
+constant term that is multiplied by the number of categories with a zero count.
 
-\edit{Maybe just talk about two components: non-zero counts and variation in
-probabilities.}
 The expressions also make transparent the three main components of both types
 of entropy that are determined by user behaviour. The first is the number of
 spending categories with a non-zero frequency count, $|\setcp|$, which
 determines the number of elements summed over in Equation~\ref{equ:entropy_us},
 and partitions the categories into either contributing to the sum on the left
 hand side of Equation~\ref{equ:entropy_s} or to the constant term on the right
-hand side since, for an exogenously fixed $|\setc|$, $|\setcz| = |\setc
-\backslash \setcp|$ -- for a given number of total categories, the number of
-categories with a zero frequency count is the difference between the total
-number of categories and the number of categories with a positive frequency
-count. The second component is the variation of the frequency counts, $f_c$,
-which will determine the variation in the probabilities of a spend accurring in
-a given category. The third component is the total number of transactions
-($F$). The number of total spending categories, $|\setc|$, also determines
-smoothed entropy and, implicitly, also unsmoothed entropy since it ``scales''
-the number of categories with a positive frequency count, $|\setcp|$, as a
-given number of spending transactions are categorised into finer or coarser
-categories. But it is exogenously given and does not depend on user behaviour.
+hand side. The latter is the case since, for an exogenously fixed $|\setc|$,
+$|\setcz| = |\setc \backslash \setcp|$ -- for a given number of total
+categories, the number of categories with a zero frequency count is the
+difference between the total number of categories and the number of categories
+with a positive frequency count. The second component is the variation of the
+frequency counts, $f_c$, which will determine the variation in the
+probabilities of a spend accurring in a given category. The third component is
+the total number of transactions ($F$). The number of total spending
+categories, $|\setc|$, also determines smoothed entropy and, implicitly, also
+unsmoothed entropy since it ``scales'' the number of categories with a positive
+frequency count, $|\setcp|$, as a given number of spending transactions are
+categorised into finer or coarser categories. But it is exogenously given and
+does not depend on user behaviour.
 
-% As discussed in Section~\ref{sub:spending_profiles}, we create smooth entropy
-% measures by additively smoothing the probabilities that a user makes a
-% transaction in a particular spending category at a particular point in time. To
-% do this, we add one to the frequency count of that spending category in the
-% numerator and add the total number of spend categories to the total number of
-% spend transactions in the denominator.
+One starting point for thinking about why unsmoothed and smoothed entropy
+differ is thus to think about how these three components effect the two scores
+differently. From equations~\ref{equ:entropy_us} and~\ref{equ:entropy_s} we can
+see that the first part of smoothed entropy that sums over all spending
+categories with positive frequency counts is very similar to the entire
+expression of unsmoothed entropy -- it is that same expression but with
+additively smoothed probabilities. Hence, all else equal, the higher the number
+of categories with positive counts, the more smoothed entropy is determined by
+that first part, and the more similar it will be to unsmoothed entropy. As a
+result, we would expect to find large (rank) differences between entropy scores
+among cases with few positive-counts categories.
 
-Equations~\ref{equ:entropy_us} and~\ref{equ:entropy_s} suggest two main sources
-that might make smoothed entropy different from unsmoothed entropy in terms of
-their relative ranks. First, we can see that the first part of smoothed entropy
-that sums over all spending categories with positive frequency counts is very
-similar to the entire expression of unsmoothed entropy -- it is that same
-expression but with additively smoothed probabilities. Hence, all else equal,
-the higher the number of categories with positive counts, the more smoothed
-entropy is determined by that first part, and the more similar it will be to
-unsmoothed entropy. As a result, we would expect to find large (rank)
-differences between entropy scores among cases with a large number of
-zero-count categories. Second, remember from
-Section~\ref{sub:spending_profiles} that entropy is higher the more equal the
-spending category probabilities are. Hence, for a given number of zero-count
-categories, smoothed entropy will be higher if the (additively smoothed)
-probabilities of all positive-count categories are close to the (additively
-smoothed) probabilities of the zero-count categories, which will be the case
-(i) if there are few overall transactions, such that counts frequency counts
-($f_c$) are close to zero and (ii) if there is little variation in the counts.
-Together, then, this suggests that we would expect entropy ranks to differ in
-cases where an individual makes few spending purcheases overall and makes a similar
-number of purchases in a small number of categories.
-
-Figure~\ref{fig:scatter_facets} visualises this intuition for our 9-category
-based entropy variable: it shows scatterplots of unsmoothed and smoothed
-entropy separated by the number of categories with positive frequency counts
-and coloured based on the standard deviation quintile of the frequency count
-standard deviation. First, ignoring the colouring and focusing on the shape of
-the dots only we can see that, as expected, the relationship between the two
-entropy measures is tighter the higher the number of non-zero spending
-categories is. The cases with large differences in relative entropy ranks are
-to be found particularly in the top row. Among these, the colouring makes clear
-that -- again as expected -- it is cases with similar frequency counts that
-experience the largest change in entropy
-rank.\footnote{Appendix~\ref{sub:entropy_correlations} shows similar plots
-    coloured based on the standard deviation of counts and the total number of
-    spend transactons.}
+Next, remember from Section~\ref{sub:spending_profiles} that entropy is higher
+the more equal the spending category probabilities are. Hence, for a given
+number of zero-count categories, smoothed entropy will be higher if the
+(additively smoothed) probabilities of all positive-count categories are close
+to the (additively smoothed) probabilities of the zero-count categories, which
+will be the case (i) if there are few overall transactions, such that counts
+frequency counts ($f_c$) are close to zero and (ii) if there is little
+variation in the counts.
 
 \begin{figure}[ht]
     \centering 
     \caption{Effect of smoothing on entropy}
     \label{fig:scatter_facets}
-    \includegraphics[width=\textwidth]{\figdir/scatter_facet_ps_std_q.pdf}
-    % \fignote{\textwidth}{Effect of smoothing on entropy (top left) and entropy
-    %     as a function of its three main components: the number of spending
-    %     categories with positive frequency-counts (top right), the standard
-    %     deviatioin of these counts (lower left), and the total number of
-    % spending transaction (lower right). Value ranges for entropy components are
-% trimmed at the 95th percentile.}
+    \includegraphics[width=\textwidth]{\figdir/scatter_facet_std_tag_q.pdf}
+    \fignote{\textwidth}{Percentile ranks of 9-category-based unsmoothed and
+    smoothed entropy separated by the number of categories with positive
+frequency counts. White reference lines indicate equal percentile ranks.
+Colours indicate frequency count standard deviation quintiles.}
 \end{figure}
+
+Figure~\ref{fig:scatter_facets} visualises this intuition for our 9-category
+based entropy variable: it shows scatterplots of the percentile ranks of
+unsmoothed and smoothed entropy with a reference line indicating identical
+rank, separated by the number of categories with positive frequency counts and
+coloured based on the quintile of the frequency count standard
+deviation.\footnote{Figure~\ref{fig:scatter_facets_txns_count_spend_q} in
+    Appendix~\ref{sec:additional_results} a similar plot with colouring based on the
+quintile of the total number of transactions. The result is very similar, which
+is why we do not show it here.} First, ignoring the colouring and focusing on
+the shape of the dots only we can see that, as expected, the relationship
+between the two entropy measures is tighter the higher the number of non-zero
+spending categories is. Cases with large entropy rank differences are thus to
+be found among cases with fewer positive spend categories. Among these, the
+colouring makes clear that, as expected, the cases with the largest rank
+differences -- those with the furthest vertical difference to the reference
+line -- have low variation in their frequency counts. However, it is also clear
+that the reverse is not true: there are cases with low frequency variation that
+experience little or even a negative rank difference. Hence, while counts
+variation is some help in identifying cases with high entropy rank differences,
+it does not do so perfectly.
+
+A different way to investigate whether the sign flip can be explained by the
+three components of the entropy formula is to test whether entropy captures
+anything about users' spending distribution that is predictive of savings
+behaviour beyond the information already contained in its three components. If
+this is were not the case, then we should be able to explain the sign flip
+solely based on the components.
+
+
+\begin{table}[ht]
+\centering\footnotesize
+\caption{Controlling for components}
+\label{tab:components}
+\input{\tabdir/reg_has_inflows_comp.tex}
+\tabnote{.95\textwidth}{\regtabinfo}
+\end{table}
+
+
+Columns (1) and (3) in Table~\ref{tab:main} replicate the results for the
+48-category-based unsmoothed and smoothed entropy measures presented in
+Table~\ref{tab:main} for reference. In columns (2) and (4) we additionally
+control for the three entropy components. Including these components has some
+effect: for unsmoothed entropy the magnitude of the coefficient is less than
+half its size and the confidence interval is about twice as wide, while for
+smoothed entropy the magnitude of the coefficient is a little higher while the
+width of the confidence interval also roughly doubles.  However, both
+coefficients remain statistically significant and their confidence intervals
+cover values that are also economically significant.  Hence, the results make
+clear that the results in Table~\ref{tab:main} cannot be attributed simply to
+the effect of one or more of entropy's simple components.
 
 
 \edit{Next: show number of spend profiles for users with high and low entropy
 rank differences to undertand how they differ. Can we predict them based on
 other features in teh data?}
 
+\begin{table}[ht]
+\centering\footnotesize
+\caption{Controlling for components}
+\label{tab:entropy_on_components}
 \input{\tabdir/reg_comp_only.tex}
+\tabnote{.95\textwidth}{\regtabinfo}
+\end{table}
+
+
 % Negative sign in 4 makes sense: since increading f_c moves fraction closer to
 % one, moves log closer to zero, hence, H^s increases more if c added to rhs of
 % expression.
-
-% \begin{figure}[ht]
-%     \centering 
-%     \caption{Effect of smoothing on entropy}
-%     \label{fig:effect_of_smoothing}
-%     \includegraphics[width=.49\textwidth]{\figdir/smoothed_unsmoothed_corr.png}
-%     \includegraphics[width=.49\textwidth]{\figdir/smoothing_on_nunique_tag_spend.png}
-%     \includegraphics[width=.49\textwidth]{\figdir/smoothing_on_std_tag_spend.png}
-%     \includegraphics[width=.49\textwidth]{\figdir/smoothing_on_txns_count_spend.png}
-%     % \fignote{\textwidth}{Effect of smoothing on entropy (top left) and entropy
-%     %     as a function of its three main components: the number of spending
-%     %     categories with positive frequency-counts (top right), the standard
-%     %     deviatioin of these counts (lower left), and the total number of
-%     % spending transaction (lower right). Value ranges for entropy components are
-% % trimmed at the 95th percentile.}
-% \end{figure}
-
-The two salient facts from the top left panel are that unsmoothed and smoothed
-entropy are positively correlated, and that the variance of smoothed entropy
-scores for any given level of unsmoothed entropy decreases as unsmoothed
-entropy gets larger.
-
-This makes sense: correlates positively becuase first part of smoothed entropy
-is almost equal to unsmoothed entropy. Higher variance for lower levels of
-unsmoothed entropy because it is low if there are many spend categories with zero
-counts, which do not enter the sum. However, in smoothed entropy, all these
-categories contribute to the constant part on the right hand side. Depending on
-other elements of the distribution, this creates a high or low smoothed entropy
-score.
 
 
 \subsection{How can we interpret entropy?}%
@@ -225,22 +242,6 @@ Section~\ref{sub:spending_profiles}: the number of unqiue spending categories
 with a positive frequency count, the standard deviation of those counts, and
 the number of spending transactions. Here we want to test whether entropy
 remains predictive of savings behaviour once we control for these components.
-
-\input{\tabdir/reg_has_inflows_comp.tex}
-
-Columns (1) and (3) in Table~\ref{tab:reg_has_inflows_comp} replicate the
-results for the 48-category-based unsmoothed and smoothed entropy measures
-presented in Table~\ref{tab:reg_has_inflows_main} for reference. In columns (2)
-and (4) we additionally control for the three entropy components. Including
-these components has some effect: for unsmoothed entropy the magnitude of the
-coefficient is less than half its size and the confidence interval is about
-twice as wide, while for smoothed entropy the magnitude of the coefficient is a
-little higher while the width of the confidence interval also roughly doubles.
-However, both coefficients remain statistically significant and their
-confidence intervals cover values that are also economically significant.
-Hence, the results make clear that the results in
-Table~\ref{tab:reg_has_inflows_main} cannot be attributed simply to the effect
-of one or more of entropy's simple components.
 
 Knowing that entropy is not simply the sum of its component parts still leaves
 us with the question what it \textit{is} that entropy captures about user

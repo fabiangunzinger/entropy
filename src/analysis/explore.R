@@ -6,11 +6,19 @@ library(tidyverse)
 source('src/config.R')
 source('src/helpers/helpers.R')
 
+df <- read_analysis_data()
+
 
 theme_set(theme_minimal())
 
-df <- read_analysis_data()
 
+theme_set(theme_minimal())
+theme_update(
+  axis.title=element_text(size = 14),
+  axis.text = element_text(size = 14),
+  legend.text = element_text(size = 14),
+  legend.title = element_text(size = 14),
+)
 
 setFixest_fml(
   ..endog = ~has_sa_inflows,
@@ -18,6 +26,7 @@ setFixest_fml(
   ..controls = ~month_spend + month_income + has_month_income + income_var,
   ..fe = ~user_id + ym
 )
+
 
 titles <- list(
   "has_inflows" = "P(payment into savings accounts)",
@@ -35,6 +44,10 @@ options(ggplot2.discrete.fill = palette)
 
 # Why does sign flip? -------------------------------------------------------------
 
+# Some low entropy users get turned into high entropy users when smoothed
+# It's because they have a lot of zero counts
+# What determines whether low pos count gets turned into high entropy - the variation in probs
+
 p <- "^ct_tag_(?!spend)"
 d <- df %>% 
   sample_frac(0.1) %>%
@@ -47,42 +60,56 @@ d <- df %>%
     ) %>% 
   ungroup() %>% 
   mutate(
-    std_tag_q = ntile(std_tag, 5),
     p_std_q = ntile(p_std, 5),
     ps_std_q = ntile(ps_std, 5),
-    txns_count_spend_q = ntile(txns_count_spend, 5)
+    std_tag_q = ntile(std_tag, 5),
+    txns_count_spend_q = ntile(txns_count_spend, 5),
+    entropy_tag_pct = ntile(entropy_tag, 100),
+    entropy_tag_s_pct = ntile(entropy_tag_s, 100)
   )
-
-# Some low entropy users get turned into high entropy users when smoothed
-# It's because they have a lot of zero counts
-# What determines whether low pos count gets turned into high entropy - the variation in probs
-
-facet_var <- c("ps_std_q")
 
 facet_var <- c("ps_std_q", "txns_count_spend_q", "std_tag_q")
 
 for (v in facet_var) {
   print(v)
   g <- d %>% 
-    ggplot(aes(entropy_tag, entropy_tag_s, colour=factor(.data[[v]]))) + 
-    geom_point(alpha=1) +
+    ggplot(aes(entropy_tag_pct, entropy_tag_s_pct, colour=factor(.data[[v]]))) + 
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE, colour = "white", size=1) +
     facet_wrap(~nunique_tag) +
     labs(
-      x = varlabs[["entropy_tag"]],
-      y = varlabs[["entropy_tag_s"]],
+      x = varlabs[["entropy_tag_pct"]],
+      y = varlabs[["entropy_tag_s_pct"]],
       colour = unname(TeX(varlabs[[v]]))
     ) +
     theme(
-      axis.title=element_text(size = 20),
-      axis.text = element_text(size = 20),
-      legend.text = element_text(size = 20),
-      legend.title=element_text(size = 20)
+      legend.position = "top"
     )
 
   fn <- glue("scatter_facet_{v}.pdf")
   ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
 }
 g
+
+
+# dev
+
+k <- d 
+k$nunique_tag_lab
+
+facet_var <- c("std_tag_q")
+
+for (v in facet_var) {
+  g <- k %>%
+    ggplot(aes(entropy_tag_pct, entropy_tag_s_pct, colour=factor(.data[[v]]))) + 
+    geom_point(alpha=1) +
+    geom_smooth(method = "lm", se = FALSE, colour = "white", size=1) +
+    facet_wrap(~nunique_tag)
+  print(g)
+}
+
+
+d
 
 
 # Controlling for components regressions ----------------------------
@@ -99,12 +126,13 @@ for (y in yvars) {
     etable(
       results[[1]], results[[2]],
       title = glue('Controlling for entropy components'),
-      order = c('[Ee]ntropy', "Unique", "Category counts", "Number of"),
-      tex = T,
-      fontsize = 'tiny',
-      file=file.path(TABDIR, glue('reg_{y}_{lab}.tex')),
-      label = glue('tab:reg_{y}_{lab}'),
-      replace = T
+      order = c('[Ee]ntropy', "Unique", "Category counts", "Number of")
+      # ,
+      # tex = T,
+      # fontsize = 'tiny',
+      # file=file.path(TABDIR, glue('reg_{y}_{lab}.tex')),
+      # label = glue('tab:reg_{y}_{lab}'),
+      # replace = T
     )
   )
 }
@@ -133,14 +161,14 @@ components <- c("txns_count_spend", "nunique_tag_spend", "std_tag_spend")
 y = "entropy_tag_spend"
 
 for (c in components) {
-  fn <- glue("scatter_entropy_{c}.png")
+  fn <- glue("scatter_entropy_{c}.pdf")
   g <- df %>% 
     group_by(x = .data[[c]]) %>% 
     summarise(y = mean(.data[[y]])) %>% 
     ungroup() %>% 
     filter(ntile(x, 100) < 95) %>% 
     ggplot(aes(x, y)) +
-    geom_point(alpha = 0.5, colour = palette[1]) +
+    geom_point(colour = palette[1]) +
     labs(x = varlabs[[c]], y = varlabs[[y]]) + 
     theme(
       axis.title=element_text(size = 20),

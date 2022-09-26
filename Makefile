@@ -1,11 +1,6 @@
 
 .PHONY: all
-all: sumstats figures msg
-
-
-.PHONY: test
-test:
-	python -m pytest --cov=entropy
+all: sumstats figures analysis msg
 
 
 .PHONY: sumstats
@@ -19,21 +14,36 @@ sampdesc:
 	@printf '\n Updating sample description plots...\n'
 	@Rscript src/figures/sample_description.R
 
+
 .PHONY: figures
 figures: sampdesc
 
 
+.PHONY: analysis
+analysis:
+	@printf '\n Updating analysis results...\n'
+	@Rscript src/figures/analysis.R
 
+
+.PHONY: msg
 msg:
-	@printf '\n All done.\n'
+	@printf '\n Paper updated.\n'
 
 
-.PHONY: data testdata
+.PHONY: data
 data:
 	@printf '\nProducing analysis data...\n'
 	@python -m src.data.make_data
 
+
+.PHONY: testdata
 testdata:
 	@printf '\nProducing test analysis data...\n'
 	@python -m src.data.make_data --piece 0
+
+
+.PHONY: test
+test:
+	python -m pytest --cov=entropy
+
 

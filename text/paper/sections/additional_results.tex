@@ -19,14 +19,23 @@ as spend transactions.
 However, because transaction labelling is imperfect, it is possible that some
 transfers are misclassified as spends and included in the calculation of
 entropy scores. One way to deal with this is to lag entropy scores by one
-period. Table~\ref{tab:reg_has_inflows_lag} presents results similar to the main
+period. Table~\ref{tab:main_lag} presents results similar to the main
 results in the main text, but using entropy lagged by one year-month period as
 the independent variable of interest. We can see that the results are very
 similar to thos presented above.
 
 \def\yvars{has_inflows}
 \foreach \y in \yvars {
+    \begin{table}[ht]
+    \centering\tiny
+    \caption{Effect of lagged entropy on P(savings transactions)}
+    \label{tab:main_lag}
     \input{\tabdir/reg_\y_lag.tex}
+    \tabnote{.95\textwidth}{Results from estimating Equation~\ref{equ:model}. The
+        dependent variable in all columns is a dummy variable indicating whether a
+        user made at least one transaction into any of their savings accounts in a
+    given period. Entropy variables are lagged by one period. \regtabinfo}
+    \end{table}
 }
 
 
@@ -57,32 +66,17 @@ in the number of total spending transactions up to about 175 transaction,
 before being increasingly determined by other elements thereafter.
 
 
-\subsection{Entropy correlations}%
-\label{sub:entropy_correlations}
-
-\begin{figure}[ht]
-    \centering 
-    \caption{Effect of smoothing on entropy}
-    \label{fig:scatter_facets_std_tag_q}
-    \includegraphics[width=\textwidth]{\figdir/scatter_facet_std_tag_q.pdf}
-    % \fignote{\textwidth}{Effect of smoothing on entropy (top left) and entropy
-    %     as a function of its three main components: the number of spending
-    %     categories with positive frequency-counts (top right), the standard
-    %     deviatioin of these counts (lower left), and the total number of
-    % spending transaction (lower right). Value ranges for entropy components are
-% trimmed at the 95th percentile.}
-\end{figure}
+\subsection{Effect of smothing on entropy (by number of spend quintile)}%
+\label{sub:effect_of_smothing_on_entropy_by_number_of_spend_quintile_}
 
 \begin{figure}[ht]
     \centering 
     \caption{Effect of smoothing on entropy}
     \label{fig:scatter_facets_txns_count_spend_q}
-    \includegraphics[width=\textwidth]{\figdir/scatter_facet_txns_count_spend_q.pdf}
-    % \fignote{\textwidth}{Effect of smoothing on entropy (top left) and entropy
-    %     as a function of its three main components: the number of spending
-    %     categories with positive frequency-counts (top right), the standard
-    %     deviatioin of these counts (lower left), and the total number of
-    % spending transaction (lower right). Value ranges for entropy components are
-% trimmed at the 95th percentile.}
-\end{figure}\newpage
+    \includegraphics[width=\textwidth]{\figdir/scatter_facet_std_tag_q.pdf}
+    \fignote{\textwidth}{Percentile ranks of 9-category-based unsmoothed and
+    smoothed entropy separated by the number of categories with positive
+frequency counts. White reference lines indicate equal percentile ranks.
+Colours indicate the quintile of the total number of spending transactions.}
+\end{figure}
 
