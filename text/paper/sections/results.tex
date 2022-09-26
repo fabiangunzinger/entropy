@@ -191,7 +191,49 @@ behaviour beyond the information already contained in its three components. If
 this is were not the case, then we should be able to explain the sign flip
 solely based on the components.
 
+\begin{table}[ht]
+\centering\tiny
+\caption{Entorpy on components}
+\label{tab:entropy_on_components}
+\input{\tabdir/reg_entropy_on_components.tex}
+\tabnote{.95\textwidth}{\regtabinfo}
+\end{table}
 
+As a first step, Table~\ref{tab:entropy_on_components} shows results from
+regressing the unsmoothed and smoothed versions of both the 9-category and
+48-category based entropy variables on the three components. The components
+explain about 75\% of the variation in the 9-category-based and 95\% of the
+48-category-based variable. The directions of the effects are consistent across
+the two entropy variables as well as accross smoothed and unsmoothed versions
+and are as expected: an increase in the number of categories with a positive
+frequency count increases entropy (more elements are summed over in
+Equation~\ref{equ:entropy_us} and more elements are part of the first part of
+the expression in Equation~\ref{equ:entropy_s}), a higher variation in
+spend category frequency counts reduces entropy (the uniform distribution is
+the maximum entropy distribution), and the total number of spending
+transactions increases entropy.\footnote{The direction of the relationship between the number of
+total spend transaction and entropy is less obvious than that of the other two
+components. Taking the derivative of Equation~\ref{equ:entropy_us} with respect
+to $F$ shows that the relationship is guaranteed to be positive if the
+frequency count of each category is less than $F/2$.}
+
+Next, we look at whether the relationship between spending entropy and the
+probability of making a savings transaction remains economically and
+statistically significant once we control for the three components. Columns (1)
+and (3) in Table~\ref{tab:main} replicate the results for the 48-category-based
+unsmoothed and smoothed entropy measures presented in Table~\ref{tab:main} for
+reference. In columns (2) and (4) we additionally control for the three entropy
+components. Including these components has some effect: the coefficients change
+slightly -- decreasing in absolute magnitude in the case of unsmoothed entropy,
+increasing in the case of smoothed entorpy -- while the width of the confidence
+intervals about double in both cases, reflecting the strong collinearity amont
+the component and entropy. However, both coefficients remain statistically
+significant and their confidence intervals cover values that are also
+economically significant. Hence, the results make clear that the results in
+Table~\ref{tab:main} cannot be attributed simply to the effect of one or more
+of entropy's simple components.
+
+\begin{landscape}
 \begin{table}[ht]
 \centering\footnotesize
 \caption{Controlling for components}
@@ -199,55 +241,5 @@ solely based on the components.
 \input{\tabdir/reg_has_inflows_comp.tex}
 \tabnote{.95\textwidth}{\regtabinfo}
 \end{table}
-
-
-Columns (1) and (3) in Table~\ref{tab:main} replicate the results for the
-48-category-based unsmoothed and smoothed entropy measures presented in
-Table~\ref{tab:main} for reference. In columns (2) and (4) we additionally
-control for the three entropy components. Including these components has some
-effect: for unsmoothed entropy the magnitude of the coefficient is less than
-half its size and the confidence interval is about twice as wide, while for
-smoothed entropy the magnitude of the coefficient is a little higher while the
-width of the confidence interval also roughly doubles.  However, both
-coefficients remain statistically significant and their confidence intervals
-cover values that are also economically significant.  Hence, the results make
-clear that the results in Table~\ref{tab:main} cannot be attributed simply to
-the effect of one or more of entropy's simple components.
-
-
-\edit{Next: show number of spend profiles for users with high and low entropy
-rank differences to undertand how they differ. Can we predict them based on
-other features in teh data?}
-
-\begin{table}[ht]
-\centering\footnotesize
-\caption{Controlling for components}
-\label{tab:entropy_on_components}
-\input{\tabdir/reg_comp_only.tex}
-\tabnote{.95\textwidth}{\regtabinfo}
-\end{table}
-
-
-% Negative sign in 4 makes sense: since increading f_c moves fraction closer to
-% one, moves log closer to zero, hence, H^s increases more if c added to rhs of
-% expression.
-
-
-\subsection{How can we interpret entropy?}%
-\label{sub:is_entropy_more_than_the_sum_of_its_parts_}
-
-One possibility is that spending entropy is related to savings behaviour
-through some or all of its main components we discussed in
-Section~\ref{sub:spending_profiles}: the number of unqiue spending categories
-with a positive frequency count, the standard deviation of those counts, and
-the number of spending transactions. Here we want to test whether entropy
-remains predictive of savings behaviour once we control for these components.
-
-Knowing that entropy is not simply the sum of its component parts still leaves
-us with the question what it \textit{is} that entropy captures about user
-spending distributions that is predictive of savings behaviour. We have not,
-thus far, been able to understand this and leave the question for future
-research.
-
-
+\end{landscape}
 

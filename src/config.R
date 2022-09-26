@@ -32,6 +32,8 @@ varlabs <- c(
 
   entropy_tag_pct = "Entropy percentile (9 cats)",
   entropy_tag_s_pct = "Entropy percentile (9 cats, smooth)",
+  entropy_tag_spend_pct = "Entropy percentile (48 cats)",
+  entropy_tag_spend_s_pct = "Entropy percentile (48 cats, smooth)",
   
   entropy_tag_z = "Entropy (9 cats)",
   entropy_tag_sz = "Entropy (9 cats, smooth)",
@@ -78,7 +80,8 @@ varlabs <- c(
   
   ps_std_q = "$p_s$ std. quintile",
   txns_count_spend_q = "Spend transactions ($F$) quintile",
-  std_tag_q = "$f_c$ std quintile"
+  std_tag_q = "$f_c$ std quintile",
+  std_tag_spend_q = "$f_c$ std quintile"
 )
 
 

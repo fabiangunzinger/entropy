@@ -64,7 +64,8 @@ for (y in yvars) {
 # Controlling for components ------------------------------------------------------
 
 lab <- "comp"
-evars <- c("entropy_tag_spend_z", "entropy_tag_spend_sz")
+evars <- c("entropy_tag_z", "entropy_tag_sz", "entropy_tag_spend_z", "entropy_tag_spend_sz", "entropy_merchant_z", "entropy_merchant_sz")
+
 for (y in yvars) {
   results <- list()
   for (e in evars) {
@@ -72,13 +73,16 @@ for (y in yvars) {
   }
   print(
     etable(
-      results[[1]], results[[2]],
+      results[[1]], results[[2]], results[[3]], results[[4]],
       order = c('[Ee]ntropy', "Unique", "Category counts", "Number of"),
       file=file.path(TABDIR, glue('reg_{y}_{lab}.tex')),
       replace = T
     )
   )
 }
+
+
+
 
 
 # Entropy on components -----------------------------------------------------------
