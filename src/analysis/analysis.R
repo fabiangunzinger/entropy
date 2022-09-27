@@ -64,8 +64,7 @@ for (y in yvars) {
 # Controlling for components ------------------------------------------------------
 
 lab <- "comp"
-evars <- c("entropy_tag_z", "entropy_tag_sz", "entropy_tag_spend_z", "entropy_tag_spend_sz", "entropy_merchant_z", "entropy_merchant_sz")
-
+evars <- c("entropy_tag_z", "entropy_tag_sz", "entropy_tag_spend_z", "entropy_tag_spend_sz")
 for (y in yvars) {
   results <- list()
   for (e in evars) {
@@ -82,18 +81,15 @@ for (y in yvars) {
 }
 
 
-
-
-
 # Entropy on components -----------------------------------------------------------
 
-lab <- "comp_only"
-evars <- c("entropy_tag_spend_z", "entropy_tag_spend_sz")
+lab <- "entropy_on_components"
+evars <- c("entropy_tag_z", "entropy_tag_sz", "entropy_tag_spend_z", "entropy_tag_spend_sz")
 print(
   etable(
-    feols(.[evars] ~ ..comps | sw0(..fe), df),
+    feols(.[evars] ~ ..comps | ..fe, df),
     order = c('!(Intercept)', "Unique", "Category counts", "Number of"),
-    headers=list("Entropy (48 cats)"=2, "Entropy (48 cats, smooth)"=2),
+    headers=c("Entropy (9 cats)", "Entropy (9 cats, smooth)", "Entropy (48 cats)", "Entropy (48 cats, smooth)"),
     file=file.path(TABDIR, glue('reg_{lab}.tex')),
     replace = T
   )

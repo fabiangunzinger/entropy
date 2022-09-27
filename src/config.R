@@ -54,12 +54,12 @@ varlabs <- c(
   entropy_groc_sz_lag = "Entropy lag (groceries, smooth)",
   
   prop_credit = "Paid with credit (proportion)",
-  month_spend = 'Month spend',
+  month_spend = "Month spend (\\pounds'000)",
   is_urban = 'Urban',
   is_female = 'Female',
   age = 'Age',
-  year_income = "Year income",
-  month_income = "Month income",
+  year_income = "Year income (\\pounds'000)",
+  month_income = "Month income (\\pounds'000)",
   has_regular_income = 'Has regular income',
   has_month_income = 'Has income in month',
   income_var = "Income variability",
@@ -88,7 +88,6 @@ varlabs <- c(
 # fixest settings
 
 setFixest_etable(
-  postprocess.tex = set_font,
   se.below = T,
   depvar = F,
   digits = 'r3',

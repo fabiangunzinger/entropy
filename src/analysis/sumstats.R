@@ -17,18 +17,16 @@ vars <- c(
   "^is_urban$",
   "^is_female$",
   "^age$",
-  "^year_income$",
+  "^month_income$",
   "^has_month_income$",
   "^has_inflows$",
-  "^income_var$",
   "^nunique_tag_spend$",
   "^nunique_tag$",
   "^nunique_merchant$"
 )
 
 varlabs <- c(
-  "Year income",
-  "Income variability",
+  "Month income",
   "Has income in month",
   "Has savings",
   "Month spend",

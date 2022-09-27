@@ -11,21 +11,21 @@ We use data from Money Dashboard (MDB), a financial management app that allows
 its users to link accounts from different banks to obtain an integrated view of
 their
 finances.\footnote{\href{https://www.moneydashboard.com}{https://www.moneydashboard.com}.}
-The dataset contains more than 500 million transactions made between 2012 and
-June 2020 by about 250,000 users, and provides information such as date,
+The full dataset contains more than 500 million transactions made between 2012
+and June 2020 by about 270,000 users, and provides information such as date,
 amount, and description about the transaction as well as account and user-level
 information.
 
 The main advantages of the data for the study of consumer financial behaviour
-are its high frequency, that it is automatically collected and updated and thus
-less prone to errors and unaffected by biases that bedevil survey measures, and
-that it offers a view of consumers' entire financial life across all their
-accounts, rather than just a view of their accounts held at a single bank,
-provided they added all their accounts to MDB. The main limitation is the
-non-representativeness of the sample relative to the population as a whole.
-Financial management apps are known to be used disproportionally by men,
-younger people, and people of higher socioeconomic status
-\citep{carlin2019generational}. Also, as pointed out in
+are its high frequency, that it can be cheaply collected for a very large
+number of users, that collection is automatic and thus less prone to errors and
+unaffected by biases that bedevil survey measures, and that it offers a view of
+consumers' entire financial life across all their accounts, rather than just a
+view of their accounts held at a single bank, provided they added all their
+accounts to MDB. The main limitation is the non-representativeness of the
+sample relative to the population as a whole.  Financial management apps are
+known to be used disproportionally by men, younger people, and people of higher
+socioeconomic status \citep{carlin2019generational}. Also, as pointed out in
 \citet{gelman2014harnessing}, a willingness to share financial information with
 a third party might not only select on demographic characteristics, but also
 for an increased need for financial management or a higher degree of financial
@@ -34,37 +34,14 @@ not address this.\footnote{For an example of how re-weighing can be used to
 mitigate the non-representative issue, see \citet{bourquin2020effects}.}
 
 
-\paragraph{Data issues}%
-\label{par:data_issues}
-
-\citet{bourquin2020effects} argue that because some of the accounts in the data
-will be joint accounts, units of observations should be tought of as
-"households" rather than "users". We do not agree that this is the most prudent
-approach. The validity of thinking of units as households depends on the
-proportion of users in the data who add joint accounts and on the proportion of
-transactions -- out of a user's total number of transactions -- additionally
-observed as a result. Given that the sample is skewed towards younger
-individuals we think it is unlikely that a majority of them has added joint
-accounts. Furthermore, it seems reasonable to assume that in most cases, joint
-accounts are mainly used for common household expenditures similar that are
-similar to those of a single user (albeit in higher amounts), and are thus
-unlikely to alter the observed spending profile much. Thus, we think of units
-of observations as individuals, not households. 
-
-Some accounts might be business accounts. Using versions of the algorightms
-used by \citet{bourquin2020effects} to identify such accounts showed, however,
-that such accounts only make up a tiny percentage of overall accounts and would
-not influence our results. We thus do not exclude them.
-
-
 \subsection{Preprocessing and sample selection}%
 \label{par:preprocessing_and_sample_selection}
 
-We restrict our sample to users for whom we can observe a regular income, can
-be reasonably sure that they have added all their bank account to MDB, and for
-whom we observe at least six months of data. Table~\ref{tab:selection}
-summarises the sample selection steps we applied to a 1 percent sample of the
-raw data, associated data losses, and the size of our final sample.
+The overall aim of sample selection is to restrict our sample to users for whom
+we can observe a regular income, can be reasonably sure that they have added
+all their bank account to MDB, and for whom we observe at least six months of
+data. Table~\ref{tab:selection} summarises the sample selection steps we
+applied, associated data losses, and the size of our final sample.
 
 \begin{table}[ht]
 \centering\small
@@ -75,20 +52,51 @@ transaction volume in millions of British Pounds left in our sample after each
 sample selection step.}
 \end{table}
 
+We start by dropping the first and last month of data for each user because we
+are unlikely to observe users' complete data in these months, which might
+affect selection for the criteria below. Next, we keep only users whom we
+observe for at least 6 months to ensure that we have a suitable amount of data
+for each user. We also require users to have at least one current and one
+savings accounts to be able to oberve their spending and savings behaviour. The
+next few steps are all aimed at selecting users about whom we can be reasonably
+sure that they have added all their financial accounts. We thus select on
+criteria we would expect to see for all such users: an annual income of at
+least \pounds5,000, at least 10 monthly spending transaction, at least 4
+monthly grocery transactions, and a total monthly spend of at least \pounds200.
+Finally, we keep only users for whom we observe all relevant demographic
+characteristics, and who are between 18 and 65 years old. The reason for the
+last step is that younger users and retirees will plausibly have different
+fianncial objectives than people in their working age, which is the population
+we are interested about.\footnote{The code that implements the selection
+criteria is available on
+\href{https://github.com/fabiangunzinger/entropy/blob/c49c9c34c96d073725afd3a1494458a388d00051/src/data/selectors.py}{Github}.}
+
+It is clear from the reduction in the number of users from more than 270,000 to
+about 14,500 that these selection steps are restrictive. Given our aim in this
+study, however, it is crucial that we can be reasonably sure that we observe
+users' entire spending and savings transactions, so that the stringent criteria
+are worth it. Also, size of the remaining sample is still sufficiently large
+for our puposes.
+
 
 \subsection{Dependent variables}
 \label{sub:dependent_variables}
 
-Identifying savings transactions: We classify as payments into savings accounts
-all savings account credits of \pounds5 or more that are not identified as
-interest payments or automated "save the change" transfers (similarly for
-debits).\footnote{While standing order transactions are unlikely to be related
-to entropy in the short-run, we do not exclude such transactions since, best we
-can tell, the only account for a small fraction of total transactions.} 
+Our outcome variable is biniry indicator for whether of not a user made a
+payment into any of their savings account in a given month. We classify as
+payments into savings accounts all savings account credits of \pounds5 or
+more.\footnote{While standing order transactions are unlikely to be related to
+entropy in the short-run, we do not exclude such transactions since, best we
+can tell, the only account for a small fraction of total transactions.}
 
-Dummy for savings txn in current month. Motivation: \citet{mps2018building} finds that
-saving habit is often more important than amount saved.
-
+The reason we focus on a binary indicator is twofold: first, becaus we
+hypothesis that chaotic or difficult life circumstances that are also reflected
+in spending entropy might make it harder to remember to save, for which the
+accurate thest is to see whether spending entropy is related to the likelihood
+of making ang savings transctions. Second, research by \citet{mps2018building}
+suggests that to build up sufficient emergency funds over time forming a habit
+of saving regularly is more important than the specific amounts saved month to
+month.
 
 \subsection{Spending profiles}%
 \label{sub:spending_profiles}
@@ -101,16 +109,16 @@ distributions, we calculate spending entropy, based on the formula proposed by
 probability of an event $i$ occuring with the logarithm of that
 probability.\footnote{Shannon entropy is customarily denoted as $H$ following
 Shannon's own naming after Ludwig Boltzman's 1872 H-theorem in statistical
-mechanics, to which it is analagous.} The base the logarithm is often chosen to
-be 2, though other choices are possible. Entropy is a cornerstone of
+mechanics, to which it is analagous.} The base of the logarithm is often chosen
+to be 2, though other choices are possible. Entropy is a cornerstone of
 information theory, where it measures the amount of information contained in an
 event. In the behavioural sciences, behavioural entropy has recently been shown
 to predict the frequency of grocery visits and the per-capita spend per visit
 \citep{guidotti2015behavioral}, the amount of calories consumed
 \citep{skatova2019those}, and the propensity for financial distress
 \citep{muggleton2020evidence}. In our context, we define the entropy of a
-user's spending profile in a particular period as (we omit individual
-and time subscripts to keep the notation simpler):
+user's spending profile in a particular period as (we omit individual and time
+subscripts to keep the notation simpler):
 
 \begin{equation}
 \label{equ:entropy}
@@ -119,15 +127,24 @@ H = -\sum_{c \in \setc}{p_c}log(p_c),
 
 \noindent where $\setc$ is the set of all spending categories, $p_c$ the
 probability that an individual makes a purchase in spending category $c$, and
-$log$ the base 2 logarithm. Higher entropy means that transactions are more
-equal across different spending categories, which makes it hard to predict the
-next transaction, whereas low entropy profiles have the bulk of transactions in
-a few dominant categories (such as groceries and transportation) and have
-relatively few transactions in other categories.\footnote{For further
-discussion on how to interpret Equation~\ref{equ:entropy}, see
-Appendix~\ref{sec:interpreting_entropy}.} For simpler interpretation of our
-regression coefficients below, we standardise entropy scores to have a mean of
-0 and a standard deviation of 1.
+$log$ the base 2 logarithm.
+
+Higher entropy means that transactions are more equal across different spending
+categories, which makes it hard to predict the next transaction, whereas low
+entropy profiles have the bulk of transactions in a few dominant categories
+(such as groceries and transportation) and have relatively few transactions in
+other categories.\footnote{For further discussion on how to interpret
+Equation~\ref{equ:entropy}, see Appendix~\ref{sec:interpreting_entropy}.} For
+simpler interpretation of our regression coefficients below, we standardise
+entropy scores to have a mean of 0 and a standard deviation of 1.
+
+One slight limitation introduced by the imperfect transaction labelling in the
+MDB data is that entropy scores for high-entropy individuals will be biased
+downwards. This happens because unlabelled transactions tend to be transactions
+that are rare (i.e. not grocery or Amazon purchases), and it is high-entropy
+individuals that are more likely to engage in rare transactions. Because our
+analysis mainly relies on relative entropy levels, this is not of major
+consequence and we do not pursue this further.
 
 We calculate entropy based on three sets of spend categories. The first measure
 is based on 9 spending categories used by \citet{muggleton2020evidence}. The
@@ -138,10 +155,11 @@ different categories.\footnote{The precise mapping from MDB transaction tags
     and
     \href{https://github.com/fabiangunzinger/entropy/blob/7fa9c565bf8959ea92a9d4fe2245da0864e19c27/src/data/txn_classifications.py\#L503}{here},
 respectively.} The third measure is based on merchant names, as labelled by
-Money Dashboard. We also calculate spending category probabilities in two
-different ways. To calculate what we call ``unsmoothed'' entropy scores, we
-calculate the $p_c$s in Equation~\ref{equ:entropy} as simple frequentist
-probabilities
+Money Dashboard.
+
+We also calculate spending category probabilities in two different ways. To
+calculate what we call ``unsmoothed'' entropy scores, we calculate the $p_c$s
+in Equation~\ref{equ:entropy} as simple frequentist probabilities
 
 \begin{equation}
     p_c = \frac{f_c}{F},
@@ -181,8 +199,8 @@ probability $p(E)$. One way to capture this would be to define the information
 of event E as $I(E) = \frac{1}{p(E)}$. Yet this implied that an event that is
 certain to occur had information 1, when it would make sense to have
 information 0. To remedy this (and also satisfy additional desireable
-characteristics of an information function), we can use the log of the
-expression. Hence, the information of event E, often called \textit{Shannon
+characteristics of an information function), Shannon proposed using the log of
+the expression. Hence, the information of event E, often called \textit{Shannon
 information}, \textit{self-information}, or just \textit{information}, is
 defined as:
 
@@ -191,7 +209,7 @@ defined as:
 \end{equation}
 
 The choice of the base for the logarithm varies by application and determines
-the units. Base 2 means that information is expressed in bits. The natural
+the units: base 2 means that information is expressed in bits; the natural
 logarithm, another popular choice, expresses information in \textit{nats}.
 
 Entropy, often called \textit{Information entropy}, \textit{Shannon entropy},
@@ -208,15 +226,6 @@ more information is conveyed when it occurs. The related idea for distributions
 is similar: the less skewed a distribution of a random variable, the less
 certain the realised value of a single draw from the distribution, the higher
 is entropy - the maximum entropy distribution is the uniform distribution.
-
-One slight limitation introduced by the imperfect transaction labelling in the
-MDB data is that entropy scores for high-entropy individuals will be biased
-downwards. This happens because unlabelled transactions tend to be transactions
-that are rare (i.e. not grocery or Amazon purchases), and it is high-entropy
-individuals that are more likely to engage in rare transactions. Because our
-analysis mainly relies on relative entropy levels, this is not of major
-consequence and we do not pursue this further.
-
 
 \subsection{Summary statistics}%
 \label{par:summary_statistics}

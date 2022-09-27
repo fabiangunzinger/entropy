@@ -2,6 +2,12 @@ library(aws.s3)
 library(glue)
 
 
+read_s3parquet <- function(filepath) {
+  # Wrapper to conveniently read parquet files from S3.
+  data.frame(aws.s3::s3read_using(arrow::read_parquet, object=filepath))
+}
+
+
 read_analysis_data <- function(sample) {
   fn <- if (!missing(sample)) glue('entropy_{sample}.parquet') else 'entropy.parquet'
   fp <- file.path('s3://3di-project-entropy', fn)
@@ -14,9 +20,21 @@ read_analysis_data <- function(sample) {
 }
 
 
-read_s3parquet <- function(filepath) {
-  # Wrapper to conveniently read parquet files from S3.
-  data.frame(aws.s3::s3read_using(arrow::read_parquet, object=filepath))
+read_txn_data <- function(sample = 'X11') {
+  fn <- glue('mdb_{sample}.parquet')
+  bucket <- 's3://3di-data-mdb/clean/samples'
+  fp <- file.path(bucket, fn)
+  data.frame(aws.s3::s3read_using(arrow::read_parquet, object=fp)) %>% 
+    mutate(date = as.Date(date))
+}
+
+
+read_txn_sample <- function(analysis_data, ...) {
+  # Cannot load txn data for full sample into memory, so using txns
+  # from users in X00 sample that are part of the analysis data
+  txn_data <- read_txn_data(...)
+  analysis_users <- unique(analysis_data$user_id)
+  txn_data %>% filter(user_id %in% analysis_users)
 }
 
 

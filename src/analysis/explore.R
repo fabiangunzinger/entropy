@@ -8,17 +8,7 @@ source('src/helpers/helpers.R')
 
 df <- read_analysis_data()
 
-
 theme_set(theme_minimal())
-
-
-theme_set(theme_minimal())
-theme_update(
-  axis.title=element_text(size = 14),
-  axis.text = element_text(size = 14),
-  legend.text = element_text(size = 14),
-  legend.title = element_text(size = 14),
-)
 
 setFixest_fml(
   ..endog = ~has_sa_inflows,
@@ -33,14 +23,6 @@ titles <- list(
   "has_investments" = "P(payment into investment funds)"
 )
 
-# Figure color scheme
-# palette <- pal_d3("category20c")(5) # ggsci
-palette <- brewer.pal(5, name = "Paired") # RColorBrewer
-# palette <- wes_palette("IsleofDogs1") # wesanderson
-# palette <- tableau_color_pal('Tableau 10')(5) # ggthemes
-# palette <- ggthemr('camouflage', set_theme = FALSE)$palette$swatch # ggthemr
-options(ggplot2.discrete.colour = palette)
-options(ggplot2.discrete.fill = palette)
 
 # Why does sign flip? -------------------------------------------------------------
 
@@ -65,7 +47,8 @@ d <- df %>%
     std_tag_q = ntile(std_tag, 5),
     txns_count_spend_q = ntile(txns_count_spend, 5),
     entropy_tag_pct = ntile(entropy_tag, 100),
-    entropy_tag_s_pct = ntile(entropy_tag_s, 100)
+    entropy_tag_s_pct = ntile(entropy_tag_s, 100),
+    nunique_tag_lab = paste("Unique categories:", nunique_tag)
   )
 
 facet_var <- c("ps_std_q", "txns_count_spend_q", "std_tag_q")
@@ -76,7 +59,7 @@ for (v in facet_var) {
     ggplot(aes(entropy_tag_pct, entropy_tag_s_pct, colour=factor(.data[[v]]))) + 
     geom_point() +
     geom_smooth(method = "lm", se = FALSE, colour = "white", size=1) +
-    facet_wrap(~nunique_tag) +
+    facet_wrap(~nunique_tag_lab, nrow = 2) +
     labs(
       x = varlabs[["entropy_tag_pct"]],
       y = varlabs[["entropy_tag_s_pct"]],
@@ -85,74 +68,62 @@ for (v in facet_var) {
     theme(
       legend.position = "top"
     )
-
   fn <- glue("scatter_facet_{v}.pdf")
   ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
 }
+
 g
 
 
-# dev
+# dev tag_spend
 
-k <- d 
-k$nunique_tag_lab
+p <- "^ct_tag_spend"
+d <- df %>% 
+  sample_frac(0.1) %>%
+  rowwise() %>% 
+  mutate(
+    across(matches(p, perl = T), ~(.x + 1) / (txns_count_spend + 9), .names = "ps_{col}"),
+    across(matches(p, perl = T), ~.x / txns_count_spend, .names = "p_{col}"),
+    ps_std = sd(c_across(starts_with("ps_"))),
+    p_std = sd(c_across(starts_with("p_"))),
+  ) %>% 
+  ungroup() %>% 
+  mutate(
+    p_std_q = ntile(p_std, 5),
+    ps_std_q = ntile(ps_std, 5),
+    std_tag_spend_q = ntile(std_tag_spend, 5),
+    txns_count_spend_q = ntile(txns_count_spend, 5),
+    entropy_tag_spend_pct = ntile(entropy_tag_spend, 100),
+    entropy_tag_spend_s_pct = ntile(entropy_tag_spend_s, 100),
+    nunique_tag_spend_lab = paste("Unique categories:", nunique_tag_spend)
+  ) %>% 
+  arrange(as.integer(nunique_tag_spend))
 
-facet_var <- c("std_tag_q")
+
+facet_var <- c("ps_std_q", "txns_count_spend_q", "std_tag_q")
+facet_var <- c("std_tag_spend_q")
 
 for (v in facet_var) {
-  g <- k %>%
-    ggplot(aes(entropy_tag_pct, entropy_tag_s_pct, colour=factor(.data[[v]]))) + 
-    geom_point(alpha=1) +
-    geom_smooth(method = "lm", se = FALSE, colour = "white", size=1) +
-    facet_wrap(~nunique_tag)
-  print(g)
-}
-
-
-d
-
-
-# Controlling for components regressions ----------------------------
-
-lab <- "comp"
-yvars <- c("has_inflows")
-evars <- c("entropy_tag_spend_z", "entropy_tag_spend_sz")
-for (y in yvars) {
-  results <- list()
-  for (e in evars) {
-    results[[e]] <- feols(.[y] ~ .[e] + sw0(..comps) + ..controls | ..fe, df)
-  }
   print(
-    etable(
-      results[[1]], results[[2]],
-      title = glue('Controlling for entropy components'),
-      order = c('[Ee]ntropy', "Unique", "Category counts", "Number of")
-      # ,
-      # tex = T,
-      # fontsize = 'tiny',
-      # file=file.path(TABDIR, glue('reg_{y}_{lab}.tex')),
-      # label = glue('tab:reg_{y}_{lab}'),
-      # replace = T
+    d %>% 
+    ggplot(aes(entropy_tag_spend_pct, entropy_tag_spend_s_pct, colour=factor(.data[[v]]))) + 
+    geom_point() +
+    geom_smooth(method = "lm", se = FALSE, colour = "white", size=1) +
+    facet_wrap(~nunique_tag_spend_lab) +
+    labs(
+      x = varlabs[["entropy_tag_pct"]],
+      y = varlabs[["entropy_tag_s_pct"]],
+      colour = unname(TeX(varlabs[[v]]))
+    ) +
+    theme(
+      legend.position = "top"
     )
+  # fn <- glue("scatter_facet_{v}.pdf")
+  # ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
   )
 }
 
-# Entropy as dependent variables
-lab <- "comp_only"
-evars <- c("entropy_tag_spend_z", "entropy_tag_spend_sz")
-print(
-  etable(
-    feols(.[evars] ~ ..comps | sw0(..fe), df),
-    title = glue('Disaggregating entropy into components'),
-    order = c('!(Intercept)', "Unique", "Category counts", "Number of"),
-    headers=list("Entropy (48 cats)"=2, "Entropy (48 cats, smooth)"=2),
-    tex = T,
-    fontsize = 'tiny',
-    file=file.path(TABDIR, glue('reg_{lab}.tex')),
-    label = glue('tab:reg_{lab}'),
-    replace = T
-  )
-)
+
 
 
 # Entropy components --------------------------------------------------------------
