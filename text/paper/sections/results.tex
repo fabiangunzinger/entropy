@@ -3,13 +3,18 @@
 \section{Spending profiles predict emergency savings}%
 \label{sec:results}
 
-Table~\ref{tab:main} shows the effect of entropy on the
-probability of building emergency savings in a given month. Columns (1)-(3)
-show results for unsmoothed entropy based on 9 categories, 48 categories, and
-merchant names, respectively. Columns (4)-(6) results for smoothed entropy
-based on the same variables. All models include user and year-month fixed
-effects, and standard errors are clustered at the user-level. 95\% confidence
-intervals are shown in brakets.
+Table~\ref{tab:main} shows the effect of entropy on the probability of building
+emergency savings in a given month. Columns (1)-(3) show results for unsmoothed
+entropy based on 9 categories, 48 categories, and merchant names, respectively.
+Columns (4)-(6) show results for smoothed entropy based on the same variables.
+All models include user and year-month fixed effects, and standard errors are
+clustered at the user-level. 95\% confidence intervals are shown in
+brackets.\footnote{In line with an emerging consensus for how to avoid
+    over-reliance on statistical significance, we deliberately do not show
+    significance stars in our regression tables and instead emphasise the
+    implications of the bounds of the confidence intervals when discussing our
+    results. For two recent discussions, see \citet{imbens2021statistical,
+romer2020praise}.}
 
 \begin{table}[ht]
 \centering\tiny
@@ -22,15 +27,30 @@ intervals are shown in brakets.
 given period. \regtabinfo}
 \end{table}
 
-Results for unsmoothed entropy suggest that a one unit increase in entropy is
-associated with an increase in the probability of a user making at least one
-transfer into their savings accounts of between 1.1 and 2.3 percentage points
--- an effect up to two times larger than that of a \pounds1000 increase in
-monthly income. Conversely, the effect for unsmooth entropy tends to be
-somewhat smaller in magnitude but runs in the reverse direction: a one-unit
-increase in the smoothed entropy score is associated with a reduction in the
-probability of transferring money into savings account of between 0.4 and 1.7
-percentage points.
+Results for unsmoothed entropy suggest that a one unit increase in spending
+entropy is associated with an increase in the probability of a user making at
+least one transfer into their savings accounts of between 1.1 and 2.3
+percentage points -- an effect equal to an increase in monthly income of
+between \pounds1000 and \pounds2000. Combined, the results in the three columns
+present very strong evidence that entropy captures something about users's
+spending distribution that is related to their likelihood for making payments
+into their savings accounts. Furthermore, entropy variables defined based on a
+larger number of unique categories, that allow for a more precise segmentation
+of spending behaviour, capture features of spending behaviour that are as
+strongly or more strongly related to savings behaviour as monthly income.
+
+The results for smoothed entropy are similar but a tend to be smaller in
+magnitude, and -- together -- also provide strong evidence that smoothed
+entropy captures features of spending behaviour that is related to savings
+behaviour in a statistically significant and economically relevant way. The
+main difference to the results for unsmoothed entropy is the reversal of the
+sign of the coefficients: across all three measures, an increase in entropy is
+estimated to be associated with a decrease in the likelihood of any savings
+transactions. The effect of the measure based on 9 categories is not
+meaningfully different from zero, but the estimates for the measures based on
+48 categories and merchants are almost identical and suggest that the magnitude
+of the effect is between 1.2 and 2.1 percentage points -- equalling the effect
+of a reduction of monthly income of between \pounds1000 and \pounds2000.
 
 As discussed in Section~\ref{sub:estimation}, these results are not a results
 of reverse causality. While we might think that making a savings transactions
@@ -201,7 +221,7 @@ solely based on the components.
 
 \begin{landscape}
 \begin{table}[ht]
-\centering\footnotesize
+\centering\scriptsize
 \caption{Controlling for components}
 \label{tab:components}
 \input{\tabdir/reg_has_inflows_comp.tex}
@@ -242,4 +262,6 @@ significant and their confidence intervals cover values that are also
 economically significant. Hence, the results make clear that the results in
 Table~\ref{tab:main} cannot be attributed simply to the effect of one or more
 of entropy's simple components.
+
+
 
