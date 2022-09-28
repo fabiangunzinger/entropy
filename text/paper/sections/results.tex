@@ -16,17 +16,6 @@ brackets.\footnote{In line with an emerging consensus for how to avoid
     results. For two recent discussions, see \citet{imbens2021statistical,
 romer2020praise}.}
 
-\begin{table}[ht]
-\centering\tiny
-\caption{Effect of entropy on P(savings transactions)}
-\label{tab:main}
-\input{\tabdir/reg_has_inflows_main.tex}
-\tabnote{.95\textwidth}{Results from estimating Equation~\ref{equ:model}. The
-    dependent variable in all columns is a dummy variable indicating whether a
-    user made at least one transaction into any of their savings accounts in a
-given period. \regtabinfo}
-\end{table}
-
 Results for unsmoothed entropy suggest that a one standard-deviation increase
 in spending entropy is associated with an increase in the probability of a user
 making at least one transfer into their savings accounts of between 1.1 and 2.3
@@ -51,6 +40,22 @@ meaningfully different from zero, but the estimates for the measures based on
 48 categories and merchants are almost identical and suggest that the magnitude
 of the effect is between 1.2 and 2.1 percentage points -- equalling the effect
 of a reduction of monthly income of between \pounds1000 and \pounds2000.
+
+\begin{landscape}
+    \begin{table}[ht]
+        \centering\scriptsize
+        \caption{Effect of entropy on P(savings transactions)}
+        \label{tab:main}
+        \input{\tabdir/reg_has_inflows_main.tex}
+        \tabnote{.95\textwidth}{Results from estimating
+            Equation~\ref{equ:model}. The
+                dependent variable in all columns is a dummy variable
+                indicating whether a
+                    user made at least one transaction into any of their
+                    savings accounts in a
+                given period. \regtabinfo}
+    \end{table}
+\end{landscape}
 
 As discussed in Section~\ref{sub:estimation}, these results are not a results
 of reverse causality. While we might think that making a savings transactions

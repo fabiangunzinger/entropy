@@ -26,8 +26,9 @@ similar to thos presented above.
 
 \def\yvars{has_inflows}
 \foreach \y in \yvars {
+    \begin{landscape}
     \begin{table}[ht]
-    \centering\tiny
+    \centering\scriptsize
     \caption{Effect of lagged entropy on P(savings transactions)}
     \label{tab:main_lag}
     \input{\tabdir/reg_\y_lag.tex}
@@ -36,6 +37,7 @@ similar to thos presented above.
         user made at least one transaction into any of their savings accounts in a
     given period. Entropy variables are lagged by one period. \regtabinfo}
     \end{table}
+    \end{landscape}
 }
 
 

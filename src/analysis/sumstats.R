@@ -11,6 +11,8 @@ source('./src/helpers/helpers.R')
 
 df = read_analysis_data()
 
+names(df)
+
 vars <- c(
   "^has_inflows$",
   "^month_spend$",
@@ -22,7 +24,7 @@ vars <- c(
   "^has_inflows$",
   "^nunique_tag_spend$",
   "^nunique_tag$",
-  "^nunique_merchant$"
+  "^nunique_merchant$",
 )
 
 varlabs <- c(
@@ -35,7 +37,7 @@ varlabs <- c(
   "Urban",  
   "Unique categories (9)",
   "Unique categories (48)",
-  "Unique categories (Merchants)"
+  "Unique categories (Merch.)"
 )
 
 

@@ -29,7 +29,9 @@ varlabs <- c(
   entropy_tag_s = "Entropy (9 cats, smooth)",
   entropy_tag_spend = "Entropy (48 cats)",
   entropy_tag_spend_s = "Entropy (48 cats, smooth)",
-
+  entropy_merchant = "Entropy (merchant)",
+  entropy_merchant_s = "Entropy (merchant, smooth)",
+  
   entropy_tag_pct = "Entropy percentile (9 cats)",
   entropy_tag_s_pct = "Entropy percentile (9 cats, smooth)",
   entropy_tag_spend_pct = "Entropy percentile (48 cats)",

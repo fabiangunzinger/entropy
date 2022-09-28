@@ -28,14 +28,12 @@ theme_update(
 
 # theme_update(plot.caption = element_text(hjust = 0), plot.tag = element_text(size = 8))
 
+
+# test readers
 dfa <- read_analysis_data()
-dfu <- read_final_users_data(dfa) 
+dft <- read_txn_data()
+dfs <- read_txn_sample(dfa) 
 
-dfu %>% 
-  filter(tag_group == "spend", is_debit == TRUE)
-
-#tmp
-dt <- DT(dfu)
 
 
 num_txns <- 'Number of spend transactions'

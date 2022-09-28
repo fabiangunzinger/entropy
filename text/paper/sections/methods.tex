@@ -23,7 +23,7 @@ unaffected by biases that bedevil survey measures, and that it offers a view of
 consumers' entire financial life across all their accounts, rather than just a
 view of their accounts held at a single bank, provided they added all their
 accounts to MDB. The main limitation is the non-representativeness of the
-sample relative to the population as a whole.  Financial management apps are
+sample relative to the population as a whole. Financial management apps are
 known to be used disproportionally by men, younger people, and people of higher
 socioeconomic status \citep{carlin2019generational}. Also, as pointed out in
 \citet{gelman2014harnessing}, a willingness to share financial information with
@@ -32,10 +32,50 @@ for an increased need for financial management or a higher degree of financial
 sophistication. Because our analysis does not rely on representativeness, we do
 not address this.\footnote{For an example of how re-weighing can be used to
 mitigate the non-representative issue, see \citet{bourquin2020effects}.}
+Another major limitation is imperfect transaction labelling. Money Dasbhoard
+automatically classifies transaction into different categories based on
+transaction descriptions and merchant information. While this classification is
+quite mature and reliable for transactions with major retailers, it is
+imprecise and at times incorrect for less common transactions. We discuss this
+further in the next section.
 
 
 \subsection{Preprocessing and sample selection}%
 \label{par:preprocessing_and_sample_selection}
+
+We use the dataset described above for a number of projects, and perform a
+number of steps to create a minimally cleaned version of the dataset that is
+the basis for all such projects. These steps are performed in a dedicated data
+repository and not run as part of this project.\footnote{The module with all
+cleaning functions is available on
+\href{https://github.com/fabiangunzinger/entropy/blob/27a210e2f42dfe23a867dbc20c8ef3253d050aaa/src/data/clean.py}{Github}.}
+Here, we briefly describe the main cleaning steps and their rationale. We drop
+all transactions with a missing description string because these cannot be
+categoriesed, and all transactions that are not automatically categoriesed by
+the app. Dropping these transactions makes it likely that we will underestimate
+amounts spent and saved, but minimises the risk of incorrectly classified
+transactions. We also group transactions into transfer, spend, and income
+subgroups, following \citet{muggleton2020evidence} to define spend subgroups
+and \citet{hacioglu2021distributional} to define income subgroups.\footnote{
+The precise list used to classify transactions is available on
+\href{https://github.com/fabiangunzinger/entropy/blob/27a210e2f42dfe23a867dbc20c8ef3253d050aaa/src/data/txn_classifications.py}{Github}.}
+Finally, we classify as duplicates and drop transactions with identical user ID,
+account ID, date, amount, and transaction description. This will drop some
+genuine transactions, such as when a user buys two identical cups of coffees at
+the same coffee shop on the same day. However, data inspection suggests that in
+most cases, we remove genuine duplicates.
+
+To minimise the influence of outliers, we winsorise all variables at the 1
+percent level or -- if we winsorise on both ends of the distribution -- at the
+0.5 percent level.\footnote{The code that performs the winsorisation are
+    available on
+\href{https://github.com/fabiangunzinger/entropy/blob/27a210e2f42dfe23a867dbc20c8ef3253d050aaa/src/data/transformers.py}{Github}.}
+We rely on winsorisation (replacing top values with percentile values) instead
+of trimming (replacing top values with missing values) because data inspection
+suggests that in most cases, very large (absolute) values are not the result of
+data errors, which would call for trimming, but reflect genuine outcomes, which
+makes winsorising appropriate because it leaves these observations in the data
+while lowering their leverage to influence results.
 
 The overall aim of sample selection is to restrict our sample to users for whom
 we can observe a regular income, can be reasonably sure that they have added
@@ -44,10 +84,10 @@ data. Table~\ref{tab:selection} summarises the sample selection steps we
 applied, associated data losses, and the size of our final sample.
 
 \begin{table}[ht]
-\centering\small
+\centering\footnotesize
 \caption{Sample selection}\label{tab:selection}
 \input{\tabdir/sample_selection.tex}
-\tabnote{.95\textwidth}{Number of users, user-months, transactions, and
+\tabnote{\textwidth}{Number of users, user-months, transactions, and
 transaction volume in millions of British Pounds left in our sample after each
 sample selection step.}
 \end{table}
@@ -70,13 +110,6 @@ fianncial objectives than people in their working age, which is the population
 we are interested about.\footnote{The code that implements the selection
 criteria is available on
 \href{https://github.com/fabiangunzinger/entropy/blob/c49c9c34c96d073725afd3a1494458a388d00051/src/data/selectors.py}{Github}.}
-
-It is clear from the reduction in the number of users from more than 270,000 to
-about 14,500 that these selection steps are restrictive. Given our aim in this
-study, however, it is crucial that we can be reasonably sure that we observe
-users' entire spending and savings transactions, so that the stringent criteria
-are worth it. Also, size of the remaining sample is still sufficiently large
-for our puposes.
 
 
 \subsection{Dependent variables}
@@ -138,7 +171,7 @@ Equation~\ref{equ:entropy}, see Appendix~\ref{sec:interpreting_entropy}.} For
 simpler interpretation of our regression coefficients below, we standardise
 entropy scores to have a mean of 0 and a standard deviation of 1.
 
-One slight limitation introduced by the imperfect transaction labelling in the
+One limitation introduced by the imperfect transaction labelling in the
 MDB data is that entropy scores for high-entropy individuals will be biased
 downwards. This happens because unlabelled transactions tend to be transactions
 that are rare (i.e. not grocery or Amazon purchases), and it is high-entropy
@@ -188,59 +221,34 @@ unsmoothed probabilities. Because categories with a zero transaction count will
 have a numerator of 1, the sum in Equation~\ref{equ:entropy} will be taken over
 all categories.
 
-To see how we can interpret entropy as the predictability of a user's spending
-behaviour, it is useful to have a more complete understanding of
-Equation~\ref{equ:entropy}. The building blocks of entropy is the information
-content of a single event. The key intuition \citet{shannon1948mathematical}
-aimed to capture was that learning of the occurrence of a low-probability event
-is more informative than learning of the occurrence of a high-probability
-event. The information of an event $I(E)$ is thus inversely proportional to is
-probability $p(E)$. One way to capture this would be to define the information
-of event E as $I(E) = \frac{1}{p(E)}$. Yet this implied that an event that is
-certain to occur had information 1, when it would make sense to have
-information 0. To remedy this (and also satisfy additional desireable
-characteristics of an information function), Shannon proposed using the log of
-the expression. Hence, the information of event E, often called \textit{Shannon
-information}, \textit{self-information}, or just \textit{information}, is
-defined as:
-
-\begin{equation}
-    I(E) = log\left(\frac{1}{p(E)}\right) = -log(p(E)).
-\end{equation}
-
-The choice of the base for the logarithm varies by application and determines
-the units: base 2 means that information is expressed in bits; the natural
-logarithm, another popular choice, expresses information in \textit{nats}.
-
-Entropy, often called \textit{Information entropy}, \textit{Shannon entropy},
-or just \textit{entropy}, is the information of a random variable, $X$, and
-captures the expected amount of information of an event drawn at random from
-the probability distribution of the random variable. It is calcualted as:
-
-\begin{equation}
-    H(X) = -\sum_x p(x) \times log(p(x)) = \sum_x p(x)I(x) = \mathbb{E} I(x).
-\end{equation}
-
-For a single event, the key intution was that the less likely an event, the
-more information is conveyed when it occurs. The related idea for distributions
-is similar: the less skewed a distribution of a random variable, the less
-certain the realised value of a single draw from the distribution, the higher
-is entropy - the maximum entropy distribution is the uniform distribution.
 
 \subsection{Summary statistics}%
 \label{par:summary_statistics}
 
-Table~\ref{tab:sumstats} provides summary statistics.
+Table~\ref{tab:sumstats} provides summary statistics and
+Figure~\ref{fig:sample_desc} distributions for the key variables used in our
+analysis as well as for some sample demographics. Income and spending
+distributions are being compared to those of the Living Cost and Food
+Survey, which is the ONS's main survey on household spending. We can see that
+the sample distributions broadly match the UK-wide ones but that we tend to
+underestimate incomes and overestimate spend. As discussed above, our sample is
+biased towards high-earning individuals, so that we would expect both income
+and spend to be higher than across the whole population. The main reason this
+is not the case is likely due to the imperfect identification of income
+transactions in the Money Dasbhoard data.
 
 \begin{table}[ht]
 \centering\scriptsize
 \caption{Summary statistics}
 \label{tab:sumstats}
 \input{\tabdir/sumstats.tex}
+\tabnote{\textwidth}{Summary statistics for main variables used in analysis and
+    user characteristics. Unique categories refer to the number of distinct
+    spending categories that invididuals made purchases in within a given
+    month for spending transaction categorisation based on 9 categories, 48
+categories, and merchant names.}
 \end{table}
 
-
-Figure~\ref{fig:sample_desc} shows sample characteristics.
 \begin{figure}[ht]
     \centering
     \caption{Demographic characteristics of Money Dashboard users}
@@ -256,11 +264,70 @@ Figure~\ref{fig:sample_desc} shows sample characteristics.
         distribution of age, the bottom right panel that of the regions.}%
 \end{figure}
 
+Individuals in our data make at least one savings transaction in half of all
+observed periods, and have at least some income in 98 percent of those periods.
+As discussed above, our sample is skewed towards men in their 20s, 30s, and
+40s, who live in urban areas, mainly the South East of England. Mean monthly
+spend is \pounds2,000 and the median is \pounds2,200, and the average
+invididual spends money across 27 different merchants in 16 different
+categories (of the 48 category classification).
+
+\begin{figure}[ht] \centering \caption{Entropy distributions}
+    \label{fig:entropy}
+    \includegraphics[width=.49\textwidth]{\figdir/entropy_tag.pdf}
+    \includegraphics[width=.49\textwidth]{\figdir/entropy_tag_spend.pdf}
+    \includegraphics[width=.49\textwidth]{\figdir/spend_profile_tag.pdf}
+    \includegraphics[width=.49\textwidth]{\figdir/spend_profile_tag_spend.pdf}
+    \includegraphics[width=.49\textwidth]{\figdir/breakdown_tag.pdf}
+    \includegraphics[width=.49\textwidth]{\figdir/breakdown_tag_spend.pdf}
+    \fignote{\textwidth}{The top row shows distributions of unsmoothed and
+        smoothed versions of entropy. The middle row shows associated spending
+        profiles for individuals in the first, third, and fifth quintile of tne
+        entropy distribution. Spending category labels are deliberately omitted
+        to not overcrowd the plots and to focus on the distribution of
+        transaction counts. The bottom row shows the distributions of spend and
+        number of transactions that goes to the top categories. The plot on the
+        left shows all 9 categories, that on the right the top 15 out of 48
+        categories. The left column shows data for the 9 category
+        classification, the right column data for the 48 categories
+classification.}
+\end{figure}
+
+Figure~\ref{fig:entropy} shows the distributions of the unsmoothed and smoothed
+version of entropy based on 9 and 48 spending categories, in the top row, the
+associated average spending profiles for individuals in the first, third and
+fifth quintiles in the middle row, and an overview of the main categories
+individuals spend on in the bottom row. The entropy distributions are bounded
+on the right by the maximum entropy value, given by the value for a discrete
+uniform distribution with 9 or 48 distinct values,\footnote{For instance, the
+upper bound for the 9 category variable is $9 \times
+\left(\frac{1}{9}\right)log_2\left(\frac{1}{9}\right) \approx 3.17$.} and on
+the left by zero, the value for cases where an individual makes all spending
+transactions in a single category. The different effect of smoothing on the two
+variables is a result of the different number of categories with counts of
+zero.
+
+The spending profiles in the middle row show that higher entropy individuals
+make both fewer transactions in high-count categories and more transactions in
+low-count categories. The spend profile based on the 48 category classification
+also shows that spend counts follow approximately a power law distributions,
+with very few of the 48 categories accounting for the large majority of
+transactions.
+
+The relative ordering of the top spending categories based on the 48 category
+classification is about as expected, as are the relationship between the number
+of transactions and spend: there are, for instance, a large number of
+relatively low value transactions and meals eaten out (which includes snacks
+and coffee) and a very small number of high value transactions for housing. The
+proportion of spend that goes towards housing, less than 10\%, is clearly an
+underestimate, however, and reflects the challenge and imperfect nature of
+automatic transaction labelling in our data that we discussed above.
 
 \subsection{Estimation}%
 \label{sub:estimation}
 
-We estimate models of the form: 
+To estimate the relationship between spending entropy and savings behaviour we
+estimate fixed-effect models of the form: 
 
 \begin{equation}
     \label{equ:model}
@@ -268,11 +335,12 @@ We estimate models of the form:
     \epsilon_{i,t},
 \end{equation}
 
-\noindent where $y_{i,t}$ is an indicator variable equal to one if individual $i$ made
-one or more transfers to any of their savings account in year-month period $t$ and zero
-otherwise, $H_{it}$ is $i$'s spending entropy in year-month period $t$, $x_{i,t}$ a vector
-of control variables, $\alpha_i$ an individual fixed effect, $\lambda_t$ a
-year-month fixed effect, and $\epsilon_{i, t}$ the error term.
+\noindent where $y_{i,t}$ is an indicator variable equal to one if individual
+$i$ made at least one transfers to any of their savings account in year-month
+period $t$ and zero otherwise, $H_{it}$ is $i$'s spending entropy in year-month
+period $t$, $x_{i,t}$ a vector of control variables, $\alpha_i$ an individual
+fixed effect, $\lambda_t$ a year-month fixed effect, and $\epsilon_{i, t}$ the
+error term.
 
 The vector of controls includes month spend, month income, an indicator for
 whether a user had positive income in a given month, and income
