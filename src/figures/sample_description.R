@@ -96,8 +96,6 @@ df %>%
 ggsave(file.path(FIGDIR, fn), height = 10, width = 20, units = "cm")
 
 
-
-
 entropy_density <- function(data, varname) {
   data %>% 
     select(matches(glue("^{varname}(_s)?$"))) %>%
@@ -153,7 +151,7 @@ taglabs <- c(
   tag_spend_holidays = "Holidays"
 )
 
-ylabs <- list(
+spendlabs <- list(
   tag = "Spending category (9)",
   tag_spend = "Spending category (48)"
 )
@@ -183,7 +181,7 @@ spend_breakdown <- function(data, varname) {
     scale_x_continuous(labels = scales::percent) +
     labs(
       x = "Percentage of monthly spend/number of txns",
-      y = ylabs[[varname]]
+      y = spendlabs[[varname]]
     ) +
     theme(legend.title = element_blank(), legend.position = c(0.9, 0.1))
 }
@@ -211,7 +209,7 @@ spend_profile <- function(data, varname) {
     ggplot(aes(reorder(name, desc(value)), value, fill = q)) +
     geom_bar(stat = "identity", position = "dodge") +
     labs(
-      x = "Spending category",
+      x = spendlabs[[varname]],
       y = "Average number of transactions",
       fill = "Entropy\nquintile"
       ) +

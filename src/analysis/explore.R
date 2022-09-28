@@ -18,28 +18,17 @@ setFixest_fml(
 )
 
 
-titles <- list(
-  "has_inflows" = "P(payment into savings accounts)",
-  "has_investments" = "P(payment into investment funds)"
-)
 
-
-# Why does sign flip? -------------------------------------------------------------
-
-# Some low entropy users get turned into high entropy users when smoothed
-# It's because they have a lot of zero counts
-# What determines whether low pos count gets turned into high entropy - the variation in probs
 
 p <- "^ct_tag_(?!spend)"
 d <- df %>% 
-  sample_frac(0.1) %>%
   rowwise() %>% 
   mutate(
     across(matches(p, perl = T), ~(.x + 1) / (txns_count_spend + 9), .names = "ps_{col}"),
     across(matches(p, perl = T), ~.x / txns_count_spend, .names = "p_{col}"),
     ps_std = sd(c_across(starts_with("ps_"))),
     p_std = sd(c_across(starts_with("p_"))),
-    ) %>% 
+  ) %>% 
   ungroup() %>% 
   mutate(
     p_std_q = ntile(p_std, 5),
@@ -51,13 +40,27 @@ d <- df %>%
     nunique_tag_lab = paste("Unique categories:", nunique_tag)
   )
 
-facet_var <- c("ps_std_q", "txns_count_spend_q", "std_tag_q")
+
+
+
+
+
+# Why does sign flip? -------------------------------------------------------------
+
+# Some low entropy users get turned into high entropy users when smoothed
+# It's because they have a lot of zero counts
+# What determines whether low pos count gets turned into high entropy - the variation in probs
+
+
+# facet_var <- c("ps_std_q", "txns_count_spend_q", "std_tag_q")
+facet_var <- c("std_tag_q")
 
 for (v in facet_var) {
   print(v)
   g <- d %>% 
+    sample_frac(0.1) %>% 
     ggplot(aes(entropy_tag_pct, entropy_tag_s_pct, colour=factor(.data[[v]]))) + 
-    geom_point() +
+    geom_point(alpha = 0.7) +
     geom_smooth(method = "lm", se = FALSE, colour = "white", size=1) +
     facet_wrap(~nunique_tag_lab, nrow = 2) +
     labs(
@@ -71,8 +74,6 @@ for (v in facet_var) {
   fn <- glue("scatter_facet_{v}.pdf")
   ggsave(file.path(FIGDIR, fn), height = 2000, width = 3000, units = "px")
 }
-
-g
 
 
 # dev tag_spend
@@ -291,3 +292,50 @@ for (y in yvars) {
     )
   )
 }
+
+
+# Rank differences ----------------------------------------------------------------
+
+
+k <- d %>% 
+  sample_frac(0.01) %>% 
+  mutate(
+    rdiff = abs(entropy_tag_pct - entropy_tag_s_pct),
+    rdiff_q = ntile(rdiff, 5)) %>% 
+  select(user_id, rdiff, rdiff_q, matches("^ct_tag_spend", perl = T))
+
+k %>% 
+  filter(rdiff_q == 1) %>% 
+  sample_n(5) %>% 
+  pivot_longer(matches("^ct_tag_spend", perl = T)) %>% 
+  ggplot(aes(name, value)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~user_id, nrow = 1) +
+  theme(axis.text.x = element_blank())
+
+k %>% 
+  filter(rdiff_q == 5) %>% 
+  sample_n(5) %>% 
+  pivot_longer(matches("^ct_tag_spend", perl = T)) %>% 
+  ggplot(aes(name, value)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~user_id, nrow = 1) +
+  theme(axis.text.x = element_blank())
+
+
+kk <- k %>% 
+  group_by(rdiff_q) %>% 
+  summarise(across(everything(), mean))
+
+kk %>% 
+  pivot_longer(matches("^ct_tag_spend", perl = T)) %>% 
+  ggplot(aes(name, value)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~rdiff_q, nrow = 1) +
+  theme(axis.text.x = element_blank())
+
+
+kk %>% summary()
+
+kk
+

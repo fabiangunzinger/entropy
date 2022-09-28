@@ -1,3 +1,40 @@
+\subsection{Endogeneity}%
+\label{sub:endogeneity}
+
+As discussed in Section~\ref{sub:estimation}, one concern one might have about
+our results in Section~\ref{sec:results} is reverse causality:
+transferring money into savings accounts might change the distribution of spend
+categories and thus change entropy. As noted previously, this is not a major
+concern because of the way we calculate savings and spend profiles: savings are
+calculated as the sum of inflows into savings accounts, while spend profiles
+are based on the classification of spend transactions in current accounts, and
+transfers from current to savings accounts are labelled as such and not treated
+as spend transactions.
+
+However, because transaction labelling is imperfect, it is possible that some
+transfers are misclassified as spends and included in the calculation of
+entropy scores. One way to deal with this is to lag entropy scores by one
+period. Table~\ref{tab:main_lag} presents results similar to the main
+results in the main text, but using entropy lagged by one year-month period as
+the independent variable of interest. We can see that the results are very
+similar to thos presented above.
+
+\def\yvars{has_inflows}
+\foreach \y in \yvars {
+    \begin{landscape}
+    \begin{table}[ht]
+    \centering\scriptsize
+    \caption{Effect of lagged entropy on P(savings transactions)}
+    \label{tab:main_lag}
+    \input{\tabdir/reg_\y_lag.tex}
+    \tabnote{.95\textwidth}{Results from estimating Equation~\ref{equ:model}. The
+        dependent variable in all columns is a dummy variable indicating whether a
+        user made at least one transaction into any of their savings accounts in a
+    given period. Entropy variables are lagged by one period. \regtabinfo}
+    \end{table}
+    \end{landscape}
+}
+
 \subsection{Further results by financial resilience}%
 \label{sub:results_by_financial_resilience}
 

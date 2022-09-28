@@ -30,7 +30,7 @@ vars <- c(
 varlabs <- c(
   "Month income",
   "Has income in month",
-  "Has savings",
+  "Makes savings txns.",
   "Month spend",
   "Age",  
   "Female",

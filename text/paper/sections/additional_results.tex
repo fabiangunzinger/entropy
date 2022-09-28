@@ -3,46 +3,18 @@
 \section{Additional results}%
 \label{sec:additional_results}
 
-\subsection{Endogeneity}%
-\label{sub:endogeneity}
-
-As discussed in Section~\ref{sub:estimation}, one concern one might have about
-our results in Section~\ref{sec:results} is reverse causality:
-transferring money into savings accounts might change the distribution of spend
-categories and thus change entropy. As noted previously, this is not a major
-concern because of the way we calculate savings and spend profiles: savings are
-calculated as the sum of inflows into savings accounts, while spend profiles
-are based on the classification of spend transactions in current accounts, and
-transfers from current to savings accounts are labelled as such and not treated
-as spend transactions.
-
-However, because transaction labelling is imperfect, it is possible that some
-transfers are misclassified as spends and included in the calculation of
-entropy scores. One way to deal with this is to lag entropy scores by one
-period. Table~\ref{tab:main_lag} presents results similar to the main
-results in the main text, but using entropy lagged by one year-month period as
-the independent variable of interest. We can see that the results are very
-similar to thos presented above.
-
-\def\yvars{has_inflows}
-\foreach \y in \yvars {
-    \begin{landscape}
-    \begin{table}[ht]
-    \centering\scriptsize
-    \caption{Effect of lagged entropy on P(savings transactions)}
-    \label{tab:main_lag}
-    \input{\tabdir/reg_\y_lag.tex}
-    \tabnote{.95\textwidth}{Results from estimating Equation~\ref{equ:model}. The
-        dependent variable in all columns is a dummy variable indicating whether a
-        user made at least one transaction into any of their savings accounts in a
-    given period. Entropy variables are lagged by one period. \regtabinfo}
-    \end{table}
-    \end{landscape}
-}
-
-
 \subsection{Entropy components}%
 \label{sub:entropy_components}
+
+Figure~\ref{fig:entropy_components} shows the empirical relationship with our
+48-categories-based unsmoothed entropy variable and these three
+components.\footnote{To highlight the main features of the relationships we
+have trimmed the component values at the 95th percentile.} We can see that for
+the values we observe in the dataset, entropy increases monotonically in the
+number of unique spending categories with positive frequency counts, has no
+clear relationship with the standard deviation of those counts, and increases
+in the number of total spending transactions up to about 175 transaction,
+before being increasingly determined by other elements thereafter.
 
 \begin{figure}[ht]
     \centering 
@@ -57,18 +29,7 @@ with positive frequency counts (left), the standard deviation of those
 frequency counts (middle), and the number of total spend transactions (left).}
 \end{figure}
 
-Figure~\ref{fig:entropy_components} shows the empirical relationship with our
-48-categories-based unsmoothed entropy variable and these three
-components.\footnote{To highlight the main features of the relationships we
-have trimmed the component values at the 95th percentile.} We can see that for
-the values we observe in the dataset, entropy increases monotonically in the
-number of unique spending categories with positive frequency counts, has no
-clear relationship with the standard deviation of those counts, and increases
-in the number of total spending transactions up to about 175 transaction,
-before being increasingly determined by other elements thereafter.
-
-
-\subsection{Effect of smothing on entropy (by number of spend quintile)}%
+\subsection{Effect of smoothing on entropy (by number of spend quintile)}%
 \label{sub:effect_of_smothing_on_entropy_by_number_of_spend_quintile_}
 
 \begin{figure}[ht]
