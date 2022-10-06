@@ -198,8 +198,11 @@ different categories.\footnote{The precise mapping from MDB transaction tags
     \href{https://github.com/fabiangunzinger/entropy/blob/7fa9c565bf8959ea92a9d4fe2245da0864e19c27/src/data/txn_classifications.py\#L249}{here}
     and
     \href{https://github.com/fabiangunzinger/entropy/blob/7fa9c565bf8959ea92a9d4fe2245da0864e19c27/src/data/txn_classifications.py\#L503}{here},
-respectively.} The third measure is based on merchant names, as labelled by
-Money Dashboard.
+    respectively. While we group all transaction tags available in the Money
+    Dashboard dataset into 48 categories, there are no ``mortgage release''
+transactions in our final analysis sample, so that, effectively, all
+calculations are based on 47 categories.} The third measure is based on
+merchant names, as labelled by Money Dashboard.
 
 We also calculate spending category probabilities in two different ways. To
 calculate what we call ``unsmoothed'' entropy scores, we calculate the $p_c$s
