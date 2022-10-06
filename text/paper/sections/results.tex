@@ -57,8 +57,8 @@ of a reduction of monthly income of between \pounds1000 and \pounds2000.
     \end{table}
 \end{landscape}
 
-As discussed in Section~\ref{sub:estimation}, these results are not a results
-of reverse causality. While we might think that making a savings transactions
+As discussed in Section~\ref{sub:estimation}, these results are not due to
+reverse causality. While we might think that making a savings transactions
 might change some or all of the components of entropy discussed in
 Section~\ref{sub:spending_profiles} -- the number of unique spending categories
 with positive frequency count, the standard deviation of these counts, and the
@@ -129,7 +129,7 @@ log\left(\frac{1}{F + |\setc|}\right),
 \end{equation}
 
 \noindent where the size of set $\setcz$, $|\setcz|$, is the number of all
-spending categories in which a user makes no transactions in a certain period.
+spending categories in which a user makes no transactions in the period.
 These expressions make clear that, by definition, unsmoothed entropy is a
 function of frequency counts of categories with positive counts only while
 smoothed entropy has two parts: the sum over all additively smoothed frequency
@@ -146,7 +146,7 @@ hand side of Equation~\ref{equ:entropy_s} or -- given that for an exogenously
 fixed $|\setc|$, $|\setcz| = |\setc \backslash \setcp|$ -- to the constant term
 on the right hand side. The second component is the variation of the frequency
 counts, $f_c$, and the third component is the number of total spend
-transactions, $F$. Together, these two elements determine the probabilities
+transactions, $F = \sum_{\setc}f_c$. Together, these two elements determine the probabilities
 associated with a spend transaction occurring in a given category. The number
 of total spending categories, $|\setc|$, also determines smoothed entropy and,
 implicitly, also unsmoothed entropy since it ``scales'' the number of
@@ -208,8 +208,11 @@ cases with the largest rank differences -- those with the furthest vertical
 difference to the reference line -- have low variation in their frequency
 counts. However, it is also clear that the reverse is not true: there are cases
 with low count frequency variation that experience little or even a negative
-rank difference. Hence, while counts variation is some help in identifying
-cases with high entropy rank differences, it does not do so perfectly.
+rank difference. Furthermore, among cases with a higher number of categories
+with positive counts, cases with a very high variation in frequency counts can
+also experience quite large rank differences, albeit in the opposite direction.
+Hence, while counts variation is some help in identifying cases with high
+entropy rank differences, it does not do so perfectly.
 
 One reason the relationship is not perfect is that while cases with few total
 transactions that are evenly spread across a small number of categories will
@@ -245,7 +248,7 @@ by the three simpler components.
 We can test this by checking whether the relationship between spending entropy
 and the probability of making a savings transaction remains economically and
 statistically significant once we control for the three components. Columns (1)
-and (3) in Table~\ref{tab:main} replicate the results for the 48-category-based
+and (3) in Table~\ref{tab:components} replicate the results for the 48-category-based
 unsmoothed and smoothed entropy measures presented in Table~\ref{tab:main} for
 reference. In columns (2) and (4) we additionally control for the three entropy
 components. Including these components has some effect: the coefficients change

@@ -51,19 +51,22 @@ cleaning functions is available on
 \href{https://github.com/fabiangunzinger/entropy/blob/27a210e2f42dfe23a867dbc20c8ef3253d050aaa/src/data/clean.py}{Github}.}
 Here, we briefly describe the main cleaning steps and their rationale. We drop
 all transactions with a missing description string because these cannot be
-categoriesed, and all transactions that are not automatically categoriesed by
-the app. Dropping these transactions makes it likely that we will underestimate
+categorised, and all transactions that are not automatically categorised by the
+app. Dropping these transactions makes it likely that we will underestimate
 amounts spent and saved, but minimises the risk of incorrectly classified
 transactions. We also group transactions into transfer, spend, and income
 subgroups, following \citet{muggleton2020evidence} to define spend subgroups
 and \citet{hacioglu2021distributional} to define income subgroups.\footnote{
 The precise list used to classify transactions is available on
 \href{https://github.com/fabiangunzinger/entropy/blob/27a210e2f42dfe23a867dbc20c8ef3253d050aaa/src/data/txn_classifications.py}{Github}.}
-Finally, we classify as duplicates and drop transactions with identical user ID,
-account ID, date, amount, and transaction description. This will drop some
+Finally, we classify as duplicates and drop transactions with identical user
+ID, account ID, date, amount, and transaction description. This will drop some
 genuine transactions, such as when a user buys two identical cups of coffees at
 the same coffee shop on the same day. However, data inspection suggests that in
-most cases, we remove genuine duplicates.
+most cases, we remove genuine duplicates.\footnote{While standing order
+    transactions into savings accounts are unlikely to be related to entropy in
+    the short-run, we do not exclude such transactions since, best we can tell,
+they only account for a small fraction of total transactions.}
 
 To minimise the influence of outliers, we winsorise all variables at the 1
 percent level or -- if we winsorise on both ends of the distribution -- at the
@@ -72,16 +75,16 @@ percent level or -- if we winsorise on both ends of the distribution -- at the
 \href{https://github.com/fabiangunzinger/entropy/blob/27a210e2f42dfe23a867dbc20c8ef3253d050aaa/src/data/transformers.py}{Github}.}
 We rely on winsorisation (replacing top values with percentile values) instead
 of trimming (replacing top values with missing values) because data inspection
-suggests that in most cases, very large (absolute) values are not the result of
+suggests that, in most cases, very large (absolute) values are not the result of
 data errors, which would call for trimming, but reflect genuine outcomes, which
 makes winsorising appropriate because it leaves these observations in the data
 while lowering their leverage to influence results.
 
-The overall aim of sample selection is to restrict our sample to users for whom
-we can observe a regular income, can be reasonably sure that they have added
-all their bank account to MDB, and for whom we observe at least six months of
-data. Table~\ref{tab:selection} summarises the sample selection steps we
-applied, associated data losses, and the size of our final sample.
+The overall aim of the sample selection is to restrict our sample to users for
+whom we can observe a regular income, can be reasonably sure that they have
+added all their bank accounts to MDB, and for whom we observe at least six
+months of data. Table~\ref{tab:selection} summarises the sample selection steps
+we applied, associated data losses, and the size of our final sample.
 
 \begin{table}[ht]
 \centering\footnotesize
@@ -97,7 +100,7 @@ are unlikely to observe users' complete data in these months, which might
 affect selection for the criteria below. Next, we keep only users whom we
 observe for at least 6 months to ensure that we have a suitable amount of data
 for each user. We also require users to have at least one current and one
-savings accounts to be able to oberve their spending and savings behaviour. The
+savings accounts to be able to observe their spending and savings behaviour. The
 next few steps are all aimed at selecting users about whom we can be reasonably
 sure that they have added all their financial accounts. We thus select on
 criteria we would expect to see for all such users: an annual income of at
@@ -105,9 +108,9 @@ least \pounds5,000, at least 10 monthly spending transaction, at least 4
 monthly grocery transactions, and a total monthly spend of at least \pounds200.
 Finally, we keep only users for whom we observe all relevant demographic
 characteristics, and who are between 18 and 65 years old. The reason for the
-last step is that younger users and retirees will plausibly have different
-fianncial objectives than people in their working age, which is the population
-we are interested about.\footnote{The code that implements the selection
+last step is that younger users and retires will plausibly have different
+financial objectives than people in their working age, which is the population
+we are interested in.\footnote{The code that implements the selection
 criteria is available on
 \href{https://github.com/fabiangunzinger/entropy/blob/c49c9c34c96d073725afd3a1494458a388d00051/src/data/selectors.py}{Github}.}
 
@@ -115,34 +118,42 @@ criteria is available on
 \subsection{Dependent variables}
 \label{sub:dependent_variables}
 
-Our outcome variable is biniry indicator for whether of not a user made a
+Our outcome variable is a binary indicator for whether of not a user made a
 payment into any of their savings account in a given month. We classify as
 payments into savings accounts all savings account credits of \pounds5 or
-more.\footnote{While standing order transactions are unlikely to be related to
-entropy in the short-run, we do not exclude such transactions since, best we
-can tell, the only account for a small fraction of total transactions.}
+more.
 
-The reason we focus on a binary indicator is twofold: first, becaus we
+Such transactions will include those that are intended for purposes other than
+building to deal with unexpected financial shocks. For instance, users might
+transfer money to their savings accounts to save for a particular goal, such as
+new car, a holiday, or a wedding. While Money Dashboard allows users to create
+custom tags for transactions that might, in principle, be helpful to
+distinguish between these different types of savings transactions, only a very
+small number of transactions actually have such tags, so that we cannot use
+them to identify emergency savings more precisely. As a result, we refer to all
+observed transactions into savings accounts as emergency savings.
+
+The reason we focus on a binary indicator is twofold: first, because we
 hypothesis that chaotic or difficult life circumstances that are also reflected
 in spending entropy might make it harder to remember to save, for which the
-accurate thest is to see whether spending entropy is related to the likelihood
-of making ang savings transctions. Second, research by \citet{mps2018building}
-suggests that to build up sufficient emergency funds over time forming a habit
+accurate test is to see whether spending entropy is related to the likelihood
+of making a savings transaction. Second, research by the UK's Money and Pension
+Service suggests that to build up sufficient emergency funds over time forming a habit
 of saving regularly is more important than the specific amounts saved month to
-month.
+month \citep{mps2018building}.
 
 \subsection{Spending profiles}%
 \label{sub:spending_profiles}
 
 We define a user's spending profile as the distribution of the number of
-spending transactionas across different spend categories. To summarise these
+spending transactions across different spend categories. To summarise these
 distributions, we calculate spending entropy, based on the formula proposed by
 \citet{shannon1948mathematical}, who defines entropy as $H =
 -\sum{p_i}log(p_i)$, which sums, for all possible events, the product of the
-probability of an event $i$ occuring with the logarithm of that
+probability of an event $i$ occurring with the logarithm of that
 probability.\footnote{Shannon entropy is customarily denoted as $H$ following
 Shannon's own naming after Ludwig Boltzman's 1872 H-theorem in statistical
-mechanics, to which it is analagous.} The base of the logarithm is often chosen
+mechanics, to which it is analogous.} The base of the logarithm is often chosen
 to be 2, though other choices are possible. Entropy is a cornerstone of
 information theory, where it measures the amount of information contained in an
 event. In the behavioural sciences, behavioural entropy has recently been shown
@@ -160,7 +171,7 @@ H = -\sum_{c \in \setc}{p_c}log(p_c),
 
 \noindent where $\setc$ is the set of all spending categories, $p_c$ the
 probability that an individual makes a purchase in spending category $c$, and
-$log$ the base 2 logarithm.
+$log$ the base 2 logarithm, which expresses entropy in bits.
 
 Higher entropy means that transactions are more equal across different spending
 categories, which makes it hard to predict the next transaction, whereas low
@@ -207,7 +218,7 @@ categories with positive transaction counts only.\footnote{This is
     \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.entropy.html}{implementation}
 of Python's SciPy package, which is what we use to calculate entropy scores.}
 To calculate ``smoothed'' entropy scores, we apply additive smoothing to
-calculate propabilities as
+calculate probabilities as
 
 \begin{equation}
     \label{equ:prob_s}
@@ -216,7 +227,7 @@ calculate propabilities as
 
 \noindent where the size of set $\setc$, $|\setc|$, is the number of unique
 spending categories. Hence, additive smoothing simply adds one to the numerator
-and the number of unqiue spending categories to the denominator of the
+and the number of unique spending categories to the denominator of the
 unsmoothed probabilities. Because categories with a zero transaction count will
 have a numerator of 1, the sum in Equation~\ref{equ:entropy} will be taken over
 all categories.
@@ -244,7 +255,7 @@ transactions in the Money Dasbhoard data.
 \input{\tabdir/sumstats.tex}
 \tabnote{\textwidth}{Summary statistics for main variables used in analysis and
     user characteristics. Unique categories refer to the number of distinct
-    spending categories that invididuals made purchases in within a given
+    spending categories that individuals made purchases in within a given
     month for spending transaction categorisation based on 9 categories, 48
 categories, and merchant names.}
 \end{table}
@@ -269,7 +280,7 @@ observed periods, and have at least some income in 98 percent of those periods.
 As discussed above, our sample is skewed towards men in their 20s, 30s, and
 40s, who live in urban areas, mainly the South East of England. Mean monthly
 spend is \pounds2,000 and the median is \pounds2,200, and the average
-invididual spends money across 27 different merchants in 16 different
+individual spends money across 27 different merchants in 17 different
 categories (of the 48 category classification).
 
 \begin{figure}[ht] \centering \caption{Entropy distributions}
@@ -282,7 +293,7 @@ categories (of the 48 category classification).
     \includegraphics[width=.49\textwidth]{\figdir/breakdown_tag_spend.pdf}
     \fignote{\textwidth}{The top row shows distributions of unsmoothed and
         smoothed versions of entropy. The middle row shows associated spending
-        profiles for individuals in the first, third, and fifth quintile of tne
+        profiles for individuals in the first, third, and fifth quintile of the
         entropy distribution. Spending category labels are deliberately omitted
         to not overcrowd the plots and to focus on the distribution of
         transaction counts. The bottom row shows the distributions of spend and

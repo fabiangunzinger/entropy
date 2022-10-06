@@ -21,34 +21,35 @@ vars <- c(
   "^age$",
   "^month_income$",
   "^has_month_income$",
-  "^has_inflows$",
   "^nunique_tag_spend$",
   "^nunique_tag$",
-  "^nunique_merchant$",
+  "^nunique_merchant$"
 )
 
 varlabs <- c(
-  "Month income",
+  "Month income (\\pounds'000)",
   "Has income in month",
   "Makes savings txns.",
-  "Month spend",
-  "Age",  
+  "Month spend (\\pounds'000)",
+  "Age (years)",  
   "Female",
-  "Urban",  
+  "Urban",
   "Unique categories (9)",
   "Unique categories (48)",
   "Unique categories (Merch.)"
 )
 
 
-tabname <- 'sumstats.tex'
-stargazer(
+# Workaround to handle pounds sign. See link below.
+# https://github.com/markwestcott34/stargazer-booktabs/issues/3
+tab <- stargazer(
   df,
   summary.stat = c('mean', 'sd', 'min', 'p25', 'median', 'p75', 'max'),
   digits = 2,
-  float = FALSE,
   keep = vars,
   covariate.labels = varlabs,
-  out = file.path(TABDIR, tabname)
+  float = FALSE
 )
+tabname <- 'sumstats.tex'
+cat(tab, sep = '\n', file = file.path(TABDIR, tabname))
 

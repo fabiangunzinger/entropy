@@ -210,8 +210,8 @@ spend_profile <- function(data, varname) {
     geom_bar(stat = "identity", position = "dodge") +
     labs(
       x = spendlabs[[varname]],
-      y = "Average number of transactions",
-      fill = "Entropy\nquintile"
+      y = "Number of transactions",
+      fill = "Entropy\nquintile\n(mean)"
       ) +
     theme(
       axis.text.x = element_blank(),

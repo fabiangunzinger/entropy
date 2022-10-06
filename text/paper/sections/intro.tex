@@ -3,127 +3,114 @@
 \section{Introduction}%
 \label{sec:introduction}
 
-\edit{Ignore this section for now. Below are notes.}
+This paper documents variation in spending profiles -- the way spending
+transactions are allocated across product of merchant categories -- for a large
+set of users of a financial management app and shows that spending profiles
+predict ``emergency savings'' -- short-term savings intended as a buffer
+against unexpected financial shocks.
 
-This paper documents variations in spending profiles and payments into
-emergency savings for a large set of users of a financial management app
-and shows that spending profiles predict emergency savings.
+Emergency savings are distinct from long-term savings aimed to build up funds
+for retirement, either through individually owned pension and investment
+vehicles or employer-linked pension schemes. Both kinds of saving are important
+for financial wellbeing \citep{mps2018building, cfpb2017financial}, yet while
+there is a large literature on pension savings -- particularly on the effect on
+auto-enrollment on savings plan participation -- little is known about how
+individuals save for the short-term.\footnote{For main contributions to the to
+literature on auto-enrollment into savings plans, see \citet{madrian2001power,
+choi2002defined, choi2004better, beshears2009importance}.} Apart from
+\citet{beshears2020building}, who study design options for automated
+contributions to emergency saving pots, and \citet{phillips2021supporting}, who
+test such a design in the UK, there is no research on how we can help
+individuals build such emergency savings. Furthermore, around a quarter of
+adults in the UK and the US are unable to cover irregular expenses like car and
+medical bills: in the UK, 25 percent of adults would be unable to cover an
+unexpected bill of \pounds300 \citep{phillips2021supporting}, while in the US,
+about 30 percent would be unable to cover a \$400 bill \citep{fed2022economic}.
+Research from the UK suggests, however, that even having \pounds1000 in savings
+reduces by more than half a household's chances of falling into debt that leads
+to financial problems \citep{phillips2021supporting}.
 
-We define emergency savings as inflows into savings accounts. These savings
-will be made up of savings for particular goals -- a new car, a holiday, a
-wedding -- and savings directed towards building up a buffer for financial
-emergencies. Because in our data we cannot distinguish between these two cases,
-we refer to all of them as emergency savings.\footnote{MDB allows users to
-    create custom tags and some users use them to indicate the intended use for
-    their savings transactions (e.g. ``wedding'', ``holidays''). But only a very
-small number of transactions have such tags, and we do not pursue this
-further.} These short-term savings are distinct from long-term savings aimed to
-build up funds for retirement, either through individually owned pension and
-investment vehicles or employer-linked pension schemes. Both kinds of saving
-are important for financial well-being, yet while there is a large literature
-on pension savings, little is known about how individuals save for the
-short-term.\footnote{Well-documented behavioural biases that help explain
-    undersaving for pensions are, among others, present bias
-    \citep{laibson1997golden, laibson2019intertemporal}, inertia
-    \citep{madrian2001power}, over-extrapolation \citep{choi2009reinforcement},
-    and limited self-control and willpower \citep{thaler1981economic,
-    benhabib2005modeling, fudenberg2006dual, loewenstein2004animal,
-gul2001temptation}. One danger of viewing low savings mainly as a result of
-behavioural biases is that while these biases likely do play some role and
-designing environments and tools to help correct them are thus part of the
-solution, it is at least conceivable that this is an area where the focus on
-behaviour-level solutions distracts from an effort to find more effective
-society-level solutions, a danger inherent in behavioural science research
-convincingly highlighted in \citet{chater2022frame}: if the main problem is
-that many individuals are unable to earn enough to save, then the effectiveness of
-helping them manage their low incomes more effectively pales in comparison with
-efforts to help them earn more.}
+There is a large literature on the determinants of financial behaviour, and
+some of the main factors that have been identified to influence have
+individuals and households make financial decisions are: cognitive limitations
+and financial literacy \citep{agarwal2009age, agarwal2013cognitive,
+    korniotis2011older, agarwal2010learning, fernandes2014financial,
+    jorring2020financial}; time-preferences and self-control
+    \citep{frederick2002time, read2018intertemporal, ericson2019intertemporal,
+    cohen2020measuring}; attitude towards money and spending
+    \citep{rick2008tightwads, rick2011fatal}; ones perceived locus of control
+    \citep{perry2005control}, degree of optimism \citep{puri2007optimism},
+    ability to frame decisions broadly rather than narrowly
+    \citep{kumar2008decision}, and propensity to gamble
+    \citep{kumar2009gambles}; ones social network \citep{bailey2018economic,
+        kuchler2021social}; the degree of ones financial planning
+        \citep{ameriks2003wealth}; and habits \citep{blumenstock2018defaults,
+            schaner2018persistent, de2013deposit}.\footnote{For two thorough
+        reviews, see \citet{agarwal2017shapes} and
+    \citet{greenberg2019financial}.}
 
-Studying the determinants of emergency savings is important because around a
-quarter of adults in the UK and the US are unable to cover irregular expenses
-like car and medical bills: In the UK, 25 percent of adults would be unable to
-cover an unexpected bill of \pounds300 \citep{philipps2021supporting}, while in
-the US, about 30 percent would be unable to cover a \$400 bill
-\citep{fed2022economic}. Similarly, resarch in the UK has shown that having
-\pounds1000 in savings reduces by more than half a household's chances of
-falling into debt that leads to financial problems
-\citep{philipps2021supporting}.
+In this paper, we use simple summary statistics of individuals' spending
+profiles and test whether differences in spending profiles are predictive of
+the frequency with which individuals make transactions into their savings
+accounts. To summarise spending profiles, we calculate the entropy of an
+individual's spending profile in a given period, which captures the
+predictability of spending transactions in said period. We focus on spending
+profiles for two reasons: first, our understanding of how individuals spend
+their money is largely based on survey data from a relatively small number of
+individuals. Large-scale transaction data of the type used in this paper has
+become available to researchers only in recent years and has not, to the best
+of our knowledge, been used to explore patterns in consumer spending behaviour. 
 
+Second, research suggests that spending profiles might reflect circumstances in
+an individual's life that are also related to their saving behaviour. For
+instance, \citet{muggleton2020evidence} find that higher spending entropy
+predicts financial distress, and hypothesise that this is because disorder in
+ones personal life might simultaneously be reflected in ones spending behaviour
+and make it harder to deal with financial obligations, based on a literature in
+psychology that suggests that disorder is associated with a range of negative
+outcomes such as impaired executive function \citep{vernon2016predictors},
+lower cognitive inhibition \citep{mittal2015cognitive}, and activation of
+anxiety-related neural circuits \citep{hirsh2012psychological}. In addition to
+financial outcomes, high entropy behaviour has also been found to be associated
+with higher calorie intake \citep{skatova2019those} and with a higher number of
+visits to and higher spend in supermarkets \citep{guidotti2015behavioral}.
 
-Studying spending profiles is of interest because:
-\begin{itemize}
+Our results show that spending entropy is predictive of the frequency of
+savings transactions, with an effect size similar to that of an increase in
+monthly income income of between \pounds1,000 and \pounds2,000. This holds true
+if we control for simple component parts of entropy, suggesting that the
+non-linear way in which entropy combines these components captures something
+about spending profiles that is of relevance. The results are also largely
+consistent across entropy measures calculated based on different product and
+merchant categories. However, they direction of the effect changes for
+different types of entropy that differ in the way in which we treat product or
+merchant categories in which an individual makes no transactions in a given
+period. Exploratory research suggests that the number of such zero count
+categories, together with the variation of counts for categories with a
+positive number of transactions, goes some way in explaining the outcome. But
+more work is necessary to more fully understand this outcome, which we leave
+for future research.
 
-    \item Our understanding of how individuals spend their money is based on survey
-        data.
+Apart from the small literature on emergency savings mentioned above, our work
+contributes to a broader literature that uses financial-transaction data
+from banks or financial aggregator apps to understand consumer financial
+behaviour. For instance, \citet{kuchler2020sticking} use data from a
+financial aggregator app to estimate time preferences. Similar data has been
+used to show that consumer spending varies across the pay cycle
+\citep{gelman2014harnessing,olafsson2018liquid}, to test the consumer spending
+response to exogenous shocks \citep{baker2018debt,baugh2014disentangling}, and
+to better understand the generational differences in financial platform usage
+patterns \citep{carlin2019generational}. Some researchers use transaction-data
+directly provided by banks. \citet{ganong2019consumer} show that consumer
+spending drops sharply after the predictable income drop from exhausting
+unemployment insurance benefits, \citet{meyer2018fully} analyse how individuals
+reinvest realised capital gains and losses, and \citet{muggleton2020evidence}
+show that chaotic spending behaviour is a harbinger of financial
+distress.\footnote{For a comprehensive review of the literature using financial
+transaction data, see \citet{baker2022household}.}
 
-    \item Large-scale transaction-level data offers the possibility to study
-        spending behaviour based on real-time data that are automatically
-        collected for a large number of individuals. Such data has only become
-        available ver recently and have not, thus far, been used to investigate
-        systematically how individuals spend their money.
-
-    \item Research in psychology suggests that disorder is maladaptive and
-        associated with a range of negative outcomes such as impaired executive
-        function \citep{vernon2016predictors}, lower cognitive inhibition
-        \citep{mittal2015cognitive}, and activation of anxiety-related neural
-        circuits \citep{hirsh2012psychological}. In the study of human
-        behaviour, more chaotic behaviour has been found to predict the a
-        higher number of visits to and higher spend in supermarkets
-        \citep{guidotti2015behavioral}, higher calorie intake
-        \citep{skatova2019those} and financial distress
-        \citep{muggleton2020evidence}.
-
-\end{itemize}
-
-
-We hypothesise that less predictable spending patterns are associated with a
-lower probability for making payments into emergency savings accounts. Possible
-channels:
-\begin{itemize}
-    \item Disorder (personal life or environment): leads to more impulsive
-        shopping behaviour and makes forgetting to save more likely.
-
-    \item Scarcity: life challenges focus attention away from deliberate
-        shopping, causing hore impulse purchases, and make fortetting to save
-        more likely.
-\end{itemize}
-
-
-
-What we do: 
-\begin{itemize}
-
-    \item Systematically documenting emergency savings patterns.
-
-    \item Systematically documenting variation in spending profiles.
-
-    \item Showing that unpredictability in spending profiles is
-        associated with lower emergency savings.
-
-\end{itemize}
-
-
-Contribution to literatures:
-\begin{itemize}
-
-    \item Understanding emergency savings behaivour (nest, aspen
-        reports), \citep{sabat2019rules} for sources on short-term savings
-        literature, \citet{colby2013savings} for lit on savings goals.  See
-        \citet{colby2013savings} has useful literature review on short-term
-        savings and suggests that subgoals can increase willingness to forego
-        short-amounts in the present because they move the reference point in a
-        prospect-theory framework. \citet{philipps2021supporting} present
-        results from an employer-linked initiative that offers employees to
-        have a portion of their salary automatically transferred into a savings
-        pot. Policy literature: \citep{can2019improving,cfpb2017financial,
-        mps2018building}. Older literature:Savings lit:
-        \citet{lunt1991psychological, oaten2007improvements}
-
-    \item Understanding effect of behavioural entropy - eliciting
-        useful personality characteristics from large-scale data.
-
-    \item Use of high-frequency transaction data (itself a
-        sub-literature of use of newly available large-scale datasets).
-
-\end{itemize}
+The remainder of this paper is organised as follows: Section~\ref{sec:methods}
+discusses data pre-processing and our methodological approach,
+Section~\ref{sec:results} presents the main results and further exploratory
+analysis, and Section~\ref{sec:conclusion} concludes.
 
