@@ -209,6 +209,7 @@ calculate what we call ``unsmoothed'' entropy scores, we calculate the $p_c$s
 in Equation~\ref{equ:entropy} as simple frequentist probabilities
 
 \begin{equation}
+    \label{equ:prob_us}
     p_c = \frac{f_c}{F},
 \end{equation}
 
@@ -229,11 +230,10 @@ calculate probabilities as
 \end{equation}
 
 \noindent where the size of set $\setc$, $|\setc|$, is the number of unique
-spending categories. Hence, additive smoothing simply adds one to the numerator
-and the number of unique spending categories to the denominator of the
-unsmoothed probabilities. Because categories with a zero transaction count will
-have a numerator of 1, the sum in Equation~\ref{equ:entropy} will be taken over
-all categories.
+spending categories. Hence, we simply increment all frequency counts by one and
+then calculate probabilities as in Equation~\ref{equ:prob_us}. Because
+categories with a zero transaction count will have a numerator of 1, the sum in
+Equation~\ref{equ:entropy} will be taken over all categories.
 
 
 \subsection{Summary statistics}%
