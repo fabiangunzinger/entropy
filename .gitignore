@@ -1,7 +1,12 @@
 
 # misc.
 
+docs/
+*.pdf
 *.tags
+.Rhistory
+.travis.yml
+entropy.Rproj
 
 
 # Created by https://www.toptal.com/developers/gitignore/api/python,latex
