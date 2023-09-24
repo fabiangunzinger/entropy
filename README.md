@@ -5,7 +5,7 @@ between how people spend their money and how much they save.
 
 Overview of main directories: 
 
-`entropy`: all scripts to create the dataset and perform the analysis.
+`src`: all scripts to create the dataset and perform the analysis.
 
 `notebooks`: exploratory Jupyter notebooks.
 
