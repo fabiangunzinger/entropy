@@ -41,22 +41,6 @@ meaningfully different from zero, but the estimates for the measures based on
 of the effect is between 1.2 and 2.1 percentage points -- equalling the effect
 of a reduction of monthly income of between \pounds1000 and \pounds2000.
 
-\begin{landscape}
-    \begin{table}[ht]
-        \centering\scriptsize
-        \caption{Effect of entropy on P(savings transactions)}
-        \label{tab:main}
-        \input{\tabdir/reg_has_inflows_main.tex}
-        \tabnote{1.2\textwidth}{Results from estimating
-            Equation~\ref{equ:model}. The
-                dependent variable in all columns is a dummy variable
-                indicating whether a
-                    user made at least one transaction into any of their
-                    savings accounts in a
-                given period. \regtabinfo}
-    \end{table}
-\end{landscape}
-
 As discussed in Section~\ref{sub:estimation}, these results are not due to
 reverse causality. While we might think that making a savings transactions
 might change some or all of the components of entropy discussed in
@@ -87,8 +71,23 @@ is predictive of savings behaviour. The obvious question raised by the results
 is why smoothing entropy scores flips the direction of the effect of entropy.
 We address this next.
 
+\begin{landscape}
+    \begin{table}[ht]
+        \centering\scriptsize
+        \caption{Effect of entropy on P(savings transactions)}
+        \label{tab:main}
+        \input{\tabdir/reg_has_inflows_main.tex}
+        \tabnote{1.2\textwidth}{Results from estimating
+            Equation~\ref{equ:model}. The
+                dependent variable in all columns is a dummy variable
+                indicating whether a
+                    user made at least one transaction into any of their
+                    savings accounts in a
+                given period. \regtabinfo}
+    \end{table}
+\end{landscape}
 
-\subsection{Why does smoothing flip the direction of the effect}%
+\subsection{Why does smoothing flip the direction of the effect?}%
 \label{sub:why_does_smoothing_flip_the_direction_of_the_effect}
 
 One way to think about the sign change in Table~\ref{tab:main} is to realise
@@ -238,7 +237,7 @@ by the three simpler components.
 \begin{landscape}
 \begin{table}[ht]
 \centering\scriptsize
-\caption{Controlling for components}
+\caption{Effect of controlling for components}
 \label{tab:components}
 \input{\tabdir/reg_has_inflows_comp.tex}
 \tabnote{1.5\textwidth}{\regtabinfo}
