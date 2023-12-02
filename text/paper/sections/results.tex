@@ -93,9 +93,7 @@ We address this next.
 One way to think about the sign change in Table~\ref{tab:main} is to realise
 that it implies that at least for some individuals, the relative rank of
 smoothed and unsmoothed entropy must differ considerably -- there must be some
-individuals that have low unsmoothed entropy but high smoothed entropy or some
-that have high unsmoothed entropy and low smoothed entropy or both.
-Understanding who those individuals are might thus help us understand the sign
+individuals that have high smoothed but low unsmoothed entropy or some that have low smoothed and high unsmoothed entropy or a mixture of both types. Understanding who those individuals are might thus help us understand the sign
 flip.
 
 To understand rank differences between unsmoothed and smoothed entropy scores
@@ -236,19 +234,12 @@ by the three simpler components.
 
 We can test this by checking whether the relationship between spending entropy
 and the probability of making a savings transaction remains economically and
-statistically significant once we control for the three components. Columns (1)
-and (3) in Table~\ref{tab:components} replicate the results for the 48-category-based
-unsmoothed and smoothed entropy measures presented in Table~\ref{tab:main} for
-reference. In columns (2) and (4) we additionally control for the three entropy
-components. Including these components has some effect: the coefficients change
-slightly -- decreasing in absolute magnitude in the case of unsmoothed entropy,
-increasing in the case of smoothed entropy -- while the width of the confidence
-intervals about double in both cases, reflecting the strong collinearity amount
-the component and entropy. However, both coefficients remain statistically
+statistically significant once we control for the three components. Uneven columns in Table~\ref{tab:components} replicate the results presented in Table~\ref{tab:main} for reference, while even columns show results for the same model as the column to their left but with the addition of the component parts. Including these components has some effect: the results for unsmoothed entropy based on 9 categories as well as for unsmoothed merchant-based entropy (not shown) become insignificant, some of the coefficients change slightly, and the width of the confidence intervals increases, the last of which is a reflection of the strong collinearity among entropy and its component parts.
+
+However, overall, the coefficients remain statistically
 significant and their confidence intervals cover values that are also
-economically significant. Hence, the results make clear that the results in
-Table~\ref{tab:main} cannot be attributed simply to the effect of one or more
-of entropy's simple components.
+economically significant, demonstrating that the results in Table~\ref{tab:main} cannot be attributed simply to the effect of one or more
+of entropy's simple components, but are driven by the non-linear nature of our entropy measures.
 
 \begin{landscape}
 \begin{table}[ht]
