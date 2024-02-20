@@ -7,7 +7,9 @@ source('src/helpers/helpers.R')
 
 
 # Load data and add lagged entropy variables
-df <- read_analysis_data() %>% 
+
+# df <- read_analysis_data() %>%    # AWS not working for some reason
+df <- arrow::read_parquet('~/tmp/phd/entropy.parquet')
   group_by(user_id) %>% 
   mutate(
     across(contains('entropy'), ~lag(.x, n=1), .names = "{.col}_lag"),
@@ -18,7 +20,7 @@ df <- read_analysis_data() %>%
     ) %>% 
   ungroup()
 
-
+  
 setFixest_fml(
   ..endog = ~has_sa_inflows,
   ..comps = ~txns_count_spend + nunique_tag_spend + std_tag_spend,
@@ -81,6 +83,15 @@ for (y in yvars) {
     )
   )
 }
+
+entropy_vars(df)
+
+# tmp additional check for why I didn't include merchant entropy
+r <- feols(has_inflows ~ entropy_merchant_z + sw0(..comps) + ..controls | ..fe, df)
+etable(r)
+
+
+
 
 
 # Entropy on components -----------------------------------------------------------
