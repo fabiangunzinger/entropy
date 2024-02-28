@@ -3,11 +3,16 @@
 \section{Introduction}%
 \label{sec:introduction}
 
-This paper documents variation in spending profiles -- the way spending
+{\color{red} This paper documents variation in spending profiles -- the way spending
 transactions are allocated across product of merchant categories -- for a large
 set of users of a financial management app and shows that spending profiles
 predict ``emergency savings'' -- short-term savings intended as a buffer
-against unexpected financial shocks.
+against unexpected financial shocks.}
+
+{\color{blue} This paper shows that spending profiles -- the way spending
+transactions are allocated across product of merchant categories --
+predict ``emergency savings'' -- short-term savings intended as a buffer
+against unexpected financial shocks.}
 
 Emergency savings are distinct from long-term savings aimed to build up funds
 for retirement, either through individually owned pension and investment
@@ -54,14 +59,14 @@ profiles and test whether differences in spending profiles are predictive of
 the frequency with which individuals make transactions into their savings
 accounts. To summarise spending profiles, we calculate the entropy of an
 individual's spending profile in a given period, which captures the
-predictability of spending transactions in said period. We focus on spending
-profiles for three reasons: first, our understanding of how individuals spend
+predictability of spending transactions in said period.
+
+We focus on spending
+profiles for two reasons: first, our understanding of how individuals spend
 their money is largely based on survey data from a relatively small number of
 individuals. Large-scale transaction data of the type used in this paper has
 become available to researchers only in recent years and has not, to the best
-of our knowledge, been used to explore patterns in consumer spending behaviour. 
-
-Second, research suggests that spending profiles might reflect circumstances in
+of our knowledge, been used to explore patterns in consumer spending behaviour. Second, research suggests that spending profiles might reflect circumstances in
 an individual's life that are also related to their saving behaviour. For
 instance, \citet{muggleton2020evidence} find that higher spending entropy
 predicts financial distress, and hypothesise that this is because disorder in
@@ -75,12 +80,18 @@ financial outcomes, high entropy behaviour has also been found to be associated
 with higher calorie intake \citep{skatova2019those} and with a higher number of
 visits to and higher spend in supermarkets \citep{guidotti2015behavioral}.
 
-Finally, we think of our focus on spending profile as a proof of concept for
+{\color{red} Finally, we think of our focus on spending profile as a proof of concept for
 the broader agenda of testing whether we can extract simple summary statistics
 from large-scale transaction data that capture relevant information about
 individuals' life circumstances. If successful, such information could be used
 in the design of financial management apps to provide timely and customised
-assistance to users when they need it most.
+assistance to users when they need it most.}
+
+{\color{blue} We use entropy as a summary measure for spending profiles because the concept of entropy -- a cornerstone of information theory, first introduced in \citet{shannon1948mathematical} -- because recent application in behavioural science have shown promising results. It has, for instance, been shown
+to predict the frequency of grocery visits and the per-capita spend per visit
+\citep{guidotti2015behavioral}, the amount of calories consumed
+\citep{skatova2019those}, and the propensity for financial distress
+\citep{muggleton2020evidence}.}
 
 Our results show that spending entropy is predictive of the frequency of
 savings transactions, with an effect size similar to that of an increase in
@@ -89,10 +100,19 @@ if we control for simple component parts of entropy, suggesting that the
 non-linear way in which entropy combines these components captures something
 about spending profiles that is of relevance. The results are also largely
 consistent across entropy measures calculated based on different product and
-merchant categories. However, they direction of the effect changes for
+merchant categories.
+
+{\color{red} However, the direction of the effect changes for
 different types of entropy that differ in the way in which we treat product or
 merchant categories in which an individual makes no transactions in a given
-period. Exploratory research suggests that the number of such zero count
+period. }
+
+{\color{blue} However, the direction of the effect changes for
+different types of entropy, depending on how we treat product or
+merchant categories in which an individual makes no transactions in a given
+period.}
+
+Exploratory research suggests that the number of such zero count
 categories, together with the variation of counts for categories with a
 positive number of transactions, goes some way in explaining the outcome. But
 more work is necessary to more fully understand this outcome, which we leave

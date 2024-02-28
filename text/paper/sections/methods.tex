@@ -56,9 +56,11 @@ app. Dropping these transactions makes it likely that we will underestimate
 amounts spent and saved, but minimises the risk of incorrectly classified
 transactions. We also group transactions into transfer, spend, and income
 subgroups, following \citet{muggleton2020evidence} to define spend subgroups
-and \citet{hacioglu2021distributional} to define income subgroups.\footnote{
+and \citet{hacioglu2021distributional} to define income subgroups. {\color{blue}
 The precise list used to classify transactions is available on
-\href{https://github.com/fabiangunzinger/entropy/blob/27a210e2f42dfe23a867dbc20c8ef3253d050aaa/src/data/txn_classifications.py}{Github}.}
+\href{https://github.com/fabiangunzinger/entropy/blob/27a210e2f42dfe23a867dbc20c8ef3253d050aaa/src/data/txn_classifications.py}{Github}.} \footnote{{\color{red}
+The precise list used to classify transactions is available on
+\href{https://github.com/fabiangunzinger/entropy/blob/27a210e2f42dfe23a867dbc20c8ef3253d050aaa/src/data/txn_classifications.py}{Github}.}}
 Finally, we classify as duplicates and drop transactions with identical user
 ID, account ID, date, amount, and transaction description. This will drop some
 genuine transactions, such as when a user buys two identical cups of coffees at
@@ -356,7 +358,7 @@ period $t$, $x_{i,t}$ a vector of control variables, $\alpha_i$ an individual
 fixed effect, $\lambda_t$ a year-month fixed effect, and $\epsilon_{i, t}$ the
 error term.
 
-The vector of controls includes month spend, month income, an indicator for
+The vector of controls {\color{red} includes} {\color{blue} comprises} month spend, month income, an indicator for
 whether a user had positive income in a given month, and income
 variability, calculated as the standard deviation of month income over the
 previous 12 months.
